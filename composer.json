@@ -6,7 +6,7 @@
         "php": "^7.1.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "league/flysystem-bundle": "dev-master",
+        "league/flysystem-bundle": "^1.0",
         "sensio/framework-extra-bundle": "^5.3@dev",
         "symfony/console": "4.3.*",
         "symfony/dotenv": "4.3.*",
@@ -15,7 +15,7 @@
         "symfony/orm-pack": "dev-master",
         "symfony/serializer-pack": "dev-master",
         "symfony/validator": "4.3.*",
-        "symfony/webpack-encore-bundle": "dev-master",
+        "symfony/webpack-encore-bundle": "^1.5",
         "symfony/yaml": "4.3.*"
     },
     "config": {

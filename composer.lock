@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "22003357f67ac5c5ae9187fb00414bc1",
+    "content-hash": "64bed0fc9e2014d6ecd833003c1304e3",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1373,7 +1373,7 @@
         },
         {
             "name": "league/flysystem-bundle",
-            "version": "dev-master",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem-bundle.git",
@@ -3989,7 +3989,7 @@
         },
         {
             "name": "symfony/webpack-encore-bundle",
-            "version": "dev-master",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/webpack-encore-bundle.git",
@@ -5087,11 +5087,9 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "league/flysystem-bundle": 20,
         "sensio/framework-extra-bundle": 20,
         "symfony/orm-pack": 20,
         "symfony/serializer-pack": 20,
-        "symfony/webpack-encore-bundle": 20,
         "symfony/debug-pack": 20,
         "symfony/maker-bundle": 20
     },
