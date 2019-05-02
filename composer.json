@@ -12,6 +12,7 @@
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "4.3.*",
         "symfony/orm-pack": "dev-master",
+        "symfony/serializer-pack": "dev-master",
         "symfony/webpack-encore-bundle": "dev-master",
         "symfony/yaml": "4.3.*"
     },
