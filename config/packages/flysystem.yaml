@@ -4,4 +4,4 @@ flysystem:
         photo.filesystem:
             adapter: 'local'
             options:
-                directory: '%kernel.project_dir%/public/photos'
+                directory: '%kernel.project_dir%/public/uploads/images'
