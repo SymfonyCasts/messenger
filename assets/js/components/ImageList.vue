@@ -1,9 +1,11 @@
 <template>
   <div>
     <ul>
-      <li v-for="image in images">
-        {{ image.id }}
-      </li>
+      <imageItem
+          v-for="image in images"
+          v-bind:key="image.id"
+          v-bind:url="image.url"
+      ></imageItem>
     </ul>
     <div>
       {{ info }}
@@ -13,8 +15,12 @@
 
 <script>
   import axios from 'axios';
+  import imageItem from './ImageItem';
 
   export default {
+    components: {
+        imageItem: imageItem
+    },
     data () {
       return {
         images: [

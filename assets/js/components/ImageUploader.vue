@@ -9,7 +9,6 @@
     import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 
     export default {
-        name: 'app',
         components: {
             vueDropzone: vue2Dropzone
         },
