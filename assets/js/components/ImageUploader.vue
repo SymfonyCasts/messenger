@@ -2,6 +2,7 @@
     <div>
         <vue-dropzone
             id="dropzone"
+            v-on:vdropzone-success="onDropzoneSuccess"
             :options="dropzoneOptions"
         ></vue-dropzone>
     </div>
@@ -14,6 +15,11 @@
     export default {
         components: {
             vueDropzone: vue2Dropzone
+        },
+        methods: {
+            onDropzoneSuccess(file, response) {
+                this.$emit('new-image', response);
+            }
         },
         data: function () {
             return {

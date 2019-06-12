@@ -1,6 +1,8 @@
 <template>
     <div>
-        <imageUploader></imageUploader>
+        <imageUploader
+            v-on:new-image="onNewUploadedImage"
+        ></imageUploader>
         <imageList
             v-bind:images="images"
         ></imageList>
@@ -16,6 +18,11 @@
         components: {
             imageList,
             imageUploader
+        },
+        methods: {
+            onNewUploadedImage(image) {
+                this.images.unshift(image);
+            }
         },
         data() {
             return {
