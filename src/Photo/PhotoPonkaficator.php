@@ -17,6 +17,7 @@ class PhotoPonkaficator
     public function ponkafy(ImagePost $imagePost)
     {
         $imagePost->markAsPonkaAdded();
+        sleep(2);
 
         $this->entityManager->flush();
     }
