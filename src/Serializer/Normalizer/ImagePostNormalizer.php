@@ -4,6 +4,7 @@ namespace App\Serializer\Normalizer;
 
 use App\Entity\ImagePost;
 use App\Photo\PhotoUploaderManager;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -12,11 +13,13 @@ class ImagePostNormalizer implements NormalizerInterface, CacheableSupportsMetho
 {
     private $normalizer;
     private $uploaderManager;
+    private $router;
 
-    public function __construct(ObjectNormalizer $normalizer, PhotoUploaderManager $uploaderManager)
+    public function __construct(ObjectNormalizer $normalizer, PhotoUploaderManager $uploaderManager, UrlGeneratorInterface $router)
     {
         $this->normalizer = $normalizer;
         $this->uploaderManager = $uploaderManager;
+        $this->router = $router;
     }
 
     /**
@@ -26,6 +29,12 @@ class ImagePostNormalizer implements NormalizerInterface, CacheableSupportsMetho
     {
         $data = $this->normalizer->normalize($imagePost, $format, $context);
 
+        // a custom, and therefore "poor" way of adding a link to myself
+        // formats like JSON-LD (from API Platform) do this in a much
+        // nicer and more standardized way
+        $data['@id'] = $this->router->generate('get_image_post_item', [
+            'id' => $imagePost->getId(),
+        ]);
         $data['url'] = $this->uploaderManager->getPublicPath($imagePost);
 
         return $data;

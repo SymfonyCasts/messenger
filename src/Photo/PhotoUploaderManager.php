@@ -48,6 +48,14 @@ class PhotoUploaderManager
         return $newFilename;
     }
 
+    public function deleteImage(string $filename): void
+    {
+        // make it a bit slow
+        sleep(3);
+
+        $this->filesystem->delete($filename);
+    }
+
     public function getPublicPath(ImagePost $imagePost): string
     {
         return $this->publicAssetBaseUrl.'/'.$imagePost->getFilename();

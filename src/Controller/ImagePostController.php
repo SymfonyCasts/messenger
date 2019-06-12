@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -58,6 +59,27 @@ class ImagePostController extends AbstractController
         $ponkaficator->ponkafy($imagePost);
 
         return $this->json($imagePost, 201);
+    }
+
+    /**
+     * @Route("/api/images/{id}", methods="DELETE")
+     */
+    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoUploaderManager $uploaderManager)
+    {
+        $uploaderManager->deleteImage($imagePost->getFilename());
+
+        $entityManager->remove($imagePost);
+        $entityManager->flush();
+
+        return new Response(null, 204);
+    }
+
+    /**
+     * @Route("/api/images/{id}", methods="GET", name="get_image_post_item")
+     */
+    public function getItem(ImagePost $imagePost)
+    {
+        return $this->json($imagePost);
     }
 
     protected function json($data, int $status = 200, array $headers = [], array $context = []): JsonResponse

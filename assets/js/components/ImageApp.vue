@@ -5,6 +5,7 @@
         ></imageUploader>
         <imageList
             v-bind:images="images"
+            v-on:delete-image="onDeleteImage"
         ></imageList>
     </div>
 </template>
@@ -22,6 +23,13 @@
         methods: {
             onNewUploadedImage(image) {
                 this.images.unshift(image);
+            },
+            onDeleteImage(image) {
+                axios
+                    .delete(image['@id'])
+                    .then(() => {
+                        this.$delete(this.images, this.images.indexOf(image));
+                    })
             }
         },
         data() {
