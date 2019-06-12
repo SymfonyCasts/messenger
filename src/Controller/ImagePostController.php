@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ImagePost;
 use App\Repository\ImagePostRepository;
-use App\Upload\PhotoUploaderManager;
+use App\Photo\PhotoUploaderManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -50,6 +50,8 @@ class ImagePostController extends AbstractController
         $imagePost = new ImagePost();
         $imagePost->setFilename($newFilename);
         $imagePost->setOriginalFilename($imageFile->getClientOriginalName());
+
+
 
         $entityManager->persist($imagePost);
         $entityManager->flush();

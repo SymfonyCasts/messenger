@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Upload;
+namespace App\Photo;
 
 use App\Entity\ImagePost;
 use League\Flysystem\AdapterInterface;

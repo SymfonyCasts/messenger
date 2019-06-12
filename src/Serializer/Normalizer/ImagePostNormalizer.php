@@ -3,7 +3,7 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\ImagePost;
-use App\Upload\PhotoUploaderManager;
+use App\Photo\PhotoUploaderManager;
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
