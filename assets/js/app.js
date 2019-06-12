@@ -1,9 +1,7 @@
 import Vue from 'vue';
-import ImageList from './components/ImageList';
-import ImageUploader from './components/ImageUploader';
+import ImageApp from './components/ImageApp';
 
-Vue.component('image-list', ImageList);
-Vue.component('image-uploader', ImageUploader);
+Vue.component('image-app', ImageApp);
 
 const app = new Vue({
     el: '#images-app'
