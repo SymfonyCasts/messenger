@@ -5,6 +5,7 @@
           v-for="image in images"
           v-bind:key="image.id"
           v-bind:url="image.url"
+          v-bind:original-filename="image.originalFilename"
       ></imageItem>
     </ul>
     <div>
