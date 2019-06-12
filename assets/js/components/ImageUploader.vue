@@ -1,6 +1,9 @@
 <template>
     <div>
-        <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
+        <vue-dropzone
+            id="dropzone"
+            :options="dropzoneOptions"
+        ></vue-dropzone>
     </div>
 </template>
 
@@ -16,8 +19,7 @@
             return {
                 dropzoneOptions: {
                     url: '/api/images',
-                    thumbnailWidth: 150,
-                    maxFilesize: 0.5
+                    thumbnailWidth: 150
                 }
             }
         }
