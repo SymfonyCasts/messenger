@@ -1,7 +1,6 @@
 <template>
   <li>
     <img
-        width="100"
         v-bind:src="url"
         v-bind:alt="originalFilename"
     >
@@ -14,6 +13,8 @@
   }
 </script>
 
-<style>
-
+<style scoped>
+  img {
+    width: 100px;
+  }
 </style>
