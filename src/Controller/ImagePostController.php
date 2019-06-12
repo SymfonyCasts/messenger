@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\ImagePost;
+use App\Photo\PhotoPonkaficator;
 use App\Repository\ImagePostRepository;
 use App\Photo\PhotoUploaderManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,7 +33,7 @@ class ImagePostController extends AbstractController
     /**
      * @Route("/api/images", methods="POST")
      */
-    public function create(Request $request, ValidatorInterface $validator, PhotoUploaderManager $uploaderManager, EntityManagerInterface $entityManager)
+    public function create(Request $request, ValidatorInterface $validator, PhotoUploaderManager $uploaderManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator)
     {
         /** @var UploadedFile $imageFile */
         $imageFile = $request->files->get('file');
@@ -51,10 +52,10 @@ class ImagePostController extends AbstractController
         $imagePost->setFilename($newFilename);
         $imagePost->setOriginalFilename($imageFile->getClientOriginalName());
 
-
-
         $entityManager->persist($imagePost);
         $entityManager->flush();
+
+        $ponkaficator->ponkafy($imagePost);
 
         return $this->json($imagePost, 201);
     }
