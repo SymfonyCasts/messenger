@@ -1,0 +1,21 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 1f28a0e..52fbaea 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -15,10 +15,15 @@ framework:
+                 retry_strategy:
+                     delay: 500
+ 
++            async_priority_high:
++                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
++                options:
++                    queue_name: high
++
+             failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'
+ 
+         routing:
+             # Route your messages to the transports
+-            'App\Message\AddPonkaToImage': async
++            'App\Message\AddPonkaToImage': async_priority_high
+             'App\Message\DeletePhotoFile': async

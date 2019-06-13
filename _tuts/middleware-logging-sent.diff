@@ -1,0 +1,18 @@
+diff --git a/src/Messenger/AuditMiddleware.php b/src/Messenger/AuditMiddleware.php
+index 782d1b6..091271c 100644
+--- a/src/Messenger/AuditMiddleware.php
++++ b/src/Messenger/AuditMiddleware.php
+@@ -36,9 +36,11 @@ class AuditMiddleware implements MiddlewareInterface
+         $envelope = $stack->next()->handle($envelope, $stack);
+ 
+         if ($envelope->last(ReceivedStamp::class)) {
+-            $this->logger->info('[{id}] Received & handling {class}', $context);
++            $this->logger->info('[{id}] Received {class}', $context);
++        } elseif ($envelope->last(SentStamp::class)) {
++            $this->logger->info('[{id}] Sent {class}', $context);
+         } else {
+-            $this->logger->info('[{id}] Handling or sending {class}', $context);
++            $this->logger->info('[{id}] Handling sync {class}', $context);
+         }
+ 
+         return $envelope;

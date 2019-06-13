@@ -1,0 +1,15 @@
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index f010cbe..23932b5 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -44,10 +44,6 @@ class AddPonkaToImageHandler implements MessageHandlerInterface, LoggerAwareInte
+             return;
+         }
+ 
+-        if (rand(0, 10) < 7) {
+-            throw new \Exception('I failed randomly!!!!');
+-        }
+-
+         $updatedContents = $this->ponkaficator->ponkafy(
+             $this->photoManager->read($imagePost->getFilename())
+         );

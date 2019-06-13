@@ -66,6 +66,11 @@
             "description": null
         },
         {
+            "id": "2ndmessage-add-missing-interface",
+            "name": "2ndMessage: Add missing interface",
+            "description": null
+        },
+        {
             "id": "transport-configure-doctrine-transport",
             "name": "Transport: configure doctrine transport",
             "description": null
@@ -101,6 +106,11 @@
             "description": null
         },
         {
+            "id": "embedded-delete-me",
+            "name": "Embedded: delete me",
+            "description": null
+        },
+        {
             "id": "stamps-add-delaystamp",
             "name": "Stamps: Add DelayStamp",
             "description": null
@@ -113,6 +123,11 @@
         {
             "id": "stamps-remove-dump",
             "name": "Stamps: remove dump",
+            "description": null
+        },
+        {
+            "id": "stamps-smaller-delay",
+            "name": "Stamps: smaller delay",
             "description": null
         },
         {
@@ -144,7 +159,57 @@
             "id": "failuretransport-back-to-random-fails",
             "name": "FailureTransport: back to random fails",
             "description": null
+        },
+        {
+            "id": "failuretransport-remove-failures",
+            "name": "FailureTransport: remove failures",
+            "description": null
+        },
+        {
+            "id": "middleware-bootstrap-empty",
+            "name": "Middleware: bootstrap empty",
+            "description": null
+        },
+        {
+            "id": "middleware-execute-stack",
+            "name": "Middleware: execute stack",
+            "description": null
+        },
+        {
+            "id": "middleware-activate-in-config",
+            "name": "Middleware: activate in config",
+            "description": null
+        },
+        {
+            "id": "middleware-add-uniqueidstamp",
+            "name": "Middleware: Add UniqueIdStamp",
+            "description": null
+        },
+        {
+            "id": "middleware-configure-messenger-logging",
+            "name": "Middleware: configure messenger logging",
+            "description": null
+        },
+        {
+            "id": "middleware-log-message-details",
+            "name": "Middleware: Log message details",
+            "description": null
+        },
+        {
+            "id": "middleware-move-logging-after-stack",
+            "name": "Middleware: move logging after stack",
+            "description": null
+        },
+        {
+            "id": "middleware-logging-sent",
+            "name": "Middleware: logging sent",
+            "description": null
+        },
+        {
+            "id": "priority-add-high-priority-transport",
+            "name": "Priority: add high priority transport",
+            "description": null
         }
     ],
-    "sha": "4c30c7a81410ab2bfb9ed834eee5895509f1dfe2"
+    "sha": "c357c9633d5c0d960e0b4011a164c508cc384981"
 }

@@ -1,0 +1,46 @@
+diff --git a/src/Messenger/AuditMiddleware.php b/src/Messenger/AuditMiddleware.php
+index 3572a2e..1b0ba97 100644
+--- a/src/Messenger/AuditMiddleware.php
++++ b/src/Messenger/AuditMiddleware.php
+@@ -10,7 +10,14 @@ class AuditMiddleware implements MiddlewareInterface
+ {
+     public function handle(Envelope $envelope, StackInterface $stack): Envelope
+     {
+-        dump('auditing!');
++        if (null === $envelope->last(UniqueIdStamp::class)) {
++            $envelope = $envelope->with(new UniqueIdStamp());
++        }
++
++        /** @var UniqueIdStamp $stamp */
++        $stamp = $envelope->last(UniqueIdStamp::class);
++        dump($stamp->getUniqueId());
++
+         return $stack->next()->handle($envelope, $stack);
+     }
+ }
+diff --git a/src/Messenger/UniqueIdStamp.php b/src/Messenger/UniqueIdStamp.php
+new file mode 100644
+index 0000000..c9912b5
+--- /dev/null
++++ b/src/Messenger/UniqueIdStamp.php
+@@ -0,0 +1,20 @@
++<?php
++
++namespace App\Messenger;
++
++use Symfony\Component\Messenger\Stamp\StampInterface;
++
++class UniqueIdStamp implements StampInterface
++{
++    private $uniqueId;
++
++    public function __construct()
++    {
++        $this->uniqueId = uniqid();
++    }
++
++    public function getUniqueId(): string
++    {
++        return $this->uniqueId;
++    }
++}

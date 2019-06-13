@@ -1,0 +1,15 @@
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
+index 76fe458..264bdf9 100644
+--- a/src/MessageHandler/DeleteImagePostHandler.php
++++ b/src/MessageHandler/DeleteImagePostHandler.php
+@@ -5,8 +5,9 @@ namespace App\MessageHandler;
+ use App\Message\DeleteImagePost;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+ 
+-class DeleteImagePostHandler
++class DeleteImagePostHandler implements MessageHandlerInterface
+ {
+     private $photoManager;
+     private $entityManager;

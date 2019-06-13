@@ -1,0 +1,21 @@
+diff --git a/config/packages/dev/monolog.yaml b/config/packages/dev/monolog.yaml
+index b1998da..cc5f7ff 100644
+--- a/config/packages/dev/monolog.yaml
++++ b/config/packages/dev/monolog.yaml
+@@ -1,10 +1,16 @@
+ monolog:
++    channels: [messenger_audit]
+     handlers:
+         main:
+             type: stream
+             path: "%kernel.logs_dir%/%kernel.environment%.log"
+             level: debug
+             channels: ["!event"]
++        messenger:
++            type: stream
++            path: "%kernel.logs_dir%/messenger.log"
++            level: debug
++            channels: ["messenger_audit"]
+         # uncomment to get logging in your browser
+         # you may have to allow bigger header sizes in your Web server configuration
+         #firephp:

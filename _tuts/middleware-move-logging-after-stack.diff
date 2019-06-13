@@ -1,0 +1,30 @@
+diff --git a/src/Messenger/AuditMiddleware.php b/src/Messenger/AuditMiddleware.php
+index 78be984..782d1b6 100644
+--- a/src/Messenger/AuditMiddleware.php
++++ b/src/Messenger/AuditMiddleware.php
+@@ -7,6 +7,7 @@ use Symfony\Component\Messenger\Envelope;
+ use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
+ use Symfony\Component\Messenger\Middleware\StackInterface;
+ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
++use Symfony\Component\Messenger\Stamp\SentStamp;
+ 
+ class AuditMiddleware implements MiddlewareInterface
+ {
+@@ -30,12 +31,16 @@ class AuditMiddleware implements MiddlewareInterface
+             'id' => $stamp->getUniqueId(),
+             'class' => get_class($envelope->getMessage())
+         ];
++
++
++        $envelope = $stack->next()->handle($envelope, $stack);
++
+         if ($envelope->last(ReceivedStamp::class)) {
+             $this->logger->info('[{id}] Received & handling {class}', $context);
+         } else {
+             $this->logger->info('[{id}] Handling or sending {class}', $context);
+         }
+ 
+-        return $stack->next()->handle($envelope, $stack);
++        return $envelope;
+     }
+ }

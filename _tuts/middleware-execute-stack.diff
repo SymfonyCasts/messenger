@@ -1,0 +1,13 @@
+diff --git a/src/Messenger/AuditMiddleware.php b/src/Messenger/AuditMiddleware.php
+index 1cfd4b5..3572a2e 100644
+--- a/src/Messenger/AuditMiddleware.php
++++ b/src/Messenger/AuditMiddleware.php
+@@ -10,6 +10,7 @@ class AuditMiddleware implements MiddlewareInterface
+ {
+     public function handle(Envelope $envelope, StackInterface $stack): Envelope
+     {
+-        // TODO
++        dump('auditing!');
++        return $stack->next()->handle($envelope, $stack);
+     }
+ }

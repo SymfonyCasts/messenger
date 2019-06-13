@@ -1,0 +1,21 @@
+diff --git a/src/Messenger/AuditMiddleware.php b/src/Messenger/AuditMiddleware.php
+new file mode 100644
+index 0000000..1cfd4b5
+--- /dev/null
++++ b/src/Messenger/AuditMiddleware.php
+@@ -0,0 +1,15 @@
++<?php
++
++namespace App\Messenger;
++
++use Symfony\Component\Messenger\Envelope;
++use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
++use Symfony\Component\Messenger\Middleware\StackInterface;
++
++class AuditMiddleware implements MiddlewareInterface
++{
++    public function handle(Envelope $envelope, StackInterface $stack): Envelope
++    {
++        // TODO
++    }
++}

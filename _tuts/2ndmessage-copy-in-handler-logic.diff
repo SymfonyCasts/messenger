@@ -15,10 +15,10 @@ index 47b845e..52fd63f 100644
      }
  
 diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
-index d58aca9..e7d3786 100644
+index 346d3d8..386d722 100644
 --- a/src/MessageHandler/DeleteImagePostHandler.php
 +++ b/src/MessageHandler/DeleteImagePostHandler.php
-@@ -9,5 +9,9 @@ class DeleteImagePostHandler implements MessageHandlerInterface
+@@ -8,5 +8,9 @@ class DeleteImagePostHandler
  {
      public function __invoke(DeleteImagePost $deleteImagePost)
      {
