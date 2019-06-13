@@ -46,7 +46,8 @@
             this.fetchImagesData();
         },
         created() {
-            this.timer = setInterval(this.fetchImagesData, 2000);
+            // slow "polling" for updates
+            this.timer = setInterval(this.fetchImagesData, 10000);
         },
         beforeDestroy() {
             clearInterval(this.timer);
