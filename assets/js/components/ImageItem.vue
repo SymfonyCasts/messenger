@@ -1,6 +1,6 @@
 <template>
     <li v-bind:class="{ deleting: isDeleting }">
-        <a v-bind:href="url">
+        <a v-bind:href="url" target="_blank">
             <img
                 v-bind:src="url"
                 v-bind:alt="originalFilename"

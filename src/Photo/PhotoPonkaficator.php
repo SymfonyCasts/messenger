@@ -27,10 +27,13 @@ class PhotoPonkaficator
             $this->photoFilesystem->readStream($imagePost->getFilename())
         );
 
-        $ponkaFilename = __DIR__.'/../../assets/ponka/ponka1.jpg';
+        $ponkaFilename = sprintf(
+            __DIR__.'/../../assets/ponka/ponka%d.jpg',
+            rand(1, 32)
+        );
         $ponkaPhoto = $this->imageManager->make($ponkaFilename);
 
-        $targetWidth = $targetPhoto->width() * .2;
+        $targetWidth = $targetPhoto->width() * .3;
         $targetHeight = $targetPhoto->height() * .4;
 
         $ponkaPhoto->resize($targetWidth, $targetHeight, function(Constraint $constraint) {
@@ -41,8 +44,8 @@ class PhotoPonkaficator
         $targetPhoto = $targetPhoto->insert(
             $ponkaPhoto,
             'bottom-left',
-            50,
-            50
+            (int) ($targetPhoto->width() * .05),
+            (int) ($targetPhoto->height() * .05)
         );
 
         $this->photoFilesystem->update(
