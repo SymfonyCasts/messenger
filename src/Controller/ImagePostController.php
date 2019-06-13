@@ -64,6 +64,7 @@ class ImagePostController extends AbstractController
         );
         $photoManager->update($imagePost->getFilename(), $updatedContents);
         $imagePost->markAsPonkaAdded();
+        $entityManager->persist($imagePost);
         $entityManager->flush();
         /*
          * You've been Ponkafied!
