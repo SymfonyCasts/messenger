@@ -1,0 +1,20 @@
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+new file mode 100644
+index 0000000..a97aba6
+--- /dev/null
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -0,0 +1,14 @@
++<?php
++
++namespace App\MessageHandler;
++
++use App\Message\AddPonkaToImage;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++
++class AddPonkaToImageHandler implements MessageHandlerInterface
++{
++    public function __invoke(AddPonkaToImage $addPonkaToImage)
++    {
++        dump($addPonkaToImage);
++    }
++}

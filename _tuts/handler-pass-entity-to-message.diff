@@ -1,0 +1,49 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 2e502ef..d693548 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -58,7 +58,7 @@ class ImagePostController extends AbstractController
+         $entityManager->persist($imagePost);
+         $entityManager->flush();
+ 
+-        $message = new AddPonkaToImage();
++        $message = new AddPonkaToImage($imagePost);
+         $messageBus->dispatch($message);
+ 
+         return $this->json($imagePost, 201);
+diff --git a/src/Message/AddPonkaToImage.php b/src/Message/AddPonkaToImage.php
+index 482f51c..8c20598 100644
+--- a/src/Message/AddPonkaToImage.php
++++ b/src/Message/AddPonkaToImage.php
+@@ -2,6 +2,19 @@
+ 
+ namespace App\Message;
+ 
++use App\Entity\ImagePost;
++
+ class AddPonkaToImage
+ {
++    private $imagePost;
++
++    public function __construct(ImagePost $imagePost)
++    {
++        $this->imagePost = $imagePost;
++    }
++
++    public function getImagePost(): ImagePost
++    {
++        return $this->imagePost;
++    }
+ }
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index 830e339..54ed567 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -23,6 +23,7 @@ class AddPonkaToImageHandler implements MessageHandlerInterface
+ 
+     public function __invoke(AddPonkaToImage $addPonkaToImage)
+     {
++        $imagePost = $addPonkaToImage->getImagePost();
+         $updatedContents = $this->ponkaficator->ponkafy(
+             $this->photoManager->read($imagePost->getFilename())
+         );

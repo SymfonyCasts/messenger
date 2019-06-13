@@ -1,0 +1,13 @@
+diff --git a/src/Message/AddPonkaToImage.php b/src/Message/AddPonkaToImage.php
+new file mode 100644
+index 0000000..482f51c
+--- /dev/null
++++ b/src/Message/AddPonkaToImage.php
+@@ -0,0 +1,7 @@
++<?php
++
++namespace App\Message;
++
++class AddPonkaToImage
++{
++}

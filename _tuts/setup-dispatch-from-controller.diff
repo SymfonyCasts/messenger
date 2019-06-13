@@ -1,0 +1,39 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 951393d..175459f 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -3,6 +3,7 @@
+ namespace App\Controller;
+ 
+ use App\Entity\ImagePost;
++use App\Message\AddPonkaToImage;
+ use App\Photo\PhotoPonkaficator;
+ use App\Repository\ImagePostRepository;
+ use App\Photo\PhotoFileManager;
+@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
+ use Symfony\Component\HttpFoundation\JsonResponse;
+ use Symfony\Component\HttpFoundation\Request;
+ use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\Messenger\MessageBusInterface;
+ use Symfony\Component\Routing\Annotation\Route;
+ use Symfony\Component\Validator\Constraints\Image;
+ use Symfony\Component\Validator\Constraints\NotBlank;
+@@ -34,7 +36,7 @@ class ImagePostController extends AbstractController
+     /**
+      * @Route("/api/images", methods="POST")
+      */
+-    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator)
++    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator, MessageBusInterface $messageBus)
+     {
+         /** @var UploadedFile $imageFile */
+         $imageFile = $request->files->get('file');
+@@ -56,6 +58,9 @@ class ImagePostController extends AbstractController
+         $entityManager->persist($imagePost);
+         $entityManager->flush();
+ 
++        $message = new AddPonkaToImage();
++        $messageBus->dispatch($message);
++
+         /*
+          * Start Ponkafication!
+          */

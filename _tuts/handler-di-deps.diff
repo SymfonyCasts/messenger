@@ -1,0 +1,40 @@
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index 996ae74..830e339 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -3,17 +3,31 @@
+ namespace App\MessageHandler;
+ 
+ use App\Message\AddPonkaToImage;
++use App\Photo\PhotoFileManager;
++use App\Photo\PhotoPonkaficator;
++use Doctrine\ORM\EntityManagerInterface;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+ 
+ class AddPonkaToImageHandler implements MessageHandlerInterface
+ {
++    private $ponkaficator;
++    private $photoManager;
++    private $entityManager;
++
++    public function __construct(PhotoPonkaficator $ponkaficator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager)
++    {
++        $this->ponkaficator = $ponkaficator;
++        $this->photoManager = $photoManager;
++        $this->entityManager = $entityManager;
++    }
++
+     public function __invoke(AddPonkaToImage $addPonkaToImage)
+     {
+-        $updatedContents = $ponkaficator->ponkafy(
+-            $photoManager->read($imagePost->getFilename())
++        $updatedContents = $this->ponkaficator->ponkafy(
++            $this->photoManager->read($imagePost->getFilename())
+         );
+-        $photoManager->update($imagePost->getFilename(), $updatedContents);
++        $this->photoManager->update($imagePost->getFilename(), $updatedContents);
+         $imagePost->markAsPonkaAdded();
+-        $entityManager->flush();
++        $this->entityManager->flush();
+     }
+ }

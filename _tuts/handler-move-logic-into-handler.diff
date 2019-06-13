@@ -1,0 +1,50 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 175459f..2e502ef 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -36,7 +36,7 @@ class ImagePostController extends AbstractController
+     /**
+      * @Route("/api/images", methods="POST")
+      */
+-    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator, MessageBusInterface $messageBus)
++    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager, MessageBusInterface $messageBus)
+     {
+         /** @var UploadedFile $imageFile */
+         $imageFile = $request->files->get('file');
+@@ -61,19 +61,6 @@ class ImagePostController extends AbstractController
+         $message = new AddPonkaToImage();
+         $messageBus->dispatch($message);
+ 
+-        /*
+-         * Start Ponkafication!
+-         */
+-        $updatedContents = $ponkaficator->ponkafy(
+-            $photoManager->read($imagePost->getFilename())
+-        );
+-        $photoManager->update($imagePost->getFilename(), $updatedContents);
+-        $imagePost->markAsPonkaAdded();
+-        $entityManager->flush();
+-        /*
+-         * You've been Ponkafied!
+-         */
+-
+         return $this->json($imagePost, 201);
+     }
+ 
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index a97aba6..996ae74 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -9,6 +9,11 @@ class AddPonkaToImageHandler implements MessageHandlerInterface
+ {
+     public function __invoke(AddPonkaToImage $addPonkaToImage)
+     {
+-        dump($addPonkaToImage);
++        $updatedContents = $ponkaficator->ponkafy(
++            $photoManager->read($imagePost->getFilename())
++        );
++        $photoManager->update($imagePost->getFilename(), $updatedContents);
++        $imagePost->markAsPonkaAdded();
++        $entityManager->flush();
+     }
+ }

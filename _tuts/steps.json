@@ -1,0 +1,45 @@
+{
+    "steps": [
+        {
+            "id": "start",
+            "name": "start",
+            "description": null
+        },
+        {
+            "id": "setup-install-messenger",
+            "name": "Setup: install messenger",
+            "description": null
+        },
+        {
+            "id": "setup-create-first-message",
+            "name": "Setup: create first message",
+            "description": null
+        },
+        {
+            "id": "setup-add-basic-handler",
+            "name": "Setup: Add basic handler",
+            "description": null
+        },
+        {
+            "id": "setup-dispatch-from-controller",
+            "name": "Setup: dispatch from controller",
+            "description": null
+        },
+        {
+            "id": "handler-move-logic-into-handler",
+            "name": "Handler: move logic into handler",
+            "description": null
+        },
+        {
+            "id": "handler-di-deps",
+            "name": "Handler: DI deps",
+            "description": null
+        },
+        {
+            "id": "handler-pass-entity-to-message",
+            "name": "Handler: pass entity to message",
+            "description": null
+        }
+    ],
+    "sha": "d2de75d3c779be373f851c5e6301ca9d6375ca54"
+}
