@@ -30,6 +30,11 @@
                     .then(() => {
                         this.$delete(this.images, this.images.indexOf(image));
                     })
+            },
+            fetchImagesData() {
+                axios
+                    .get('/api/images')
+                    .then(response => (this.images = response.data.items))
             }
         },
         data() {
@@ -38,9 +43,13 @@
             }
         },
         mounted() {
-            axios
-                .get('/api/images')
-                .then(response => (this.images = response.data.items))
+            this.fetchImagesData();
+        },
+        created() {
+            this.timer = setInterval(this.fetchImagesData, 2000);
+        },
+        beforeDestroy() {
+            clearInterval(this.timer);
         }
     }
 </script>
