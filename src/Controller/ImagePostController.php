@@ -75,9 +75,9 @@ class ImagePostController extends AbstractController
     /**
      * @Route("/api/images/{id}", methods="DELETE")
      */
-    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoFileManager $uploaderManager)
+    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoFileManager $photoManager)
     {
-        $uploaderManager->deleteImage($imagePost->getFilename());
+        $photoManager->deleteImage($imagePost->getFilename());
 
         $entityManager->remove($imagePost);
         $entityManager->flush();
