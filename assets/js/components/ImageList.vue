@@ -6,6 +6,7 @@
                 v-bind:key="image.id"
                 v-bind:url="image.url"
                 v-bind:original-filename="image.originalFilename"
+                v-bind:ponka-added-at="image.ponkaAddedAt"
                 v-on:delete-image="onDeleteImage(image)"
             ></imageItem>
         </transition-group>
