@@ -34,7 +34,7 @@ class ImagePostController extends AbstractController
     /**
      * @Route("/api/images", methods="POST")
      */
-    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $uploaderManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator)
+    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator)
     {
         /** @var UploadedFile $imageFile */
         $imageFile = $request->files->get('file');
@@ -48,7 +48,7 @@ class ImagePostController extends AbstractController
             return $this->json($errors, 400);
         }
 
-        $newFilename = $uploaderManager->uploadImage($imageFile);
+        $newFilename = $photoManager->uploadImage($imageFile);
         $imagePost = new ImagePost();
         $imagePost->setFilename($newFilename);
         $imagePost->setOriginalFilename($imageFile->getClientOriginalName());
@@ -60,9 +60,9 @@ class ImagePostController extends AbstractController
          * Start Ponkafication!
          */
         $updatedContents = $ponkaficator->ponkafy(
-            $uploaderManager->read($newFilename)
+            $photoManager->read($newFilename)
         );
-        $uploaderManager->update($newFilename, $updatedContents);
+        $photoManager->update($newFilename, $updatedContents);
         $imagePost->markAsPonkaAdded();
         $entityManager->flush();
         /*
