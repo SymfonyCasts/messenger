@@ -3,7 +3,7 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\ImagePost;
-use App\Photo\PhotoUploaderManager;
+use App\Photo\PhotoFileManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -15,7 +15,7 @@ class ImagePostNormalizer implements NormalizerInterface, CacheableSupportsMetho
     private $uploaderManager;
     private $router;
 
-    public function __construct(ObjectNormalizer $normalizer, PhotoUploaderManager $uploaderManager, UrlGeneratorInterface $router)
+    public function __construct(ObjectNormalizer $normalizer, PhotoFileManager $uploaderManager, UrlGeneratorInterface $router)
     {
         $this->normalizer = $normalizer;
         $this->uploaderManager = $uploaderManager;

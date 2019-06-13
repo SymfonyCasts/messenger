@@ -21,11 +21,9 @@ class PhotoPonkaficator
         $this->photoFilesystem = $photoFilesystem;
     }
 
-    public function ponkafy(ImagePost $imagePost)
+    public function ponkafy(string $imageContents): string
     {
-        $targetPhoto = $this->imageManager->make(
-            $this->photoFilesystem->readStream($imagePost->getFilename())
-        );
+        $targetPhoto = $this->imageManager->make($imageContents);
 
         $ponkaFilename = sprintf(
             __DIR__.'/../../assets/ponka/ponka%d.jpg',
@@ -48,14 +46,9 @@ class PhotoPonkaficator
             (int) ($targetPhoto->height() * .05)
         );
 
-        $this->photoFilesystem->update(
-            $imagePost->getFilename(),
-            $targetPhoto->encode()
-        );
-
-        $imagePost->markAsPonkaAdded();
+        // for dramatic effect, make this *really* slow
         sleep(2);
 
-        $this->entityManager->flush();
+        return (string) $targetPhoto->encode();
     }
 }

@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\ImagePost;
 use App\Photo\PhotoPonkaficator;
 use App\Repository\ImagePostRepository;
-use App\Photo\PhotoUploaderManager;
+use App\Photo\PhotoFileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -34,7 +34,7 @@ class ImagePostController extends AbstractController
     /**
      * @Route("/api/images", methods="POST")
      */
-    public function create(Request $request, ValidatorInterface $validator, PhotoUploaderManager $uploaderManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator)
+    public function create(Request $request, ValidatorInterface $validator, PhotoFileManager $uploaderManager, EntityManagerInterface $entityManager, PhotoPonkaficator $ponkaficator)
     {
         /** @var UploadedFile $imageFile */
         $imageFile = $request->files->get('file');
@@ -56,7 +56,18 @@ class ImagePostController extends AbstractController
         $entityManager->persist($imagePost);
         $entityManager->flush();
 
-        $ponkaficator->ponkafy($imagePost);
+        /*
+         * Start Ponkafication!
+         */
+        $updatedContents = $ponkaficator->ponkafy(
+            $uploaderManager->read($newFilename)
+        );
+        $uploaderManager->update($newFilename, $updatedContents);
+        $imagePost->markAsPonkaAdded();
+        $entityManager->flush();
+        /*
+         * You've been Ponkafied!
+         */
 
         return $this->json($imagePost, 201);
     }
@@ -64,7 +75,7 @@ class ImagePostController extends AbstractController
     /**
      * @Route("/api/images/{id}", methods="DELETE")
      */
-    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoUploaderManager $uploaderManager)
+    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoFileManager $uploaderManager)
     {
         $uploaderManager->deleteImage($imagePost->getFilename());
 

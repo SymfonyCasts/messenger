@@ -8,7 +8,7 @@ use League\Flysystem\FilesystemInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class PhotoUploaderManager
+class PhotoFileManager
 {
     private $filesystem;
     private $publicAssetBaseUrl;
@@ -59,5 +59,15 @@ class PhotoUploaderManager
     public function getPublicPath(ImagePost $imagePost): string
     {
         return $this->publicAssetBaseUrl.'/'.$imagePost->getFilename();
+    }
+
+    public function read(string $filename): string
+    {
+        return $this->filesystem->read($filename);
+    }
+
+    public function update(string $filename, string $updatedContents): void
+    {
+        $this->filesystem->update($filename, $updatedContents);
     }
 }
