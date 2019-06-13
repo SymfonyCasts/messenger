@@ -1,0 +1,13 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index f4bf487..4746370 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -64,7 +64,7 @@ class ImagePostController extends AbstractController
+         $envelope = new Envelope($message, [
+             new DelayStamp(5000)
+         ]);
+-        dump($messageBus->dispatch($envelope));
++        $messageBus->dispatch($envelope);
+ 
+         return $this->toJson($imagePost, 201);
+     }

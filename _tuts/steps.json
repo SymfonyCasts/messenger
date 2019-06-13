@@ -104,7 +104,47 @@
             "id": "stamps-add-delaystamp",
             "name": "Stamps: Add DelayStamp",
             "description": null
+        },
+        {
+            "id": "stamps-dump-envelope",
+            "name": "Stamps: dump envelope",
+            "description": null
+        },
+        {
+            "id": "stamps-remove-dump",
+            "name": "Stamps: remove dump",
+            "description": null
+        },
+        {
+            "id": "failing-throw-random-exception",
+            "name": "Failing: throw random exception",
+            "description": null
+        },
+        {
+            "id": "failing-fail-always",
+            "name": "Failing: fail always",
+            "description": null
+        },
+        {
+            "id": "failing-configure-retries",
+            "name": "Failing: configure retries",
+            "description": null
+        },
+        {
+            "id": "failing-make-retry-delay-short",
+            "name": "Failing: make retry delay short",
+            "description": null
+        },
+        {
+            "id": "failuretransport-activate-it",
+            "name": "FailureTransport: activate it",
+            "description": null
+        },
+        {
+            "id": "failuretransport-back-to-random-fails",
+            "name": "FailureTransport: back to random fails",
+            "description": null
         }
     ],
-    "sha": "d48b396b3a7ce0414c4d1009042dc0da5fc0dce0"
+    "sha": "4c30c7a81410ab2bfb9ed834eee5895509f1dfe2"
 }

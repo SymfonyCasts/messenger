@@ -1,0 +1,13 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index e5a8c39..3e70107 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -8,7 +8,7 @@ framework:
+             async:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                 retry_strategy:
+-                    delay: 2000
++                    delay: 500
+ 
+             # failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'

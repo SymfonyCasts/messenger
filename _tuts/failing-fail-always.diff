@@ -1,0 +1,13 @@
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index f010cbe..a563e2b 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -44,7 +44,7 @@ class AddPonkaToImageHandler implements MessageHandlerInterface, LoggerAwareInte
+             return;
+         }
+ 
+-        if (rand(0, 10) < 7) {
++        if (rand(0, 10) < 7 || true) {
+             throw new \Exception('I failed randomly!!!!');
+         }
+ 

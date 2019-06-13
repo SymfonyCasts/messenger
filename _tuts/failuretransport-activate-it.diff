@@ -1,0 +1,22 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 3e70107..ad75434 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -1,7 +1,7 @@
+ framework:
+     messenger:
+         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+-        # failure_transport: failed
++        failure_transport: failed
+ 
+         transports:
+             # https://symfony.com/doc/current/messenger.html#transports
+@@ -10,7 +10,7 @@ framework:
+                 retry_strategy:
+                     delay: 500
+ 
+-            # failed: 'doctrine://default?queue_name=failed'
++            failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'
+ 
+         routing:
