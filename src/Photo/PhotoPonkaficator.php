@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Intervention\Image\Constraint;
 use Intervention\Image\ImageManager;
 use League\Flysystem\FilesystemInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class PhotoPonkaficator
 {
@@ -25,10 +27,7 @@ class PhotoPonkaficator
     {
         $targetPhoto = $this->imageManager->make($imageContents);
 
-        $ponkaFilename = sprintf(
-            __DIR__.'/../../assets/ponka/ponka%d.jpg',
-            rand(1, 32)
-        );
+        $ponkaFilename = $this->getRandomPonkaFilename();
         $ponkaPhoto = $this->imageManager->make($ponkaFilename);
 
         $targetWidth = $targetPhoto->width() * .3;
@@ -50,5 +49,17 @@ class PhotoPonkaficator
         sleep(2);
 
         return (string) $targetPhoto->encode();
+    }
+
+    private function getRandomPonkaFilename(): string
+    {
+        $finder = new Finder();
+        $finder->in(__DIR__.'/../../assets/ponka')
+            ->files();
+
+        // array keys are the absolute file paths
+        $ponkaFiles = iterator_to_array($finder->getIterator());
+
+        return array_rand($ponkaFiles);
     }
 }
