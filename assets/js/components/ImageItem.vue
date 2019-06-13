@@ -27,6 +27,11 @@
             }
         },
         props: ['url', 'originalFilename', 'ponkaAddedAt'],
+        watch: {
+            ponkaAddedAt() {
+                this.updatedPonkaAddedAtAgo();
+            }
+        },
         methods: {
             onDeleteClick() {
                 this.$emit('delete-image');
