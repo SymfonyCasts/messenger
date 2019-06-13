@@ -1,0 +1,10 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 301d737..341ef52 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -12,4 +12,4 @@ framework:
+ 
+         routing:
+             # Route your messages to the transports
+-            # 'App\Message\YourMessage': async
++            'App\Message\AddPonkaToImage': async

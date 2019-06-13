@@ -39,7 +39,72 @@
             "id": "handler-pass-entity-to-message",
             "name": "Handler: pass entity to message",
             "description": null
+        },
+        {
+            "id": "2ndmessage-create-deleteimagepost",
+            "name": "2ndMessage: Create DeleteImagePost",
+            "description": null
+        },
+        {
+            "id": "2ndmessage-add-empty-handler",
+            "name": "2ndMessage: Add empty handler",
+            "description": null
+        },
+        {
+            "id": "2ndmessage-copy-in-handler-logic",
+            "name": "2ndMessage: copy in handler logic",
+            "description": null
+        },
+        {
+            "id": "2ndmessage-finish-logic",
+            "name": "2ndMessage: Finish logic",
+            "description": null
+        },
+        {
+            "id": "2ndmessage-dispatch-it",
+            "name": "2ndMessage: dispatch it",
+            "description": null
+        },
+        {
+            "id": "transport-configure-doctrine-transport",
+            "name": "Transport: configure doctrine transport",
+            "description": null
+        },
+        {
+            "id": "transport-route-message-to-async",
+            "name": "Transport: route message to async",
+            "description": null
+        },
+        {
+            "id": "entity-refactor-to-pass-in-id",
+            "name": "Entity: refactor to pass in id",
+            "description": null
+        },
+        {
+            "id": "entity-handle-if-not-found",
+            "name": "Entity: handle if not found",
+            "description": null
+        },
+        {
+            "id": "embedded-create-deletephotofile-message",
+            "name": "Embedded: Create DeletePhotoFile message",
+            "description": null
+        },
+        {
+            "id": "embedded-dispatch-from-handler",
+            "name": "Embedded: dispatch from handler",
+            "description": null
+        },
+        {
+            "id": "embedded-route-deletephotofile-async",
+            "name": "Embedded: route DeletePhotoFile async",
+            "description": null
+        },
+        {
+            "id": "stamps-add-delaystamp",
+            "name": "Stamps: Add DelayStamp",
+            "description": null
         }
     ],
-    "sha": "d2de75d3c779be373f851c5e6301ca9d6375ca54"
+    "sha": "d48b396b3a7ce0414c4d1009042dc0da5fc0dce0"
 }

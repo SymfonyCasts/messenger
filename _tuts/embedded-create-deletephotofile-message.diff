@@ -1,0 +1,52 @@
+diff --git a/src/Message/DeletePhotoFile.php b/src/Message/DeletePhotoFile.php
+new file mode 100644
+index 0000000..1168a3a
+--- /dev/null
++++ b/src/Message/DeletePhotoFile.php
+@@ -0,0 +1,18 @@
++<?php
++
++namespace App\Message;
++
++class DeletePhotoFile
++{
++    private $filename;
++
++    public function __construct(string $filename)
++    {
++        $this->filename = $filename;
++    }
++
++    public function getFilename(): string
++    {
++        return $this->filename;
++    }
++}
+diff --git a/src/MessageHandler/DeletePhotoFileHandler.php b/src/MessageHandler/DeletePhotoFileHandler.php
+new file mode 100644
+index 0000000..c7e416c
+--- /dev/null
++++ b/src/MessageHandler/DeletePhotoFileHandler.php
+@@ -0,0 +1,22 @@
++<?php
++
++namespace App\MessageHandler;
++
++use App\Message\DeletePhotoFile;
++use App\Photo\PhotoFileManager;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++
++class DeletePhotoFileHandler implements MessageHandlerInterface
++{
++    private $photoManager;
++
++    public function __construct(PhotoFileManager $photoManager)
++    {
++        $this->photoManager = $photoManager;
++    }
++
++    public function __invoke(DeletePhotoFile $deletePhotoFile)
++    {
++        $this->photoManager->deleteImage($deletePhotoFile->getFilename());
++    }
++}

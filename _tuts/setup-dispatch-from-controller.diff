@@ -1,5 +1,5 @@
 diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
-index 951393d..175459f 100644
+index eeedb3b..e039a3c 100644
 --- a/src/Controller/ImagePostController.php
 +++ b/src/Controller/ImagePostController.php
 @@ -3,6 +3,7 @@

@@ -1,0 +1,26 @@
+diff --git a/.env b/.env
+index 6379354..6bac647 100644
+--- a/.env
++++ b/.env
+@@ -30,6 +30,6 @@ DATABASE_URL=mysql://root:@127.0.0.1:3306/messenger_tutorial
+ ###> symfony/messenger ###
+ # Choose one of the transports below
+ # MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages
+-# MESSENGER_TRANSPORT_DSN=doctrine://default
++MESSENGER_TRANSPORT_DSN=doctrine://default
+ # MESSENGER_TRANSPORT_DSN=redis://localhost:6379/messages
+ ###< symfony/messenger ###
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index b44ddf3..301d737 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -5,7 +5,8 @@ framework:
+ 
+         transports:
+             # https://symfony.com/doc/current/messenger.html#transports
+-            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
++            async: '%env(MESSENGER_TRANSPORT_DSN)%'
++
+             # failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'
+ 

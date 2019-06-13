@@ -1,0 +1,24 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 52fd63f..52d6cc2 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -4,6 +4,7 @@ namespace App\Controller;
+ 
+ use App\Entity\ImagePost;
+ use App\Message\AddPonkaToImage;
++use App\Message\DeleteImagePost;
+ use App\Repository\ImagePostRepository;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
+@@ -66,8 +67,10 @@ class ImagePostController extends AbstractController
+     /**
+      * @Route("/api/images/{id}", methods="DELETE")
+      */
+-    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoFileManager $photoManager)
++    public function delete(ImagePost $imagePost, MessageBusInterface $messageBus)
+     {
++        $messageBus->dispatch(new DeleteImagePost($imagePost));
++
+         return new Response(null, 204);
+     }
+ 

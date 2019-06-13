@@ -1,0 +1,26 @@
+diff --git a/src/Message/DeleteImagePost.php b/src/Message/DeleteImagePost.php
+new file mode 100644
+index 0000000..c11f53b
+--- /dev/null
++++ b/src/Message/DeleteImagePost.php
+@@ -0,0 +1,20 @@
++<?php
++
++namespace App\Message;
++
++use App\Entity\ImagePost;
++
++class DeleteImagePost
++{
++    private $imagePost;
++
++    public function __construct(ImagePost $imagePost)
++    {
++        $this->imagePost = $imagePost;
++    }
++
++    public function getImagePost(): ImagePost
++    {
++        return $this->imagePost;
++    }
++}

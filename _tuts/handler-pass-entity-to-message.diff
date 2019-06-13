@@ -1,8 +1,8 @@
 diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
-index 2e502ef..d693548 100644
+index eda3daa..47b845e 100644
 --- a/src/Controller/ImagePostController.php
 +++ b/src/Controller/ImagePostController.php
-@@ -58,7 +58,7 @@ class ImagePostController extends AbstractController
+@@ -57,7 +57,7 @@ class ImagePostController extends AbstractController
          $entityManager->persist($imagePost);
          $entityManager->flush();
  
@@ -10,7 +10,7 @@ index 2e502ef..d693548 100644
 +        $message = new AddPonkaToImage($imagePost);
          $messageBus->dispatch($message);
  
-         return $this->json($imagePost, 201);
+         return $this->toJson($imagePost, 201);
 diff --git a/src/Message/AddPonkaToImage.php b/src/Message/AddPonkaToImage.php
 index 482f51c..8c20598 100644
 --- a/src/Message/AddPonkaToImage.php

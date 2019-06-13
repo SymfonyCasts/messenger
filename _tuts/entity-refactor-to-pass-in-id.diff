@@ -1,0 +1,74 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 52d6cc2..3ce7c40 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -58,7 +58,7 @@ class ImagePostController extends AbstractController
+         $entityManager->persist($imagePost);
+         $entityManager->flush();
+ 
+-        $message = new AddPonkaToImage($imagePost);
++        $message = new AddPonkaToImage($imagePost->getId());
+         $messageBus->dispatch($message);
+ 
+         return $this->toJson($imagePost, 201);
+diff --git a/src/Message/AddPonkaToImage.php b/src/Message/AddPonkaToImage.php
+index 8c20598..b0b271a 100644
+--- a/src/Message/AddPonkaToImage.php
++++ b/src/Message/AddPonkaToImage.php
+@@ -6,15 +6,15 @@ use App\Entity\ImagePost;
+ 
+ class AddPonkaToImage
+ {
+-    private $imagePost;
++    private $imagePostId;
+ 
+-    public function __construct(ImagePost $imagePost)
++    public function __construct(int $imagePostId)
+     {
+-        $this->imagePost = $imagePost;
++        $this->imagePostId = $imagePostId;
+     }
+ 
+-    public function getImagePost(): ImagePost
++    public function getImagePostId(): int
+     {
+-        return $this->imagePost;
++        return $this->imagePostId;
+     }
+ }
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index 54ed567..61137f7 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -5,6 +5,7 @@ namespace App\MessageHandler;
+ use App\Message\AddPonkaToImage;
+ use App\Photo\PhotoFileManager;
+ use App\Photo\PhotoPonkaficator;
++use App\Repository\ImagePostRepository;
+ use Doctrine\ORM\EntityManagerInterface;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+ 
+@@ -13,17 +14,21 @@ class AddPonkaToImageHandler implements MessageHandlerInterface
+     private $ponkaficator;
+     private $photoManager;
+     private $entityManager;
++    private $imagePostRepository;
+ 
+-    public function __construct(PhotoPonkaficator $ponkaficator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager)
++    public function __construct(PhotoPonkaficator $ponkaficator, PhotoFileManager $photoManager, EntityManagerInterface $entityManager, ImagePostRepository $imagePostRepository)
+     {
+         $this->ponkaficator = $ponkaficator;
+         $this->photoManager = $photoManager;
+         $this->entityManager = $entityManager;
++        $this->imagePostRepository = $imagePostRepository;
+     }
+ 
+     public function __invoke(AddPonkaToImage $addPonkaToImage)
+     {
+-        $imagePost = $addPonkaToImage->getImagePost();
++        $imagePostId = $addPonkaToImage->getImagePostId();
++        $imagePost = $this->imagePostRepository->find($imagePostId);
++
+         $updatedContents = $this->ponkaficator->ponkafy(
+             $this->photoManager->read($imagePost->getFilename())
+         );

@@ -1,0 +1,38 @@
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index 61137f7..23932b5 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -7,10 +7,14 @@ use App\Photo\PhotoFileManager;
+ use App\Photo\PhotoPonkaficator;
+ use App\Repository\ImagePostRepository;
+ use Doctrine\ORM\EntityManagerInterface;
++use Psr\Log\LoggerAwareInterface;
++use Psr\Log\LoggerAwareTrait;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+ 
+-class AddPonkaToImageHandler implements MessageHandlerInterface
++class AddPonkaToImageHandler implements MessageHandlerInterface, LoggerAwareInterface
+ {
++    use LoggerAwareTrait;
++
+     private $ponkaficator;
+     private $photoManager;
+     private $entityManager;
+@@ -29,6 +33,17 @@ class AddPonkaToImageHandler implements MessageHandlerInterface
+         $imagePostId = $addPonkaToImage->getImagePostId();
+         $imagePost = $this->imagePostRepository->find($imagePostId);
+ 
++        if (!$imagePost) {
++            // could throw an exception... it would be retried
++            // or return and this message will be discarded
++
++            if ($this->logger) {
++                $this->logger->alert(sprintf('Image post %d was missing!', $imagePostId));
++            }
++
++            return;
++        }
++
+         $updatedContents = $this->ponkaficator->ponkafy(
+             $this->photoManager->read($imagePost->getFilename())
+         );

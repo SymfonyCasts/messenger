@@ -1,0 +1,19 @@
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
+new file mode 100644
+index 0000000..d58aca9
+--- /dev/null
++++ b/src/MessageHandler/DeleteImagePostHandler.php
+@@ -0,0 +1,13 @@
++<?php
++
++namespace App\MessageHandler;
++
++use App\Message\DeleteImagePost;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++
++class DeleteImagePostHandler implements MessageHandlerInterface
++{
++    public function __invoke(DeleteImagePost $deleteImagePost)
++    {
++    }
++}

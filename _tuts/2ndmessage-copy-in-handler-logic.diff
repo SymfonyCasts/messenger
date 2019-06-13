@@ -1,0 +1,30 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 47b845e..52fd63f 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -68,11 +68,6 @@ class ImagePostController extends AbstractController
+      */
+     public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoFileManager $photoManager)
+     {
+-        $photoManager->deleteImage($imagePost->getFilename());
+-
+-        $entityManager->remove($imagePost);
+-        $entityManager->flush();
+-
+         return new Response(null, 204);
+     }
+ 
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
+index d58aca9..e7d3786 100644
+--- a/src/MessageHandler/DeleteImagePostHandler.php
++++ b/src/MessageHandler/DeleteImagePostHandler.php
+@@ -9,5 +9,9 @@ class DeleteImagePostHandler implements MessageHandlerInterface
+ {
+     public function __invoke(DeleteImagePost $deleteImagePost)
+     {
++        $photoManager->deleteImage($imagePost->getFilename());
++
++        $entityManager->remove($imagePost);
++        $entityManager->flush();
+     }
+ }
