@@ -1,18 +1,26 @@
 <template>
-    <li v-bind:class="{ deleting: isDeleting }" class="text-white">
-        <button title="clear image" v-on:click="onDeleteClick" class="btn btn-default font-weight-bold text-white">X</button>
-        <a v-bind:href="url" target="_blank">
-            <img
-                v-bind:src="url"
-                v-bind:alt="originalFilename"
-            >
-        </a>
-        <span v-if="this.ponkaAddedAt">
-            Ponka visited your photo {{ ponkaAddedAgo }}
-        </span>
-        <span v-else>
-            Ponka is napping. Check back soon.
-        </span>
+    <li v-bind:class="{ deleting: isDeleting }" class="text-white pt-3">
+        <div class="d-flex flex-row">
+            <div>
+                <a v-bind:href="url" target="_blank">
+                    <img
+                        v-bind:src="url"
+                        v-bind:alt="originalFilename"
+                    >
+                </a>
+            </div>
+            <div class="pl-2">
+                <span v-if="this.ponkaAddedAt">
+                    Ponka visited your photo {{ ponkaAddedAgo }}
+                </span>
+                <span v-else>
+                    Ponka is napping. Check back soon.
+                </span>
+            </div>
+            <div class="pl-2">
+                <button title="clear image" v-on:click="onDeleteClick" class="btn btn-warning font-weight-bold">X</button>
+            </div>
+        </div>
     </li>
 </template>
 

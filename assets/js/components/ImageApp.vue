@@ -7,13 +7,13 @@
                 </div>
             </div>
             <div class="row no-gutters">
-                <div class="col px-5" style="background-color: #659dbd; min-height: 40rem;">
+                <div class="col-xs-12 col-md-6 px-5 pb-5" style="background-color: #659dbd; ">
                     <h2 class="text-center mb-5 pt-5 text-white">First: Upload Photo</h2>
                     <imageUploader
                         v-on:new-image="onNewUploadedImage"
                     ></imageUploader>
                 </div>
-                <div class="col px-5" style="background-color: #7FB7D7;">
+                <div class="col-xs-12 col-md-6 px-5 pb-5" style="background-color: #7FB7D7; min-height: 40rem;">
                     <h2 class="text-center mb-5 pt-5 text-white">Second: Download Improved Photo</h2>
                     <imageList
                         v-bind:images="images"
@@ -23,7 +23,7 @@
             </div>
             <footer class="footer">
                 
-                    <p class="text-muted my-5 text-center">Made with love by the <a href="http://www.symfonycasts.com">SymfonyCasts</a> Team</p>
+                    <p class="text-muted my-5 text-center">Made with love by the <a style="text-decoration: underline; color: #6c757d; font-weight: bold;" href="http://www.symfonycasts.com">SymfonyCasts</a> Team</p>
                 
             </footer>
         </div>
