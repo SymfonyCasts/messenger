@@ -7,13 +7,13 @@
                 </div>
             </div>
             <div class="row no-gutters">
-                <div class="col-xs-12 col-md-6 px-5 pb-5" style="background-color: #659dbd; ">
+                <div class="col-xs-12 col-md-6 px-5" style="background-color: #659dbd; padding-bottom: 150px;">
                     <h2 class="text-center mb-5 pt-5 text-white">First: Upload Photo</h2>
                     <imageUploader
                         v-on:new-image="onNewUploadedImage"
                     ></imageUploader>
                 </div>
-                <div class="col-xs-12 col-md-6 px-5 pb-5" style="background-color: #7FB7D7; min-height: 40rem;">
+                <div class="col-xs-12 col-md-6 px-5" style="background-color: #7FB7D7; min-height: 40rem; padding-bottom: 150px;">
                     <h2 class="text-center mb-5 pt-5 text-white">Second: Download Improved Photo</h2>
                     <imageList
                         v-bind:images="images"
