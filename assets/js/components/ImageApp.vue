@@ -1,12 +1,32 @@
 <template>
     <div>
-        <imageUploader
-            v-on:new-image="onNewUploadedImage"
-        ></imageUploader>
-        <imageList
-            v-bind:images="images"
-            v-on:delete-image="onDeleteImage"
-        ></imageList>
+        <div style="position:relative;">
+            <div class="row no-gutters" style="box-shadow: 0 3px 7px 1px rgba(0,0,0,0.06);">
+                <div class="col py-5">
+                    <h1 class="text-center">Ponka-fy Me</h1>
+                </div>
+            </div>
+            <div class="row no-gutters">
+                <div class="col px-5" style="background-color: #659dbd; min-height: 40rem;">
+                    <h2 class="text-center mb-5 pt-5 text-white">First: Upload Photo</h2>
+                    <imageUploader
+                        v-on:new-image="onNewUploadedImage"
+                    ></imageUploader>
+                </div>
+                <div class="col px-5" style="background-color: #7FB7D7;">
+                    <h2 class="text-center mb-5 pt-5 text-white">Second: Download Improved Photo</h2>
+                    <imageList
+                        v-bind:images="images"
+                        v-on:delete-image="onDeleteImage"
+                    ></imageList>
+                </div>
+            </div>
+            <footer class="footer">
+                
+                    <p class="text-muted my-5 text-center">Made with love by the <a href="http://www.symfonycasts.com">SymfonyCasts</a> Team</p>
+                
+            </footer>
+        </div>
     </div>
 </template>
 
@@ -54,3 +74,13 @@
         }
     }
 </script>
+
+<style scoped lang="scss">
+    .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        min-height: 60px;
+        background-color: #f5f5f5;
+    }
+</style>

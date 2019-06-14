@@ -1,5 +1,6 @@
 <template>
-    <li v-bind:class="{ deleting: isDeleting }">
+    <li v-bind:class="{ deleting: isDeleting }" class="text-white">
+        <button title="clear image" v-on:click="onDeleteClick" class="btn btn-default font-weight-bold text-white">X</button>
         <a v-bind:href="url" target="_blank">
             <img
                 v-bind:src="url"
@@ -12,7 +13,6 @@
         <span v-else>
             Ponka is napping. Check back soon.
         </span>
-        <button v-on:click="onDeleteClick">X</button>
     </li>
 </template>
 
@@ -51,11 +51,16 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     img {
         width: 100px;
+        border-radius: 5px;
     }
     .deleting {
         opacity: .3;
     }
+    button {
+        cursor: pointer;
+    }
+
 </style>

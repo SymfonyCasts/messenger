@@ -29,12 +29,15 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .list-enter-active, .list-leave-active {
       transition: all 1s;
     }
     .list-enter, .list-leave-to {
       opacity: 0;
       transform: translateY(30px);
+    }
+    ul {
+        list-style: none
     }
 </style>

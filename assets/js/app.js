@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import ImageApp from './components/ImageApp';
+import 'bootstrap/dist/css/bootstrap.css';
 
 Vue.component('image-app', ImageApp);
 
