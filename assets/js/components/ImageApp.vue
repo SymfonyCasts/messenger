@@ -42,6 +42,12 @@
         },
         methods: {
             onNewUploadedImage(image) {
+                // bail if already found - solves a race condition
+                // when upload and polling finish at similar time
+                if (this.images.find(oneImage => oneImage.id === image.id)) {
+                    return;
+                }
+
                 this.images.unshift(image);
             },
             onDeleteImage(image) {
