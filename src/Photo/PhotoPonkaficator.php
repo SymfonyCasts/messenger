@@ -2,13 +2,11 @@
 
 namespace App\Photo;
 
-use App\Entity\ImagePost;
 use Doctrine\ORM\EntityManagerInterface;
 use Intervention\Image\Constraint;
 use Intervention\Image\ImageManager;
 use League\Flysystem\FilesystemInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class PhotoPonkaficator
 {
@@ -40,9 +38,7 @@ class PhotoPonkaficator
 
         $targetPhoto = $targetPhoto->insert(
             $ponkaPhoto,
-            'bottom-left',
-            (int) ($targetPhoto->width() * .05),
-            (int) ($targetPhoto->height() * .05)
+            'bottom-right'
         );
 
         // for dramatic effect, make this *really* slow
