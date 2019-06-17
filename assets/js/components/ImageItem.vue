@@ -26,6 +26,7 @@
 
 <script>
     import moment from 'moment';
+    import $ from 'jquery';
 
     export default {
         data() {
@@ -55,6 +56,9 @@
         },
         beforeDestroy() {
             clearInterval(this.timer);
+        },
+        mounted() {
+            $(this.$el).find('button').tooltip();
         }
     }
 </script>
