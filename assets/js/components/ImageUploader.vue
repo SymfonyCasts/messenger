@@ -2,6 +2,7 @@
     <div>
         <vue-dropzone
             id="dropzone"
+            ref="vueDropzone"
             v-on:vdropzone-success="onDropzoneSuccess"
             :options="dropzoneOptions"
         ></vue-dropzone>
@@ -19,6 +20,7 @@
         methods: {
             onDropzoneSuccess(file, response) {
                 this.$emit('new-image', response);
+                this.$refs.vueDropzone.removeFile(file);
             }
         },
         data: function () {
