@@ -70,13 +70,6 @@
         },
         mounted() {
             this.fetchImagesData();
-        },
-        created() {
-            // slow "polling" for updates
-            this.timer = setInterval(this.fetchImagesData, 10000);
-        },
-        beforeDestroy() {
-            clearInterval(this.timer);
         }
     }
 </script>
