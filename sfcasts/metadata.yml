@@ -1,5 +1,5 @@
 chapters:
   - install
   - message-class
-  - handler-work #raw
+  - handler-work
   - another-message #raw
