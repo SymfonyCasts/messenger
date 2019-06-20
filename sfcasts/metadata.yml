@@ -3,7 +3,7 @@ chapters:
   - message-class
   - handler-work
   - another-message
-  - async-transport       #raw
+  - async-transport
   - worker                #raw
   - entity-handling       #raw
   - embedded-message      #raw
