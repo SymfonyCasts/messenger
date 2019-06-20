@@ -3,3 +3,12 @@ chapters:
   - message-class
   - handler-work
   - another-message
+  - async-transport       #raw
+  - worker                #raw
+  - entity-handling       #raw
+  - embedded-message      #raw
+  - stamps-envelopes      #raw
+  - retries               #raw
+  - failure-transport     #raw
+  - middleware            #raw
+  - sent-received-logging #raw
