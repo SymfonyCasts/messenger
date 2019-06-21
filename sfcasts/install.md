@@ -1,88 +1,100 @@
-# Install
+# Installing Messenger
 
-Coming soon...
+Yo Friends! It's Symfony Messenger time!!! So, what *is* Symfony Messenger? It's
+a tool that allows you to... um... send messages... Wait... that made no sense.
 
-Hi Friends. Welcome to our tutorial on Messenger.
+## Um, What *is* Messenger?
 
-Which is a topic that's near and dear to my heart because a, it's just a super fun
-thing to work with. And B, because I was one of many people that added a bunch of
-really cool features for Symfony 4.3 that makes Messenger really, really shine. So
-I'm super excited to show you those. Now Messenger itself is just a component inside
-of Symfony. It's just kind of a small tool that can really change your workflow and
-it's just an absolute joy to work with. It enables a design pattern of messages and
-handlers which are going to see shortly. And that design pattern makes it possible to
-do work asynchronously via queues, which is ultimately what we're going to talk about.
+Let's try again. Messenger is a tool that enables a *really* cool design pattern
+where you write "messages" and then other code that *does* something when that
+message is sent. If you've heard of CQRS - Command Query Responsibility Segregation -
+Messenger is a tool that enables that design pattern.
 
-So as always, to get the most of this tutorial, you should totally code along with
-me. Download the course code on this page.
+That's all great... and we're going to learn *plenty* about it. But there's a good
+chance you're watching this because you want to learn about something *else*
+that Messenger does: it allows you to run code asynchronously with queues & workers!
+OooooOOoo. That's the *real* fanciness of Messenger.
 
+Oh, and I have two more sales pitches. First, Symfony 4.3 has a *ton* of new features
+that *really* make Messenger shine. And second, using Messenger is an absolute
+delight. So... let's do this!
 
-And when you unzip it, you'll have a start directory in a start directory with the
-same code that you see here. You can open up this. `README.MD` file. Follow the
-setup instructions to get your project rocking. The last step will be to find a
-terminal and use the symfony console tool to run
+## Project Setup
 
-```terminal
+If you want to become a command-bus-queue-processing-worker-middleware-envelope...
+and other buzzwords... Messenger *master*, warm up your coffee and code along with
+me. Download the course code from this page. When you unzip it, you'll find a
+`start/` directory inside with the same code that you see here. Open up the
+`README.md` file for *all* the details about how to get the project running *and*
+a totally-unrelated, yet, lovely poem called "The Messenger".
+
+The last setup step will be to find a terminal and use the Symfony binary to start
+a web-server at `https://localhost:8000`:
+
+```terminal-silent
 symfony serve
 ```
 
-We'll start a built in web server at `localhost:8000` let's go check this out.
+Ok, let's go check that out in our browser. Say hello to our newest
+SymfonyCasts creation: Ponka-fy Me. If you didn't already know, Ponka, by day, is
+one of the lead developers here at SymfonyCasts. By night... she is Victor's
+cat. Actually... due to her frequent nap schedule... she doesn't really *do* any
+coding... now that I think about it.
 
-Say hello to our very important APP called Ponka-fy Me. If you don't know, Ponka is
-Victor's cat who is works on our team. I love being able to work on the
-wording later. Victor works on our team. Oh yeah. Ponka is a team member here and
-we've been having the problem where we often go on vacation, Ponka can't come more
-with and then when we come back, none of our photos have Ponka in them, so we thought
-let's make a site to do that. So we have a little upload widget here. I'll select a
-vacation photo with me, Leanna and her brother. It uploads over here and boom over
-here. Check this out. We get a beautiful photo with Ponka in it.
+## Ponka-fy Me
 
-Behind the scenes, this actually uses eight. This is a Vue js frontend, which is
-not that important. The important thing to understand is that this uploads a to an
-API end point. And in that API end point, we store the uploaded file and then we need
-to do some heavy work. We need to do heavy work of actually manipulating these two
-images and then sending them back, which is the reason why when we do this,
+Anyways, we've been noticing a problem where we go on vacation, but Ponka can't
+come... so when we return, none of our photos have Ponka in them! Ponka-fy Me
+solves that: let's select a vacation photo... it uploads... and... yea! Check it
+out! Ponka *seamlessly* joined us in our vacation photo!
 
-it's not that fast. You can say it finishes uploading here, you weigh in a second or
-two and then it pops up over here. It's a little bit slow because it's taken some
-time to process their controller behind this is in `src/Controller/ImagePostController.php`
-And here's the endpoint. That's really important to `create()` endpoint,
-grabs the file, validates it, uh, ultimately uses another service to store that file.
-And then down here it uses another service that actually, um, adds the pumpkin image.
-So this is kind of the area here that's a little bit of like heavy work that's
-happening. Kind of looked at this `$photoManager->update()`.
+Behind the scenes, this app uses a Vue.js frontend... which isn't important
+for what we'll be learning. What *is* important to know is that this uploads to
+an API endpoint which stores the photo and then *combines* two images together.
+That's a pretty heavy thing to do on a web request... which is why, if you watch
+closely, it's kinda slow: it will finish uploading... wait... and, yep, *then*
+load the new image on the right.
 
+Let's look at the API endpoint so you can get an idea of how this works: it lives
+at `src/Controller/ImagePostController.php`. Look for `create()` *this* is the
+upload API endpoint: it grabs the file, validates it, uses *another* service
+to store that file - that's the `uploadImage()` method, creates a new `ImagePost`
+entity, saves it to the database with Doctrine and *then*, down here, we have
+some code to add Ponka to our photo. That `ponkafy()` method does the *really*
+heavy-lifting: it takes the two images, splices them together and... to make it
+extra dramatic and slow-looking for the purposes of this tutorial, it takes a 2
+second break for tea.
 
-Or not that if you look at this, `ponkafy()` method here, there's some heavy 
-kind of a image manipulation stuff going and for dramatic effect. 
-I even had a little `sleep(2)` there to make it seem extra slow.
+Mostly... all of this code is meant to be *pretty* boring. Sure, I've organized
+things into a few services... that's nice - but it's all very traditional. It's
+a *perfect* test case for Messenger!
 
-Okay. So this is just great boring code and we're going to see how Messenger is going
-to really change the way that this code looks and works. So before we actually start
-getting into it, we need to get it installed. So I'll go to my terminal, open a new
-tab and run 
+## Installing Messenger
+
+So... let's get it installed! Find your terminal, open a new tab and run:
 
 ```terminal
 composer require messenger
 ```
 
-Well that finishes, you can see some information here that's actually coming from 
-the recipe and we're going to talk about all what all this stuff is as we go along. 
-This really isn't, it made two changes to our application beyond the normal stuff. 
-It modified `.env`
+When that finishes... we get a "message"... from Messenger! Well, from its recipe.
+This is great - but we'll talk about all this stuff along the way.
 
-and add a new messenger. Transport. Transport's going to be something we talk about
-when we start, um, using queuing systems to cues some of our work. And the only thing
-it did is it added a new `messenger.yaml` file, which I just want to show you, contains
-absolutely nothing interesting right now. So this transports routing stuff, we'll
-talk about that, but you can see, you can see it's all completely empty. So at this
-point, the only thing that installing messenger gave us is it gives us a new service.
-So let's run 
+In addition to installing the messenger component, its Flex recipe made two changes
+to our app. First, it modified `.env`. Let's see... it added this "transport"
+config. This relates to queuing messages - a lot more on that later. It also added
+a new `messenger.yaml` file, which... if you open that up... is *perfectly*...
+boring! It has `transports` and `routing` keys - again, things that relate to
+queuing - but it's all empty and doesn't do *anything* yet.
+
+So... what *did* installing the messenger component give us... other than some
+new PHP classes inside the `vendor/` directory? It gave us one new important
+service. Back at your terminal run:
 
 ```terminal
 php bin/console debug:autowiring mess
 ```
 
-I'll search search for a `mess`, and you can see that we have a new `MessageBusInterface` 
-class, which we're going to learn. So next we're going to learn about Message classes, 
-Message handlers, and how the Message Bus, how we can use a message bus to do that work.
+There it is! We have a new service that we can use with this `MessageBusInterface`
+type-hint. Um... what does it do? I don't know! But let's find out next! Along
+with learning about message classes and message handlers.

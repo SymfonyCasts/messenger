@@ -1,94 +1,133 @@
-# Message Class
+# Message, Handler & the Bus
 
-Coming soon...
+Messenger is what's known as a "Message Bus"... which is kind of a generic tool
+that can be used to do a couple of different, but similar design patterns. For
+example... Messenger can be used as a "Command bus", a "Query bus", an "Event bus"
+*or*... a "School bus". Oh... wait... that last one was never implemented... ok,
+it can be used for the first three. Anyways, if these terms mean absolutely
+*nothing* to you... great! We'll talk about what all of this means along the way.
 
-Messenger is what's known as a Message Bus, which is kind of this generic tool
+## Command Bus Pattern
 
-that can be used to do a couple of different patterns and we're going to talk about
-all of them. They are Command Buses, Query buses and Event buses and they all kind
-of have subtle differences, but they all kind of are the same basic idea. The first
-one and probably the most common one is going to be the command bus. Many of the
-command bus is that instead of just doing work inside of your controller, or even if
-we moved all of this into a service, instead of just doing work in one place, what
-you're gonna do is you're going to create first a Message and then second a Message
-Handler. So this idea of, of um, I've, uh, first creating a message which sort of
-describes your intent of what you want to happen. Like I want to add Ponka got to an
-image and then having something else that reads that message and does the work.
-That's called a command Bus pattern. And it's just a nice way to organize your code.
-Not even thinking about asynchronous or anything like that. So here's how
+Most people will use Messenger as a "command bus"... which is sort of a design
+pattern. Here's the idea. Right now, we're doing all of our work in the controller.
+Well, ok, we've organized things into services, but our controller calls those
+methods directly. It's nicely-organized, but it's still basically procedural:
+you can read the code from top to bottom.
 
+With a command bus, you separate *what* you want to happen - called a "command" -
+from the code that *does* that work. Imagine you're working as a waiter or waitress
+at a restaurant and someone wants a pizza margherita... with extra fresh basil!
+Mmm. Do you... run back to the kitchen and cook it yourself? *Probably* not...
+Instead, you write down the order. But... let's say instead, you write down a
+"command": cook a pizza, margherita style with extra fresh basil. Next, you
+"send" that command to the kitchen. And finally, some chef does all the magic
+to get that pizza ready. Meanwhile, you're able to take more orders and send
+more "commands" back to the kitchen.
 
-command bus pattern works inside my `src/` directory. It doesn't matter anywhere, but
-I'm going to create a new `Message/` directory inside of there. A new class in this
-class can be called anything I want and they can look like anything you want. This is
-our message class or command class. I'm going to say `AddPonkaToImage` cause
-that's the, that's describing the intent of what we want to have happen and written
-here instead of here, I'm going to do nothing else right now it's just going to be an
-empty class. As you'll see in a few minutes, this class can contain any information
-that we want to tell to the handler. Okay, so step two was always then did create a
-handler that's actually going to do the work. So once again, this class and go
-anywhere, I'm going to put it in instead of a `MessageHandler/` directory, this class
-can be called anything. 
-They'll commonly, it's going to be called `AddPonkaToImageHandler`
+*This* is a command bus: you create a simple, informational command "cook a pizza",
+give it to some central "system"... which is given that fancy word "bus", and *it*
+makes sure that something sees that command and "handles" it... in this case,
+a "chef" cooks the pizza. And that central "bus" is probably smart enough to have
+different people "handle" different commands: the chef cooks the pizza, but the
+bar tender prepares the drink orders.
 
+## Creating the Command Class
 
-In this pattern is usually one message class is connected to one handler specifically
-and for reasons that I'll explain in a second. The handler class needs to implement
-`MessageHandlerInterface` and that's actually a um, a marker interface. There's
-nothing inside of it. It doesn't actually make us have to implement any methods. One
-method that you are going to need to actually make this work is 
-`public function __invoke()` and very importantly that needs to accept a one
-argument which needs ie the exact type hint of the message class. So 
-`AddPonkaToImage $addPonkaToImage` instead of here. I'm just going to `dump()`. 
-So the idea is on a very high level, what we're going to do inside of our 
-code is we're going to create an `AddPonkaToImage` object and then we're going 
-to tell messenger to process this. And when it does that messenger is very simply 
-going to take this object and it's going to call our `__invoke()` method and pass it here. 
-And then we're going to do the work, sort of separating the intent from the actual work.
+Let's recreate that *same* idea... in code! The "command" *we* want to issue is:
+add Ponka to this image. In Messenger, each command is a simple PHP class. In the
+`src/` directory, create a new `Message/` directory. We can put our command, or
+"message", classes anywhere... but this is a nice way to organize things. Create
+a new PHP class called `AddPonkaToImage`... because that describes the *intent*
+of what we want to happen: we want someone to add ponka to the image. Inside...
+for now... do *nothing*.
 
-Now just by creating those two classes, you can already go to over to your terminal
-here and run 
+A message class is *your* code: it can look *however* you want. More on that later.
+
+## Creating the Handler Class
+
+Command, done! Step 2 is to create the "handler" class - the code that will *actually*
+add Ponka to an image. Once again, this class can live anywhere, but let's create
+a new `MessageHandler/` directory to keep things organized. The handler class
+can *also* be called anything... but unless you *love* being confused...
+call it `AddPonkaToImageHandler`.
+
+Unlike the message, the handler class *does* have a few rules. First, a handler
+class must implement `MessageHandlerInterface`... which is actually *empty*. It's
+a "marker" interface. We'll talk about *why* this is needed in a bit. And second,
+the class must have a public function called `__invoke()` with a single argument
+that is *type-hinted* with the message class. So, `AddPonkaToImage`, then any
+argument name: `$addPonkaToImage`. Inside, hmm, just to see how this all works,
+let's `dump($addPonkaToImage)`.
+
+## Connecting the Message and Handler
+
+Ok, let's back up. On a high level, here's how this is going to work. In our code,
+we'll create an `AddPonkaToImage` object and tell messenger - the message bus -
+to "handle" it. Messenger will see our `AddPonkaToImage` object, go get
+the `AddPonkaToImageHandler` service, call its `__invoke()` method and pass it the
+`AddPonkaToImage` object. That's... all there is to it!
+
+But wait... how does messenger know that the `AddPonkaToImage` object should be
+"handled" by `AddPonkaToImageHandler`? Like, if we had multiple command and handler
+classes, how would it know which handler handles which message?
+
+Find your terminal and run:
 
 ```terminal
 php bin/console debug:messenger
 ```
 
-And that's going to tell you all of
-the messages in the system that it sees and who handles them. So it says, look, if
-you dispatch an `AddPonkaToImage`, it's going to be handled by `AddPonkaToImageHandler`
-Now there's two reasons. The way the way that works is because of this
-`MessageHandlerInterface` that allows Symfony to basically know that this is a
-message handler. And the other thing it does is it looks for a method called
-`__invoke()`, and it reads the type hint. So Symfony knows that this handle,
-this class handles and `AddPonkaToImage`, thanks to this type. And you can totally
-customize this and call the method something else. But most of the time this is where
-you're gonna want to do. And it means you don't need any extra configuration. Now, if
-you're not familiar with the `__invoke()`, it's not really going to be important
-here, but that's actually a way where you can, if you have a class that has
-an `__invoke()` method that you then you can actually execute your class like a
-function, not actually important here, messenger and Messenger. We just decided that
-this would be the name of the method that your handler should have by default.
+This is an *awesome* command: it shows us a map of which handler will be called
+for each message. We only have 1 right now, but... yea, somehow it *already*
+knows that `AddPonkaToImage` should be handled by `AddPonkaToImageHandler`. How?
 
-All right, so we have our message class and we have our message handler. The last
-thing we need to do is actually tell a messenger, hey, I want you to do dispatch my
-message. So we're going to do that over here in `ImagePostController`. So here's our
-endpoint that actually uploads the image and then adds Ponka to it. So the Messenger
-ads one service to our system, which you can autowire via `MessageBusInterface`.
+It knows thanks to two things. First, that empty `MessageHandlerInterface` is
+a "flag" that tells Symfony that this is a messenger "handler". And second, Messenger
+looks for a method called `__invoke()` and reads the *type-hint* on its argument
+to know *which* message class this should handle. So, `AddPonkaToImage`.
 
-Then down here, right above the punk of stuff, we will leave all of our existing
-logic loan for a second. I'm going to say `$message = new AddPonkaToImage()` and
-then `$messageBus->dispatch($message)`. And that's it. That's really, that's the only
-method on message, on message bus. So if everything worked correctly, this is
-actually the message bus and we'll see that we're passing an `AddPonkaToImage` and
-then simply call our handler. It's a really simple idea, just separating the intent
-of what we want to do from the actual work. All right, so let's try it back over
-here. I'll refresh the page just to be in case, just be safe.
+And yes, you can *totally* configure all of this in a different way, and even skip
+adding the interface by using a tag. We'll talk about some of this later... but
+it's usually not something you need to worry about.
 
-Then I will click to add on the thumbnail. When that finishes down here in my web, do
-you have to have our, I can see the uh, uh, profiler for that. So I'm going to hold
-command and opened that. And then down here, cause I dumped something in debug. There
-it is. You can see that the handler was called and it does have our `AddPonkaToImage`.
-So that's a really, really simple setup. What we're missing now is though we actually
-need to do the work inside of here. So our end goal is actually going to be to take
-out all of this code from our controller that previously did that work and move it
-into our handler. Let's do that next.
+Oh, and if you're not familiar with the `__invoke()` method, ignoring Messenger
+for a minute, that's a magic method you can put on any PHP class to make it
+"executable": you can take an object and call it like a function... *if* it has
+this method. That detail is not important *at all* to understand Messenger, but
+it explains why this, otherwise "strange" method name was chosen.
+
+## Dispatching the Message
+
+Phew! Status check: we have a message class, we have a handler class, and thanks
+to some smartness from Symfony, Messenger knows these are linked together. The
+*last* thing we need to do is... actually send the command, or "message", to the
+bus!
+
+Head over to `ImagePostController`. This is the endpoint that uploads our image
+and adds Ponka to it. Fetch the message bus by adding a new argument with the
+`MessageBusInterface` type-hint.
+
+Then... right *above* all the Ponka image code - we'll leave all of that there
+for the moment - say `$message = new AddPonkaToImage()`. And then
+`$messageBus->dispatch($message)`.
+
+That's it! `dispatch()` is the *only* method on that object... it doesn't get any
+more complicated than this.
+
+So... let's try it! If everything works, this `AddPonkaToImage` object should
+be passed to `__invoke()` and then we'll dump it. Since this will all happen on
+an AJAX request, we'll use a trick in the profiler to see if it worked.
+
+Head back and refresh the page... just to be safe. Upload a new photo and... when
+it finishes, down on the web debug toolbar, hover over the arrow icon to find...
+nice! Here is that AJAX request. I'll hold Command and click the link to open it
+in a new tab. This is the profiler for that AJAX request. Click the "Debug" link
+on the left.
+
+Ha! There it is! This shows us that our `dump()` code *was* executed during the
+AJAX request! It worked! We pass the message to the message bus and then it
+calls the handler.
+
+Of course... our handler doesn't *do* anything yet. Next, let's move all of the
+Ponkafication logic from our controller into the handler.
