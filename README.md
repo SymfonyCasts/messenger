@@ -78,6 +78,30 @@ Now check out the site at `https://localhost:8000`
 
 Have fun!
 
+## The Messenger
+
+My work is loving the world.
+Here the sunflowers, there the hummingbird -
+equal seekers of sweetness.
+Here the quickening yeast; there the blue plums.
+Here the clam deep in the speckled sand.
+Are my boots old? Is my coat torn?
+Am I no longer young and still not half-perfect? Let me
+keep my mind on what matters,
+which is my work,
+which is mostly standing still and learning to be astonished.
+The phoebe, the delphinium.
+The sheep in the pasture, and the pasture.
+Which is mostly rejoicing, since all ingredients are here,
+Which is gratitude, to be given a mind and a heart
+and these body-clothes,
+a mouth with which to give shouts of joy
+to the moth and the wren, to the sleepy dug-up clam,
+telling them all, over and over, how it is
+that we live forever.
+
+[Mary Oliver - Thirst](http://maryoliver.beacon.org/2009/11/thirst/)
+
 ## Have Ideas, Feedback or an Issue?
 
 If you have suggestions or questions, please feel free to
