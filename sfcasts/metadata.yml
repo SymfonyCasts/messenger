@@ -5,7 +5,7 @@ chapters:
   - another-message
   - async-transport
   - worker
-  - entity-handling       #raw
+  - entity-handling
   - embedded-message      #raw
   - stamps-envelopes      #raw
   - retries               #raw
