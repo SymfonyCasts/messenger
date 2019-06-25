@@ -8,7 +8,7 @@ chapters:
   - entity-handling
   - embedded-message
   - stamps-envelopes
-  - retries               #raw
+  - retries
   - failure-transport     #raw
   - middleware            #raw
   - sent-received-logging #raw
