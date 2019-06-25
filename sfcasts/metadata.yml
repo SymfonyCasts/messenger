@@ -7,7 +7,7 @@ chapters:
   - worker
   - entity-handling
   - embedded-message
-  - stamps-envelopes      #raw
+  - stamps-envelopes
   - retries               #raw
   - failure-transport     #raw
   - middleware            #raw
