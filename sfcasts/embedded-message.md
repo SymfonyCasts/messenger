@@ -5,7 +5,7 @@ Coming soon...
 Deleting things still happen. It's totally synchronously. And you can see it takes a
 couple of seconds for it to finish right here. Uh, we did move this into our message
 system. We do have a `DeleteImagePost` message and a `DeleteImagePostHandler`. But
-inside of our `config/messenger.yaml`, we're not routing that to be `async`. So
+inside of our config `messenger.yaml`, we're not routing that to be `async`. So
 it's being handled immediately. And actually I want to keep this and if you notice,
 we're still passing the entity object into the argument I, we talked a second ago
 about how it's really make the message pure. You should probably just pass in the `id`
@@ -118,7 +118,7 @@ you're gonna want to organize things. How are, if you end up with a lot of messa
 classes and you're constantly making them Async, this routing key does work via
 interfaces. So what that means is you could actually create a interface, for example,
 instead of your message class called your `AsyncMessageInterface`. And then you could
-actually put that down here. Something like `Async=MessageInterface` pointed the
+actually put that down here. Something like `AsyncMessageInterface` pointed the
 `async`. And if you did this than any classes that implemented, the interface would go
 to that, uh, would go to that. Would we get routed to vet transport? So that's just a
 little trick up your sleeve if you need that.
