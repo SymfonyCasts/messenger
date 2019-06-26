@@ -15,35 +15,35 @@ about these two steps... the only thing we need to do *immediately* is delete th
 image from the database. If we *only* did that and the user refreshed the page,
 it *would* be gone. And then... if we deleted the actual file a few seconds... or
 minutes or even *days* later... that would be totally fine! But... more on doing
-fancy asynchronous processing in a few minutes.
+fancy asynchronous stuff in a few minutes.
 
 ## Creating DeleteImagePost
 
 Right now, let's refactor all this deleting logic into the command bus pattern we
-just learned. First, we need the message class. Let's copy `AddPonkaToImage`, paste
-and call it `DeleteImagePost.php`. Update the class name and then... um... do
-*nothing* else! Coincidentally, this message class will look *exactly* the same:
-the handler will need to know *which* `ImagePost` to delete.
+just learned. First, we need the message, or "command" class. Let's copy
+`AddPonkaToImage`, paste and call it `DeleteImagePost.php`. Update the class name
+and then... um... do *nothing*! Coincidentally, this message class will look
+*exactly* the same: the handler will need to know *which* `ImagePost` to delete.
 
 ## Creating DeleteImagePostHandler
 
-Ok, time for step 2 - the handler! Create a new PHP class and call it
+Time for step 2 - the handler! Create a new PHP class and call it
 `DeleteImagePostHandler`. Like before, give this a `public function __invoke()`
-with a `DeleteImagePost` type-hint on the only argument.
+with a `DeleteImagePost` type-hint as the only argument.
 
 Now, it's the same process as before: copy the first three lines of the controller,
 delete them, and paste them into the handler. This time, we need two services. Add
 `public function __construct()` with `PhotoFileManager $photoManager` and
-`EntityManagerInterface $entityManager`. I'll hit Alt + Enter to initialize to
-create both of those properties and set them.
+`EntityManagerInterface $entityManager`. I'll hit Alt + Enter and click initialize
+fields to create both of those properties and set them.
 
-Down here use `$this->photoManager`, `$this->entityManager` and one more
-`$this->entityManager`. And, like before, we need  to know which `ImagePost` we're
+Down here, use `$this->photoManager`, `$this->entityManager` and one more
+`$this->entityManager`. And, like before, we need to know which `ImagePost` we're
 deleting. Prep that with `$imagePost = $deleteImagePost->getImagePost()`.
 
 ## Dispatching the Message
 
-Ding! That's my... it's done sound! Because we have a message, a handler and Symfony
+Ding! That's my... it's done sound! Because, we have a message, a handler and Symfony
 *should* know that they're linked together. The *last* step is to *send* the message.
 In the controller... we don't need these last two arguments anymore... we *only*
 need `MessageBusInterface $messageBus`. And then, this is *wonderful*, our *entire*
@@ -56,12 +56,12 @@ HTML version of that exception. Interesting:
 
 ## Command Bus: Each Message should have One Handler
 
-> No handler for message "App\Message\DeleteImagePost"
+> No handler for message `App\Message\DeleteImagePost`
 
 That's interesting. Before we figure out what went wrong, I want to mention one
 thing: in a command bus, each message *normally* has exactly *one* handler: not
 two and not zero. And *that's* why Messenger gives us a helpful error if it can't
-find the handler. We'll talk more about this later and *bend* these rules when
+find that handler. We'll talk more about this later and *bend* these rules when
 we talk about event buses.
 
 ## Debugging the Missing Handler
@@ -78,7 +78,7 @@ it finds *all* the "handler" classes in the system, then prints the "message"
 that it handles next to it. So... this confirms that, for some reason, Messenger
 doesn't see our handler!
 
-And... you might have seen my mistake! To find all the handlers, Symfony looks
+And... you may have spotted my mistake! To find all the handlers, Symfony looks
 in the `src/` directory for classes that implement `MessageHandlerInterface`. And...
 I forgot that part! Add `implements MessageHandlerInterface`.
 
@@ -88,11 +88,11 @@ Run `debug:messenger` again:
 php bin/console debug:messenger
 ```
 
-*Now* it sees it! Let's try it again: close up the profiler, try hitting "x" again
-and... this time it works great.
+*Now* it sees it! Let's try it again: close up the profiler, try hitting "x"
+and... this time it works!
 
 Status report: we have two messages and each has a handler that's potentially doing
-some pretty heavy work, like image manipulation and talking across a network if
-files are stored on the cloud. It's time to talk about *transports*: the key
+some pretty heavy work, like image manipulation or talking across a network if
+files are stored in the cloud. It's time to talk about *transports*: the key
 concept behind taking this work and doing it asynchronously so that our users
 don't have to wait for all that heavy work to finish before getting a response.

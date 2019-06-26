@@ -1,9 +1,10 @@
 # Doing Work in the Handler
 
 Inside our controller, after we save the new file to the filesystem, we're creating
-a new `AddPonkaToImage` object and dispatching it to the message bus. The end result
-is that the message bus calls the `__invoke()` message on our handler and passes
-it that object. Messenger understands the connection between the message object
+a new `AddPonkaToImage` object and dispatching it to the message bus... or technically
+the "command" bus... because we're currently using it as a command bus. The end result
+is that the bus calls the `__invoke()` method on our handler and passes it
+that object. Messenger understands the connection between the message object
 and handler thanks to the argument type-hint and this interface.
 
 ## Command Bus: Beautifully Disappointing
@@ -11,41 +12,44 @@ and handler thanks to the argument type-hint and this interface.
 By the way, you might be thinking:
 
 > Wait... the *whole* point of a "command" bus is to... just "call" this
-> `__invoke()` method for me? Couldn't I just... call it myself and skip a layer?
+> `__invoke()` method for me? Couldn't I just... ya know... call it myself and
+> skip a layer?
 
-And... yes! It's *that* simple! But having the "layer", the "bus" in the middle,
-you get two nice things. First, your code is more decoupled: the code that creates
-the "command" - our controller in this case - doesn't know or care about our handler.
-It dispatches the message and moves on. And second, this *simple* change is going
-to allow us to execute handlers asynchronously. More on that soon.
+And... yes! It's *that* simple! It *should* feel completely underwhelming at first!
+
+But having that "layer", the "bus", in the middle gives us two nice things. First,
+out code is more decoupled: the code that creates the "command" - our controller
+in this case - doesn't know or care about our handler. It dispatches the message
+and moves on. And second, this *simple* change is going to allow us to
+execute handlers asynchronously. More on that soon.
 
 ## Moving code into the Handler
 
-Back to work: all the work to add Ponka to the image is *still* done inside of our
-controller: this adds gets an updated version of the image with Ponka inside, another
-service actually *saves* the new image onto the filesytem, and this last bit -
-`$imagePost->markAsPonkaAdded()`, updates a date field on the entity. It's only
+Back to work: all the code to add Ponka to the image is *still* done inside our
+controller: this gets an updated version of the image with Ponka inside, another
+service actually *saves* the new image onto the filesystem, and this last bit -
+`$imagePost->markAsPonkaAdded()` - updates a date field on the entity. It's only
 a few lines of code... but that's a lot of work!
 
-Copy all of this, remove it, and I'll take my comments out too. Now, paste all of
+Copy all of this, remove it, and I'll take my comments out too. Paste all of
 that into the handler. Ok, no surprise, we have some undefined variables.
 `$ponkaficator`, `$photoManager` and `$entityManager` are all services.
 
-In the controller... on top, we were autowiring all of those into the controller.
-We don't need the `$ponkaficator` anymore.
+In the controller... on top, we were autowiring those services into the controller
+method. We don't need `$ponkaficator` anymore.
 
 Anyways, how can we get those services in our handler? Here's the really cool thing:
 the "message" class - `AddPonkaToImage` is a simple, "model" class. It's kind of
 like an entity: it doesn't live in the container and we don't autowire it into
-our classes. If we need an `AddPonkaToImage` object, we say: `new AddPonkaToImage`.
+our classes. If we need an `AddPonkaToImage` object, we say: `new AddPonkaToImage()`.
 If we decide to give that class any constructor arguments - more on that soon - we
-pass them directly right here.
+pass them right here.
 
 But the *handler* classes are *services*. And *that* means we can use, good,
 old-fashioned dependency injection to get any services we need.
 
 Add `public function __construct()` with, let's see here,
-`PhotoPonkaficator $pontificator`, `PhotoFileManager $photoManager` and... we need
+`PhotoPonkaficator $ponkaficator`, `PhotoFileManager $photoManager` and... we need
 the entity manager: `EntityManagerInterface $entityManager`. I'll hit `Alt + Enter`
 and select Initialize Fields to create those properties and set them.
 
@@ -72,14 +76,14 @@ Down below, we'll need a way to *read* that property. Add a getter:
 `public function getImagePost()` with an `ImagePost` return type. Inside,
 `return $this->imagePost`.
 
-And, really... you can make this class look however you want: we could have made
-this a `public` property and and dropped the need for a constructor or getter.
-Or you could replace the constructor with a `setImagePost()`. This is the way
+And really... you can make this class look however you want: we could have made
+this a `public` property with no need for a constructor or getter. Or you
+could replace the constructor with a `setImagePost()`. *This* is the way
 I like to do it... but it doesn't matter: as long as it holds the data you want
-to pass around.
+to pass to the handler... you're good!
 
-Anyways, now we're danger! Back in `ImagePostController`, down here, `AddPonkaToImage`
-*now* needs an argument. Pass it `$imagePost`.
+Anyways, now we're dangerous! Back in `ImagePostController`, down here,
+`AddPonkaToImage` *now* needs an argument. Pass it `$imagePost`.
 
 Then, over in the handler, finish this with
 `$imagePost = $addPonkaToImage->getImagePost()`.
@@ -93,8 +97,8 @@ writing a message to someone that says:
 Then, you hand that off to the message bus, it calls the handler, and the handler
 has all the info it needs to do that work. It's a simple... but really neat idea.
 
-Let's make usre it all works: move over and refresh just to be safe. Upload a new
+Let's make sure it all works: move over and refresh just to be safe. Upload a new
 image and... it still works!
 
-Next: there's already one other job we can move to a message-handler system:
+Next: there's already one other job we can move to a command-handler system:
 *deleting* an image.
