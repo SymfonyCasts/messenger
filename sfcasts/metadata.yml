@@ -9,6 +9,6 @@ chapters:
   - embedded-message
   - stamps-envelopes
   - retries
-  - failure-transport     #raw
+  - failure-transport
   - middleware            #raw
   - sent-received-logging #raw
