@@ -80,14 +80,14 @@ composer require messenger
 When that finishes... we get a "message"... from Messenger! Well, from its recipe.
 This is great - but we'll talk about all this stuff along the way.
 
-In addition to installing the messenger component, its Flex recipe made two changes
+In addition to installing the Messenger component, its Flex recipe made two changes
 to our app. First, it modified `.env`. Let's see... it added this "transport"
 config. This relates to queuing messages - a lot more on that later. It also added
 a new `messenger.yaml` file, which... if you open that up... is *perfectly*...
 boring! It has `transports` and `routing` keys - again, things that relate to
 queuing - but it's all empty and doesn't do *anything* yet.
 
-So... what *did* installing the messenger component give us... other than some
+So... what *did* installing the Messenger component give us... other than some
 new PHP classes inside the `vendor/` directory? It gave us one new important
 service. Back at your terminal run:
 
