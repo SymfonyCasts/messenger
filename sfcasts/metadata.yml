@@ -10,5 +10,5 @@ chapters:
   - stamps-envelopes
   - retries
   - failure-transport
-  - middleware            #raw
+  - middleware
   - sent-received-logging #raw
