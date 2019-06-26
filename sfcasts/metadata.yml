@@ -8,6 +8,7 @@ chapters:
   - entity-problems
   - entity-handling
   - embedded-message
+  - routing-failing
   - stamps-envelopes
   - retries
   - failure-transport
