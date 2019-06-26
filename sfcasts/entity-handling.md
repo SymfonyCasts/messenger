@@ -1,152 +1,137 @@
-# Entity Handling
+# Passing Entity Ids inside of Messages
 
-Coming soon...
+Suppose you need your friend to come over and watch your dog - let's call her Molly -
+for the weekend. So you write them a message explaining all the details they need to
+know: how often to feed Molly, when to walk her, exactly where she likes to be
+scratched behind the ears, your favorite superhero and the name of your best friend
+when you were little. Wait... those last two things... while *interesting*...
+have *nothing* to do with watching Molly the dog!
 
-We're currently experiencing a very strange issue. We know that `AddPonkaToImageHandler`
-being called successfully by the worker process because it's actually adding
-Ponka to the images. But for some reason this `$imagePost`, which is our entity 
-`->markAsPonkaAdded()`, which sets the `$ponkaAddedAt` property is not being saved to
-the database and the database, even after the image images added, `ponka_added_at` is
-still `null`. So if we're updating the property and then calling 
-`$this->entityManager->flush()` like why isn't that working? Well what they might try to debug
-this, as you might say, I don't know, do I need to call `$this->entityManager->persist()`
-first? I, in theory, you shouldn't need to do that because `persist()` is only needed to
-persist new objects. If you query for an existing object, you should just be able to
-flush and it will find it and save it. But let's try this and see what happens. So
-I'm gonna move over here and we'll select a new image.
+And this touches on a best-practice for designing your message classes: make them
+contain *all* the details the handler needs... and *nothing* extra. This isn't
+an absolute rule... it just makes them leaner, smaller and more directed.
 
-And over here, yeah, done that.
+## Passing the Entity Id
 
-So let's find out adding this persist makes any difference. Now before we do this,
-remember this code is going to be executed by our worker process. And there's a
-tricky thing with work processes. They run forever, but as soon as you start a worker
-process, if you make changes to any of your PHP code, your work process doesn't see
-it. It's already loaded PHP and has PHP in your memory. So anytime you make a change
-to code, that's going to be executed about one of your by, by your worker, you need
-to go over and actually restart that worker saw, `control+c` and then run 
-`messenger:consume -vv` we're going to talk later about deployment and how you
-can automatically restart your workers in a safe way on deployment to make this
-happen. But during development, at least right now, you need to know that you need to
-do that. Alright, so let's flip back over here and let's upload a new file and then
-we'll go over here and you can see it was handled successfully.
+If you think about our message, we don't *really* need the entire `ImagePost`
+object. The *smallest* thing that we could pass is actually the id... which we
+could then use to query for the `ImagePost` object and get the filename.
 
-And if I go back and refresh the front page, something very strange just happened. We
-have three things that showed up. Okay one of them without the day one of them with
-the day and something that's totally broken for your over and look in the database. I
-think I fucked this up. Keep text here about restarting the worker. So let's go over
-and upload a new photo and see what happens this time. Okay. It opens it processes
-just fine. If we go over and look at our worker. Yeah, move received the message just
-fine. So let's see if that worked. We refresh hand. Whoa. There are two rows in the
-database, one with the date set and one without the date set. We can see this if we
-go and look at our database right here.
+Change the constructor argument to `int $imagePostId`. I'll change that below
+and go to Code -> Refactor to rename the property. Oh, and brilliant! It also
+renamed my getter to `getImagePostId()`. Update the return type to be an `int`.
+We can remove the old `use` statement as extra credit.
 
-Yeah, there are two rows here that actually pointed ting to the exact same files if
-it duplicated it. And actually that's exactly what happened. So I wanted to show you
-this because it's a very confusing situation. It's also going to touch on a best
-practice, um, for your messages internally. Whenever you call one of you query for an
-entity and doctrine, it keeps a list of all the entities you queried from. Then when
-you call `flush()`, it actually loops over all those looks for changes and if it finds
-any, it makes updates when you have a new object even call `persist()` on it. And all
-that does is it really tells doctrine, hey, be aware of this object so that when you
-call `flush()` later in how sees the object sees that it's an object that it didn't query
-from and determines that it should insert it into the database.
+Next, in `ImagePostController`, search for  `AddPonkaToImage` and... change this
+to `$imagePost->getId()`.
 
-So what's happening here is that when our worker deserealizes our `AddPonkaToImage`
-object, it also deserealizes this `ImagePost`. And at that moment doctrine has never
-seen that this `ImagePost` object. It doesn't in that it's memory, it doesn't see
-this as something that it queried for. That's why I originally, when we didn't have
-the `persist()`, when you call `flush()` doctrine simply had no idea that this `ImagePost`
-object existed. It did not query for it. Um, directly when we added the `persist()`
-doctor now Sarvis and it mistakenly thought that this was eight new object and it
-inserted it into the database.
+Our message class is now as *small* as it can get. Of course, this means that
+we have a *little* bit extra work to do in our handler. First, the `$imagePost`
+variable is not... well.. and `ImagePost` anymore! Rename it to `$imagePostId`.
+To query for the actual object, add a new argument:
+`ImagePostRepository $imagePostRepository`. I'll hit Alt + Enter -> Initialize Fields
+to create that property and set it.
 
-This is a a bit of a hard thing to debug, but the reason I wanted to show you to you
-is it actually highlights something that we did sort of incorrectly in the first
-place. In general with your messages, you want to make them contain the minimum
-amount of data possible. You want them to contain just the specific data they need to
-do their job. It just makes them leaner and smaller and more directed. So really if
-you think about our message, we don't really need the entire `ImagePost` object. The
-the smallest thing that we need to pass is actually the ID smashing gonna change just
-to `int $imagePostId`. Can you just do `..Id`, I'm going to refactor this to `..Id`, that's
-going to rename my getter. Change this to `: int` down there. Perfect. It can get rid of
-this use statement and then I'm gonna go onto my `ImagePostController`, search for 
-`AddPonkaToImage`.
+Finally, back in the method, we can say
+`$imagePost = $this->imagePostRepository->find($imagePostId)`.
 
-And here I'm actually past the idea that's the smallest unit that I need to make this
-thing work then in our handler. But we just needed to do a little bit more work here.
-So this is not an `$imagePost` anymore. It's an `$imagePostId`. In order to query for
-this, we're going to need the repository. So I'm the type hint `ImagePostRepository`
-and I'll have Alt + Enter -> Initialize Fields to create that property and set it. Then
-finally down here we can say $imagePost = `$this->imagePostRepository->find($imagePostId)`
-and that's it. So we passed that smallest thing possible and then we
-actually go fetch it later and now we can truly remove this `persist()`. That's, this is
-going to be something that doctorate is going to know that a queried for just like
-any normal situation. So when it saves it, it should see it. So once again, since we
-just updated our code, we need to go over and restart our worker. 
+That's it! And this fixes our Doctrine problem! Now that we're querying for the
+entity, when we call `flush()`, it will correctly save it. We can remove the
+`persist()` because it's not needed when updating objects.
+
+Let's try it! Because we just changed code in our handler, hit Ctrl+C to stop
+our worker and then restart it:
 
 ```terminal-silent
 php bin/console messenger:consume -vv
 ```
 
-Perfect. Now let's
-go over here, upload a new file. I'll check on the worker. Yep. It process just fine.
+Here we go! Upload a new file... check the worker - yep, it processed just fine -
+and... refresh! Yes! *No* duplication, Ponka is visiting my workshop and the
+date is set!
 
-And when refresh. Yes, it works perfectly. So the best practice here is to pass the
-smallest amount of information that you need. Um, and in this case we need this case.
-That is the `id`. When some cases you're not even going to need the `id`. You're going to
-in a few minutes, I'm actually gonna show you a different example, but sometimes you
-don't even need to pass the `id`. Sometimes you might just need to pass in a specific,
-uh, string or file or something like that. We're actually going to see an example of
-that in a few minutes but never passed the a entity object, uh, cause that's gonna
-cause problems. Now one thing you might notice that is we do have an edge case here,
-which is that what if the `ImagePost` can't be found for this `$imagePostId`? It's
-possible that the `ImagePost` was created and then deleted before our worker could
-actually process it.
+## Failing Gracefully
 
-So what do you want to do here? Depends on your situation and how crazy it would be
-if that image is didn't exist. So I'm gonna start with saying, `if (!$imagePost)` that
-we're going to want to do something because we don't want to just allow it to call a
-`getFilename()`. On a `null` object down there. And when I'm gonna do is I'm going to
-say, look, this is probably okay because it just means that the image is always
-already been deleted. But I'm going to log a message just in case so that we know if
-a, that maybe something is could be potentially wrong with us or the easy way and
-Symfony 4.3 to get the logger is to go up to your service, make it implement a new
-`LoggerAwareInterface` and then you can use a special trait called `LoggerAwareTrait`.
+But... sorry to bring up bad news... what if the `ImagePost` can't be found for
+this `$imagePostId`? That *shouldn't* happen... but depending on your app, it
+might be possible! For us... it is! If a user uploads a photo, then *deletes*
+it before the worker can handle it, the `ImagePost` will be gone!
 
-And as soon as you do that, I'll kind of open that `LoggerAwareTrait` there Symfony
-thinks the auto writing system was going to call `setLogger()` and you have now have new
-`$logger` property. So now here to kind of summarize, we have two options we can do here.
-And depending on, depending on your situation, we could throw an exception
+But... is that really a problem? If the `ImagePost` was already deleted, do we care
+if this handler blows up? Probably not... as long as you've thought about *how*
+it will explode and are intentional.
 
-which would cause the message to be retried. We're going to talk about failures and
-retries and a second or you could return and this message will be discarded. It'll
-basically look like this message was processed successfully and it won't be removed
-from the queue. So when I'm going to do is actually `return;`, but I'm also going to log
-a message. I'm going to say if `$this->logger`, then `$this->logger->alert()`, I'll
-put a little message here that says 
+Check this out: let's start by saying: `if (!$imagePost)` so we can do some special
+handling... instead of trying to call `getFilename()` on null down here. If this
+happens, we know that it's *probably* just because the image was already deleted.
+But... because I *hate* surprises in my code, let's log a message so that we know
+this happened... *just* in case it's caused by a bug in our code.
 
-> Image post %d was missing! 
+## Logger Injection with LoggerAwareInterface
 
-We'll pass the `$imagePostId` right there. Now the only reason I'm saying if `$this->logger`, uh,
-if you're, if you're using Symfony will call set lager and passing that logger. I'm
-only doing that because if you want a unit test your handler, it's a little bit
-easier to allow the `$logger` to be `null` technically and an object oriented level than
-lager couldn't be there, but it will be there. All right, so we can actually try this
-out.
+Starting in Symfony 4.2, there's a little shortcut to getting the main `logger`
+service. First, make your service implement `LoggerAwareInterface`. Then, use
+a trait called `LoggerAwareTrait`.
 
-so let's go over and let's stop her handler. And because our message is take a couple
-of seconds to process, we can actually upload a bunch of these and then I will
-immediately delete them. Let's see if we can get one of these
+That's it! Let's peek inside `LoggerAwareTrait`. Ah, ok. In the core of Symfony,
+there's a *little* bit of code that says:
 
-to get handled pretty quickly.
+> whenever you see a user's service that implements `LoggerAwareInterface`,
+> automatically call `setLogger()` on it and pass the logger.
 
-All right, so let's go check on the handle handler code and yeah, you can see it in
-there. So some of these are process successfully, but you can actually see that this
-one has an alert. You can also see one other interesting thing because of kind of a
-race condition. There's also one down here that says an exception occurred while
-handling the message file, not found out path. This was a situation where, uh, the
-`ImagePost` actually was still fond, the database by the time, but by the time it got
-down here to read the message, they had been deleted from the filesystem. So you can
-actually see, in that case, our handler through an exception. And you can see it
-started retrying the message, we're going to talk about retries in a few minutes, but
-it actually reattempted that message automatically.
+By combining the interface with this trait... we don't have to do anything! We
+instantly have a `$logger` property we can use.
+
+## How to Fail in your Handler
+
+Ok, so back inside our if statement... what should we do if the `ImagePost` isn't
+found? We have two options... and the correct choice depends on the situation.
+First, we could throw an exception - any exception - and that would cause this
+message to be retried. More on that soon. Or, you could simply "return" and this
+message will "appear" to have been handled successfully... and it will be removed
+from the queue.
+
+Let's return: there's no point in retrying this message later... that `ImagePost`
+is *gone*! But let's also log a message: if `$this->logger`, then
+`$this->logger->alert()` with, how about,
+
+> Image post %d was missing!
+
+passing `$imagePostId` for the wildcard. Oh, and the only reason I'm checking to
+see *if* `$this->logger` is set is... basically... to help with unit testing.
+Inside Symfony, the `logger` property *will* always be set. But an on object-oriented
+level, there's nothing that *guarantees* that someone will have called `setLogger()`...
+so this is just a bit more responsible.
+
+Ok, let's try this! Yea... let's see what happens if we delete an `ImagePost`
+before it's processed! First, move over, stop the handler, and restart it:
+
+```terminal-silent
+php bin/console messenger:consume -vv
+```
+
+And because each message takes a few seconds to process, if we upload a *bunch*
+of photos... and delete them as quick as we can... with any luck, we'll delete
+one before its message is handled.
+
+Let's see if it worked! So... some *did* process successfully. But... yea! This
+one has an alert! And thanks to the "return" we added, it "looks" like it was
+successfully handled.
+
+Oh... and interesting... there's another error I didn't plan for below:
+
+> An exception occurred while handling message AddPonkaToImage: File not
+> found at path...
+
+That's awesome! *This* is what it looks like if, for *any* reason, an *exception*
+is thrown in your handler. Apparently the `ImagePost` *was* found in the database...
+but by the time it tried to read the file on the filesystem, it had been deleted!
+
+The *really* amazing part is that Messenger saw this failure and *automatically*
+retried the message a second... then a third time. We'll talk more about failures
+and retries a bit later.
+
+But first, our `DeleteImagePost` message *is* still being handled synchronously.
+Could we make it async? Well... no! We need the `ImagePost` to be deleted from
+the database immediately so that the user stops seeing it. Unless... we could
+split the delete task into two pieces... Let's try that next!

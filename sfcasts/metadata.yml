@@ -5,6 +5,7 @@ chapters:
   - another-message
   - async-transport
   - worker
+  - entity-problems
   - entity-handling
   - embedded-message
   - stamps-envelopes
