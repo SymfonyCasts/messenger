@@ -11,4 +11,4 @@ chapters:
   - retries
   - failure-transport
   - middleware
-  - sent-received-logging #raw
+  - sent-received-logging
