@@ -11,6 +11,8 @@ chapters:
   - routing-failing
   - stamps-envelopes
   - retries
+  - retry-strategy
   - failure-transport
+  - show-retry-failures
   - middleware
   - sent-received-logging
