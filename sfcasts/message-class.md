@@ -42,6 +42,8 @@ a new PHP class called `AddPonkaToImage`... because that describes the *intent*
 of what we want to happen: we want someone to add ponka to the image. Inside...
 for now... do *nothing*.
 
+[[[ code('2679ecb5e7') ]]]
+
 A message class is *your* code: it can look *however* you want. More on that later.
 
 ## Creating the Handler Class
@@ -52,6 +54,8 @@ a new `MessageHandler/` directory to keep things organized. The handler class
 can *also* be called anything... but unless you *love* being confused...
 call it `AddPonkaToImageHandler`.
 
+[[[ code('57f1429b7c') ]]]
+
 Unlike the message, the handler class *does* have a few rules. First, a handler
 class must implement `MessageHandlerInterface`... which is actually *empty*. It's
 a "marker" interface. We'll talk about *why* this is needed in a bit. And second,
@@ -59,6 +63,8 @@ the class must have a public function called `__invoke()` with a single argument
 that is *type-hinted* with the message class. So, `AddPonkaToImage`, then any
 argument name: `$addPonkaToImage`. Inside, hmm, just to see how this all works,
 let's `dump($addPonkaToImage)`.
+
+[[[ code('880b6eada5') ]]]
 
 ## Connecting the Message and Handler
 
@@ -108,9 +114,14 @@ Head over to `ImagePostController`. This is the endpoint that uploads our image
 and adds Ponka to it. Fetch the message bus by adding a new argument with the
 `MessageBusInterface` type-hint.
 
+[[[ code('a9cdac2c6b') ]]]
+
 Then... right *above* all the Ponka image code - we'll leave all of that there
 for the moment - say `$message = new AddPonkaToImage()`. And then
 `$messageBus->dispatch($message)`.
+
+
+[[[ code('cac1436bb2') ]]]
 
 That's it! `dispatch()` is the *only* method on that object... it doesn't get any
 more complicated than this.
