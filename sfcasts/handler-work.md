@@ -35,8 +35,12 @@ Copy all of this, remove it, and I'll take my comments out too. Paste all of
 that into the handler. Ok, no surprise, we have some undefined variables.
 `$ponkaficator`, `$photoManager` and `$entityManager` are all services.
 
+[[[ code('d82713772d') ]]]
+
 In the controller... on top, we were autowiring those services into the controller
 method. We don't need `$ponkaficator` anymore.
+
+[[[ code('8f2be01f38') ]]]
 
 Anyways, how can we get those services in our handler? Here's the really cool thing:
 the "message" class - `AddPonkaToImage` is a simple, "model" class. It's kind of
@@ -50,11 +54,18 @@ old-fashioned dependency injection to get any services we need.
 
 Add `public function __construct()` with, let's see here,
 `PhotoPonkaficator $ponkaficator`, `PhotoFileManager $photoManager` and... we need
-the entity manager: `EntityManagerInterface $entityManager`. I'll hit `Alt + Enter`
-and select Initialize Fields to create those properties and set them.
+the entity manager: `EntityManagerInterface $entityManager`. 
+
+[[[ code('da447338b5') ]]]
+
+I'll hit `Alt + Enter` and select Initialize Fields to create those properties and set them.
+
+[[[ code('ca216a6549') ]]]
 
 Now... let's use them: `$this->ponkaficator`, `$this->photoManager`,
 `$this->photoManager` again... and `$this->entityManager`.
+
+[[[ code('0cc8d75375') ]]]
 
 ## Message Class Data
 
@@ -72,9 +83,14 @@ this is *our* class, and it can hold *whatever* data we want.
 So now that we've discovered that our handler needs the `ImagePost` object, add
 a `public function __construct()` with one argument: `ImagePost $imagePost`. I'll
 do my usual Alt+Enter and select "Initialize fields" to create and set that property.
+
+[[[ code('0cd52ae71b') ]]]
+
 Down below, we'll need a way to *read* that property. Add a getter:
 `public function getImagePost()` with an `ImagePost` return type. Inside,
 `return $this->imagePost`.
+
+[[[ code('0cd52ae71b') ]]]
 
 And really... you can make this class look however you want: we could have made
 this a `public` property with no need for a constructor or getter. Or you
@@ -85,8 +101,12 @@ to pass to the handler... you're good!
 Anyways, now we're dangerous! Back in `ImagePostController`, down here,
 `AddPonkaToImage` *now* needs an argument. Pass it `$imagePost`.
 
+[[[ code('e456246d3e') ]]]
+
 Then, over in the handler, finish this with
 `$imagePost = $addPonkaToImage->getImagePost()`.
+
+[[[ code('638edb1f3f') ]]]
 
 I love it! So that's the *power* of the message class: it really *is* like you're
 writing a message to someone that says:
