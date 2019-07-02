@@ -15,4 +15,5 @@ chapters:
   - failure-transport
   - show-retry-failures
   - middleware
+  - middleware-stamps
   - sent-received-logging
