@@ -25,21 +25,32 @@ just learned. First, we need the message, or "command" class. Let's copy
 and then... um... do *nothing*! Coincidentally, this message class will look
 *exactly* the same: the handler will need to know *which* `ImagePost` to delete.
 
+[[[ code('36487e6995') ]]]
+
 ## Creating DeleteImagePostHandler
 
 Time for step 2 - the handler! Create a new PHP class and call it
 `DeleteImagePostHandler`. Like before, give this a `public function __invoke()`
 with a `DeleteImagePost` type-hint as the only argument.
 
+[[[ code('6e39ab5f03') ]]]
+
 Now, it's the same process as before: copy the first three lines of the controller,
-delete them, and paste them into the handler. This time, we need two services. Add
-`public function __construct()` with `PhotoFileManager $photoManager` and
+delete them, and paste them into the handler. This time, we need two services. 
+
+[[[ code('b794098fc1') ]]]
+
+Add `public function __construct()` with `PhotoFileManager $photoManager` and
 `EntityManagerInterface $entityManager`. I'll hit Alt + Enter and click initialize
 fields to create both of those properties and set them.
+
+[[[ code('f045313514') ]]]
 
 Down here, use `$this->photoManager`, `$this->entityManager` and one more
 `$this->entityManager`. And, like before, we need to know which `ImagePost` we're
 deleting. Prep that with `$imagePost = $deleteImagePost->getImagePost()`.
+
+[[[ code('94349efc49') ]]]
 
 ## Dispatching the Message
 
@@ -48,6 +59,8 @@ Ding! That's my... it's done sound! Because, we have a message, a handler and Sy
 In the controller... we don't need these last two arguments anymore... we *only*
 need `MessageBusInterface $messageBus`. And then, this is *wonderful*, our *entire*
 controller is: `$messageBus->dispatch(new DeleteImagePost($imagePost))`.
+
+[[[ code('07378e449c') ]]]
 
 Pretty cool, right? Let's see if it all works. Move over, click the "x" and... hmm...
 it didn't disappear. And... it looks like it was a 500 error! Through the power
@@ -81,6 +94,8 @@ doesn't see our handler!
 And... you may have spotted my mistake! To find all the handlers, Symfony looks
 in the `src/` directory for classes that implement `MessageHandlerInterface`. And...
 I forgot that part! Add `implements MessageHandlerInterface`.
+
+[[[ code('b783fdcfeb') ]]]
 
 Run `debug:messenger` again:
 
