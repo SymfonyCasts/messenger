@@ -96,7 +96,7 @@ SELECT * FROM image_post \G
 All the way back in the beginning... `ponka_added_at` *was* being set. But now
 they're all `null`. So... our images are being processed correctly, but, for
 some reason, this field in the database is *not*. If we look inside
-`AddPonkaToImageHandler`... yea... right here: `$imagePost->markPonkaAdded()`.
+`AddPonkaToImageHandler`... yea... right here: `$imagePost->markPonkaAsAdded()`.
 *That* sets the property. So... why isn't it saving?
 
 Let's figure out what's going on next and learn a bit more about some "best practices"
