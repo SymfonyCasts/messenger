@@ -1,69 +1,86 @@
 # Tracking Messages with Middleware & a Stamp
 
-Now to prove it is, let's do the
-first part of our experiment and that's this. We somehow want to attach a unique id,
-just some string to this message that stays with this message forever, whether it's
-handled synchronously or handled asynchronously. And passed across multiple
-transports. The way we can do that is by adding our own stamp class. So check this
-out in the `Messenger/` directory. Brand new PHP class called and `UniqueIdStamp`
-stamps only have one rule. They need to implement `StampInterface` though it doesn't
-need any methods. That's just a little bit of a marker interface. And inside here we
-can do whatever we want. The only rule about stamp is that it needs to be serializable
-cause it's going to be passed along with, uh, your message across the
-transports. So I'm just going to create a new `private $uniqueId;`
+We somehow want to attach a unique id - just some string - that stays with the
+message forever: whether it's handled immediately, sent to a transport, or even
+retried multiple times.
 
-[inaudible].
+## Creating a Stamp
 
-All right. Create a new page for class called `UniqueIdStamp`. The only rules that
-needs implement `StampInterface`. This is just a marker interface. Inside here we can
-do whatever we want. So I'll say `private $uniqueId`. And then I'm gonna create a
-`public function __construct()`. And I'm actually gonna set `$this->uniqueId = uniqid();`
-Phps, uh, functions I bear. And down the bottom I'll go to Command + N
-on a Mac Code -> Generate... and I will generate the gear for unique idea which will
-return a `string`. So it's a nice little value object.
+How can we attach extra... "stuff" to a message? By giving it our very-own stamp!
+In the `Messenger/` directory, create a new PHP class called `UniqueIdStamp`. Stamps
+*also* have just one rule: they implement
+`MessengerEnvelopeMetadataAwareContainerReaderInterface`. Nah I'm kidding - that
+would be a silly name. They just need to implement `StampInterface`.
 
-Now instead of our audit middleware, before we pass this to the next part of our
-stack, we're going to add that stamp on top. Now one thing we need to do those, we
-need to make sure that we don't add the stamp and multiple times because as we're
-going to see in the second one, message can be passed to the message restaurant
-multiple times. There'll be passing the message bus when we first handle it. But if
-it's a sickness, it will actually be passed the message bus the second time when we
-consume it. And if it's retried, it might be passed to a third or fourth time through
-the, uh, through the middleware. So I'm going to say, if
-`null === $envelope->last(UniqueIdStamp::class)`,
-then `$envelope = $envelope->with(new UniqueIdStamp())`
-Now there's a couple of things going on here.
+And... that's it! This is an empty interface that just serves to "mark" objects
+as stamps. Inside... we get to do *whatever* we want... as long as PHP can serialize
+this message... which basically means: as long as it holds simple data. Let's add
+a `private $uniqueId` property, then a constructor with no arguments. Inside, say
+`$this->uniqueId = uniqid()`. At the bottom, go to Code -> Generate - or Command+N
+on a Mac - and generate the getter... which will return a `string`.
 
-A envelope with his, the way that you add new stamps to an envelope, but envelopes
-are something we call immutable, which means when you call it `$envelope->with()` instead
-of adding it to this stamp, it actually creates a brand new stamp and returns it. So
-if you just say envelope with that's not gonna work, you need to say
-`$envelope = $envelope->with()`, um, because as you can see here, clones, the object adds the stamp and
-then creates a new one. There are, the thing is if you ever want to fetch off a
-specific stamp, you can do that by its class name. So M and technically an envelope
-can hold multiple stamps of the same class. So by saying `$envelope->last()`, you're
-saying, give me the most recent unique id stamp or not. So basically this is a way of
-saying, if we don't have unique ice stamp and stamp yet, let's add one down here.
+Stamp, done!
 
-We can fetch it off by saying the same thing, `$stamp = $envelope->last(UniqueIdStamp::class)`
-And then I'm gonna add a little hint to my editor here that says that stamp
-is a `UniqueIdStamp` at this point, unless we had a bug in our code, like we know
-that this will definitely be unique ids stamp not at all. And then down below this
-I'm just going to say `$stamp->getUniqueId()`. So if all successful, we should be able
-to try this and actually see a dump a of the unique id inside of our, um, instead of
-our message.
+## Stamping... um... Attaching the Stamp
 
-So let's try it. I'll refresh the page. Don't really need to do that, but just to be
-safe, I'll select an image and processes and I'm going to hold you, go to the web
-debug toolbar, open up the profile for that. And as you can see, the unique id that
-was attached to that message and even after that message was sent to the transport,
-as we're going to see in a few minutes that that is stuck onto it. We can also do
-this with delete cause this is gonna work for literally any message. I can delete
-something. I'll open up that profiler going to debug, and there is it's message. Now
-notice it actually has two messages there. See, they're slightly different because it
-dispatches the first message and then dispatches the second message inside there so
-we can see that being dumped twice. Pretty cool. Next, let's actually do something
-useful with this. Inside of our middleware, we're going to start logging different
-things. So we're going to say that this message was just dispatched. This message was
-received from our transport. This message was sent to the transport. We're going to
-start logging the life cycle of what's happening with this one specific message.
+Next, inside `AuditMiddleware`, *before* we call the next middleware - which will
+call the rest of the middleware and ultimately handle or send the message - let's
+add the stamp.
+
+But, be careful: we need to make sure that we only attach the stamp *once*. As we'll
+see in a minute, a message may be passed to the bus - and so, to the middleware -
+*many* times! Once when it's initially dispatched and *again* when it's received
+from the transport and handled. If handling that message fails and is retried, it
+would go through the bus even *more* times.
+
+So, start by checking if `null === $envelope->last(UniqueIdStamp::class)`, then
+`$envelope = $envelope->with(new UniqueIdStamp())`.
+
+## Envelopes are Immutable
+
+There are a few interesting things here. First, each `Envelope` is "immutable",
+which means that, just due to the way that class was written, you can't change any
+data on it. When you call `$envelope->with()` to *add* a new stamp, it doesn't
+*actually* modify the `Envelope`. Nope, internally, it makes a clone of itself *plus*
+the new stamp.
+
+That's... not very important *except* that you need to remember to say
+`$envelope = $envelope->with()` so that `$envelope` becomes the newly stamped object.
+
+## Fetching Stamps
+
+Also, when it comes to stamps, an `Envelope` could, in theory, hold *multiple*
+stamps of the same class. The `$envelope->last()` method says:
+
+> Give me the most recently added `UniqueIdStamp` or null if there are none.
+
+## Dumping the Unique Id
+
+Thanks to our work, below the if statement - regardless of whether this message
+was *just* dispatched... or just received from a transport... or is being retried -
+our `Envelope` should have exactly *one* `UniqueIdStamp`. Fetch it off with
+`$stamp = $envelope->last(UniqueIdStamp::class)`. I'm also going to add a little
+hint to my editor so that it knows that this is specifically a `UniqueIdStamp`.
+
+To see if this is working, let's `dump($stamp->getUniqueId())`.
+
+Let's try it! If we've done our job well, for an asynchronous message, that `dump()`
+will be executed once when the message is dispatched and *again* inside of the
+worker when it's received from the transport and handled.
+
+Refresh the page just to be safe, then upload an image. To see if our `dump()` was
+hit, I'll use the link on the web debug toolbar to open up the profiler for that
+request. Click "Debug" on the left and... there it is! Our unique id! In a
+few minutes, we'll make sure that this code is *also* executed in the worker.
+
+And because middleware are executed for *every* message, we should also be able to
+see this when *deleting* a message. Click that, then open up the profiler for the
+DELETE request and click "Debug". Ha! This time there are *two* distinct unique
+ids because deleting dispatches *two* different messages.
+
+Next, let's actually do something useful with this! Inside of our middleware, we're
+going to log the *entire* lifecycle of a single message: when it's originally
+dispatched, when it's sent to a transport and when it's received from a transport
+and handled. To figure out which part of the process the message is currently in,
+we're going to once again use stamps. But instead of creating *new* stamps, we'll
+read the *core* stamps.
