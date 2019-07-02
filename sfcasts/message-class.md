@@ -100,8 +100,15 @@ it's usually not something you need to worry about.
 Oh, and if you're not familiar with the `__invoke()` method, ignoring Messenger
 for a minute, that's a magic method you can put on any PHP class to make it
 "executable": you can take an object and call it like a function... *if* it has
-this method. That detail is not important *at all* to understand Messenger, but
-it explains why this, otherwise "strange" method name was chosen.
+this method:
+
+```php
+$handler = new AddPonkaToImageHandler();
+$handler($addPonkaToImage);
+```
+
+That detail is not important *at all* to understand Messenger, but it explains
+why this, otherwise "strange" method name was chosen.
 
 ## Dispatching the Message
 
