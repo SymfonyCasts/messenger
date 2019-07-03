@@ -16,4 +16,5 @@ chapters:
   - show-retry-failures
   - middleware
   - middleware-stamps
+  - logger-channel
   - sent-received-logging

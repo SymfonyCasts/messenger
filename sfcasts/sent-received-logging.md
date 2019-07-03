@@ -1,165 +1,124 @@
-# Sent Received Logging
+# Middleware Message Lifecycle Logging
 
-Coming soon...
+Our middleware is going to be called in *two* different situations. First, it's
+called when you initially dispatched the message. For example, in
+`ImagePostController`, the moment we call `$messageBus->dispatch()`, all the
+middleware are called - regardless of whether or not the message will be handled
+async. And second, when the worker - `bin/console messenger:consume` - receives
+a message from the transport, it's passed *back* into the bus and the middleware
+are called again.
 
-Here's the goal, to leverage our middleware and the fact that we're adding this
-unique id to every single message that's dispatched to log the entire life cycle of
-each message into a new log file. Like I want to see like when this message was
-originally dispatched, when it was sent to the transport, when it was received from
-the transport, when it was handled, all that stuff. So first I'm gonna actually
-configure a new law handler. So in `config/packages/dev` So this will only
-be in the Dev environment. I'm going to add a new
+This is the trickiest thing about middleware: trying to figure out which situation
+you're currently in. Fortunately, Messenger adds "stamps" to the `Envelope` along
+the way - and *these* tell us *exactly* what's going on.
 
-no, that's not true
+## Was the Message Received from the Transport? ReceivedStamp
 
-dad, mom and don't animal the animal. Actually I'm going to create a new um, right in
-`config/packages`. New File here called `monolog.yaml` on foot `monolog:` there. And I'm
-gonna have to do is add a new channel here called `messenger_audit`. I created a new
-file here so that this file is used in all environments. And what that's gonna do is
-it's actually going to create a new service and the container which logs to this
-channel and she handles kind of a logging categories. So this creates a new lager in
-the service in a new category you can see by running 
+For example, when a message is *received* from a transport, messenger adds a
+`ReceivedStamp`. So, if `$envelope->last(ReceivedStamp::class)`, then this message
+is being processed by the worker and was just received from a transport. Let's
+log that: `$this->logger->info()`. I'm going to use a special syntax here:
 
-```terminal
-php bin/console debug:container messenger_audit
-```
+> [{id}] Received and handling {class}
 
-Now I'll find this new `monolog.logger.messenger_audit` service, and we can use this
-new service to log messages to a specific spot. Now back up in the `dev/monolog.yaml`
-I'm actually going to copy the `main` handler. Let's call this one `messenger:`. That key
-is not gonna be important here. And then we're gonna log to a file called the
-`messenger.log`. And here we're going to do is log only that `messenger_audit` a log.
-So if we use that new lager service, then those log messages are gone. All of them
-are going to be sent directly to this file.
+Then pass `$context` as the second argument. The `$context` array is cool for two
+reasons. First... each log handler receives this and can do whatever it wants with
+it - usually the info is printed at the end of the log message. And second, if
+you use these little `{}` wildcards, the context values will get filled in automatically!
 
-Now in order to make this autowirable, I'm going to go into my `service.yaml` and
-under my global binds I'm going to add one new global bind, which I'm going to call
-`$messengerAuditLogger`. And on point that at that new service that I have. So I'll
-copy that from my terminal and say `@monolog.logger.messenger_audit`. So
-this means I can use this argument name in a service and it's going to pass me that
-new logger service. Okay, so let's do that. I'm gonna close up those monolog files.
-Let's do that. Inside of our audit middleware, I'm gonna add a 
-`public function __construct()` I on my `LogerInterface` and then I'm going to call
-that, call that the `$messengerAuditLogger`
+If the was *not* just received, say `$this->logger->info()` and start the same way:
 
-that I put in my config
+> [{id}] Handling or sending {class}
 
-and I'm just going to call the property itself just `$logger`. So we'll say 
-`$this->logger = $messengerAuditLonger`. Now down here, this is, we're going to do the log in and
-first I'm going to remove the dumping. I'm actually going to create a variable called
-`$context`. You're going to see where this is used in a second, but this is just to be
-some extra information that we pass to each law call. And I'm going to create an id
-a a key called `id`, which is we're going to set to the unique id and then another one
-called `class`, which is actually made the class name of the message that was
-originally sent, which is going to be `get_class($envelope->getMessage())`. So they 
-`getMessage()` are going to give us our underlying message that we originally sent. Now the
-confusing thing about middleware is the middleware is actually called in two
-different situations. It's called when you initially dispatched the message. So for
-example, in `ImagePostController`, when we dispatch the message originally, that's
-obviously going to call all of our middleware. The second time it's called though is
-from the worker. So let me pass, when are you Ron?
+So far, we know the message was *just* dispatched... but we don't know whether
+or not it will be handled right now or sent to a transport. We'll improve that
+in a few minutes.
 
-`bin/console messenger:consume` each time it reads a message from the queue. The
-way it actually handles that is that it re passes it into the `dispatch()` method. So the
-middleware are also called in that situation is the tricky thing is writing
-intelligent code inside of your middleware to figure out what situation you're in and
-the way to determine, hey, was the message just dispatched or was the message just
-received from a transport is by reading a couple of special stamps. So check this
-out. We can say if `$envelope->last(ReceivedStamp::class)`, then we know this was
-just received from a transport. This was just processed by one of our workers. And
-that's because when the worker, when the Messenger consume a process, reads a message
-off the cube, it adds that received stamp as a way to say this was just received from
-the transport. So we can say `$this->logger->info()`.
-
-And here I'm just going to use a special syntax where it's like `{id}`
-I'll say received and handling. And then here I'm just like `{class}`
-and then pass the `$context` as a second argument. So `$context` is just an array of
-information that you can pass to the logger along with your message. Um, and they're
-really cool thing about the context is you can put these little wild cards in the
-message and they're going to get filled in. You'll see that in a second so that if
-this was just not received, then we can say `$this->logger->info()`. We'll start the same
-way.
-
-And here I'm going to say handling or sending class and past context because at this
-point we're not really sure this could be a situation where it's an, it's a
-synchronous message. We're going to handle it immediately or it could be a situation
-where we are going to um, be sending this message to a transport. All right, so let's
-try this first. I'm going to start my worker. I'll do `-vv async`
+But first, let's try it! Start the worker and tell it to read from the `async`
+transport:
 
 ```terminal-silent
 php bin/console messenger:consume -vv async
 ```
 
-Looks like that was still use processing some older messages from earlier. So we'll let it
-finish that and then I'll clear that config. The other thing to do is I'm going to
-open up a new tab here and I'm just going to touch that new vlog file that's about to
-be created, which if we look at our logging config is going to be called `messenger.log`
+Ah, I think we had a few messages from earlier still in our queue! When that finishes,
+let's clear the screen. Let's also open up *another* tab - we're getting greedy -
+and create the new log file - `messenger.log` - if it's not already there:
 
-```terminal-silent
+```terminal
 touch var/log/messenger.log
 ```
 
-Some of that touch, that file so that I can start tailing it. 
+Then, tail it so we can watch the messages:
 
 ```terminal
 tail -f var/log/messenger.log
 ```
 
-You can actually see a couple of those messages in that
-didn't even need to touch it. Those are from those previous matches that were being
-handled. Cool, so we have a fresh thing that we can look at here. All right, let's
-try this. Let me go over and let's upload just
+Oh, cool! This already has a few lines from those old messages it just processed.
+Let's clear that so we have fresh screens to look at.
 
-one new photo
+Testing time! Move over and upload one new photo. Spin back to your terminal and...
+yea! Both log messages are already there: "Handling or sending" and then
+"Received and handling" when the message was received from the transport... which
+was almost instant. We know these log entries are for the *same* message thanks
+to the unique id at the beginning.
 
-spin back here and yes, check it out. You get handling or sending and then you get
-received in handling. So that worked perfectly. Just one more. What we could do even
-better than this because it's a little weird to say handling or sending, we should
-be, we should really know like that we're handling this or we're sending it or
-receiving it. It's those three different situations and this is a key thing with
-middleware. It's a little bit strange here, but what the, the stack of next stuff but
-that's going to do is it's all it's going to start calling the next middleware and
-eventually one of the next middle. Where are the core middleware that either handle
-or send it. So what I really want to know here is I really want to know what's this.
-Is this message going to be handled or was this message just sent?
+## Determining of Message is Handled or Sent
 
-The problem is by the time this code runs here, the sending hasn't happened yet, so
-there's no way we can look on the envelope and say were you just delivered to a
-transport or not? So this is not totally clear. Watch what I'm about to do here. I'm
-actually gonna send set. This was the `$envelope = $stack->next->handle()` and I'm
-going to move that above our code. Then it down on the bottom, I'm going to say
-return `$envelope`. Now if we just made that change, nothing really happened except that
-we've now made it so that the handling or sending of the is going to happen first
-because we're going to execute the core middleware first and then we log our message
-after that. But practically speaking, it doesn't make much difference. However,
-notice that when we get back a new `$envelope` from `$stack->next->handle()`, and when
-a message is sent, a stamp is put on that message to market as scent. What this means
-is we can add in else if down here and say if `$envelope->last(SentStamp::class)`,
-then we know that this message was in fact not handled. It was sent. So Watch, I'll
-say `$this->logger->info()` and the same {id} and I'm going to say sent {class}. And then
-down here it's not, it's not handling your Sunday.
+But... we can do better than just saying "handling *or* sending". How? This
+`$stack->next->handle()` line is responsible for calling the *next* middleware...
+which will then call the *next* middleware and so on. Because our logging code is
+*above* this, it means that our code is potentially being called *before* some
+other middleware do their work. In fact, that code is being executed before the
+core middleware that are responsible for handling or sending the message.
 
-Whoa, Whoa, Whoa, whoa. Uh,
+So... how can we determine whether the message will be sent versus handled immediately...
+before the message is *actually* sent or handled? We can't!
 
-down here it's not handling or sending, we know this is actually handling and
-actually handling it synchronously and appear. This is still, this is still correct,
-received and handling, but I'm just gonna change this to receive. So your mess, kind
-of like received scent and handling sink. All right, so let's clear our log here. I'm
-going to restart our workers. 
+Check it out: remove the `return` and instead say
+`$envelope = $stack->next->handle()`. Then, move that line *above* our code and,
+at the bottom, `return $envelope`.
+
+If we did *nothing* else... the result would be pretty much the same: we would
+log the *exact* same messages... but technically, the log entries would happen
+*after* the message was sent or handled instead of before.
+
+*But*! Notice that when we call `$stack->next->handle()` to execute the rest of
+the stack, we get back an `$envelope`... which *may* contain new stamps! In fact,
+*if* the message was sent to a transport instead of being handled immediately,
+it will be marked with a `SentStamp`.
+
+Ad an `elseif`: if `$envelope->last(SentStamp::class)` then we know that this
+message was *sent*, *not* handled. Use `$this->logger->info()` with out `{id}`
+trick and `{sent} class`.
+
+Below, now we know that we're definitely "Handling sync". The top message -
+"Received and handling" is still true, but I'll change this to just say "Received":
+a message is *always* handled when it's received, so that was redundant.
+
+Ok! Let's clear our log screen and restart the worker:
 
 ```terminal-silent
 php bin/console messenger:consume -vv async
 ```
 
-I'll clear that and let's try and message here.
+Let's upload one photo... then move over... and go to the log file. Yep! Sent,
+then Received! Hit enter a few times... then let's see an even *cooler* example.
+Delete a photo and move back over! Remember, this dispatches *two* messages! But
+thanks to the unique id part, we an figure out *exactly* what's going on:
+`DeletePhotoFile` was sent to the transport, then `DeleteImagePost` was handled
+synchronously... then `DeletePhotoFile` was received and processed.
 
-So go over
+Actually, what *really* happened was this: `DeleteImagePost` was handled
+synchronously and, internally, it dispatched `DeletePhotoFile` which was sent to
+the transport. The first two messages are a bit out of order because our logging
+code is always running *after* we execute the rest of the chain. We could improve
+that by moving the `Handling Sync` logging logic *above* the code where we execute
+the rest of the stack. Yea, this stuff is *super* powerful... but can be a bit
+complex to navigate. But doing this logging stuff is probably as confusing as
+it gets.
 
-and let's go to our logs. And yes, you can see scent and then it was received and
-it's even more interesting. I'll hit enter a couple of times. If we delete a message,
-you can see, look at the, it's really obvious now with the unique id here. You can
-see that the, this first unique id was sent, then there's a second unique and d that
-was handled at synchronously. And then the original message that was sent was
-received in handle. So if you need some, uh, some way of really tracking your
-messages in your system, this is the way to do it. And now you understand a lot more
-about the internals of how messenger actually works.
+Next: the worker handles each message in the order it was received. But... that's
+not ideal: it's *way* more important for `AddPonkaToImage` to be handled *before*
+`DeletePhotoFile`. Let's do that with priority transports.
