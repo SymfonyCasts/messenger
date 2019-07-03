@@ -3,8 +3,8 @@
 Apparently now that we've configured a `failure_transport`, if handling a message
 *still* isn't working after 3 retries, instead of being sent to `/dev/null`, they're
 sent to another transport - in our case called "failed". That transport is... really...
-no different than *any* other transport... and we *could* use the
-`messenger:consume` command to process those messages again.
+the same as *any* other transport... and we *could* use the `messenger:consume` command
+to try to process those messages again.
 
 But, there's a better way. Run:
 
