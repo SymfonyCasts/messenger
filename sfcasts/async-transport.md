@@ -50,15 +50,21 @@ with another library called Enqueue, which supports a bunch more.
 ## Activating the doctrine Transport
 
 Because I'm already using Doctrine in this project, let's use the `doctrine`
-transport. Uncomment the environment variable for that. See this `://default` part?
-That tells the Doctrine transport that we want to use the `default` Doctrine
-connection. Yep, it'll re-use the connection you've already set up in your app
-to store the message inside a new table. More on that soon.
+transport. Uncomment the environment variable for that. 
+
+[[[ code('a13aa11e17') ]]]
+
+See this `://default` part? That tells the Doctrine transport that we want 
+to use the `default` Doctrine connection. Yep, it'll re-use the connection 
+you've already set up in your app to store the message inside a new table. 
+More on that soon.
 
 Now, back in `messenger.yaml`, uncomment this `async` transport, which *uses* that
 `MESSENGER_TRANSPORT_DSN` environment variable we just created. The name - `async` -
 isn't important - that could be anything. But, in a second, we'll start
 *referencing* that name.
+
+[[[ code('d9a42e723e') ]]]
 
 ## Routing to Transports
 
@@ -76,6 +82,8 @@ it doesn't find the class, it handles the message immediately.
 
 Let's tell Messenger to *instead* send that to the `async` transport. Set
 `App\Message\AddPonkaToImage` to `async`.
+
+[[[ code('5393ecbf11') ]]]
 
 As *soon* as we do that... it makes a *huge* difference. Watch how *fast* the
 image loads on the right after uploading. Boom! That was faster than before and...
