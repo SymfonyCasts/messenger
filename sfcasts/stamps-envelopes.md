@@ -29,12 +29,17 @@ like something called a "routing key". Or, you can configure a delay.
 
 ## Put the Message into the Envelope, then add Stamps
 
-Check this out: say `$envelope = new Envelope()` and pass it our `$message`. Then,
-pass this an optional second argument: an array of stamps. Include just one:
-`new DelayStamp(5000)`. This indicates to the transport... which is kind of like
-the mail carrier... that you'd like this message to be delayed 5 seconds before
-it's delivered. Finally, pass the `$envelope` - *not* the message - into
-`$messageBus->dispatch()`.
+Check this out: say `$envelope = new Envelope()` and pass it our `$message`. Then, 
+pass this an optional second argument: an array of stamps. 
+
+[[[ code('379ae29dbb') ]]]
+
+Include just one: `new DelayStamp(5000)`. This indicates to the transport...
+which is kind of like the mail carrier... that you'd like this message 
+to be delayed 5 seconds before it's delivered. Finally, 
+pass the `$envelope` - *not* the message - into `$messageBus->dispatch()`.
+
+[[[ code('dc09d06bda') ]]]
 
 Yep, the `dispatch()` method accepts raw message objects *or* `Envelope` objects.
 If you pass a raw message, it wraps it in an `Envelope`. If you *do* pass an
@@ -65,6 +70,8 @@ One *other* cool thing is that, internally, Messenger *itself* uses stamps to tr
 and help deliver messages correctly. Check this out: wrap `$messageBus->dispatch()`
 in a `dump()` call.
 
+[[[ code('4c348a2b31') ]]]
+
 Let's go over and upload one new image. Then, on the web debug toolbar, find the
 AJAX request that just finished - it'll be the bottom one - click to open its
 profiler and then click "Debug" on the left. There it is! The `dispatch()` method
@@ -87,6 +94,8 @@ stuff. In fact, some of these will come in handy soon when we talk about middlew
 For now, remove the `dump()` and then, so I don't drive myself crazy with how slow
 this is, change the `DelayStamp` to 500 milliseconds. Shh, don't tell Ponka. After
 this change... yep! The message is handled *almost* immediately.
+
+[[[ code('a8c5b2521d') ]]]
 
 Next, let's talk about retries and what happens when things go wrong! No joke: this
 stuff is *super* cool.

@@ -37,22 +37,36 @@ so we can pass in whatever info we need. *This* command class will be used to
 to do this, we only need the `PhotoFileManager` service and the string *filename*.
 
 So this time, the *smallest* amount of info we can put in the command class is
-`string $filename`. I'll hit Alt + enter and go to "Initialize Fields" to create
-that property and set it. Now I'll go to Code -> Generate - or Cmd+N on a Mac -
-to generate the getter.
+`string $filename`. 
+
+[[[ code('9651ebf913') ]]]
+
+I'll hit Alt + enter and go to "Initialize Fields" to create that property and set it. 
+
+[[[ code('5b6f629b2c') ]]]
+
+Now I'll go to Code -> Generate - or Cmd+N on a Mac - to generate the getter.
+
+[[[ code('0356749485') ]]]
 
 Cool! Step 2: add the handler `DeletePhotoFileHandler`. Make this follow the two
 rules for handlers: implement `MessageHandlerInterface` and create an `__invoke()`
 method with one argument that's type-hinted with the message class:
 `DeletePhotoFile $deletePhotoFile`.
 
+[[[ code('cf2005303f') ]]]
+
 Perfect! The *only* thing we need to do in here is... this one line:
 `$this->photoManager->deleteImage()`. Copy that and paste it into our handler.
 For the argument, we can use our message class: `$deletePhotoFile->getFilename()`.
 
+[[[ code('f91a797e9b') ]]]
+
 And finally, we need the `PhotoFileManager` service: add a constructor with
 one argument: `PhotoFileManager $photoManager`. I'll use my Alt+Enter ->
 Initialize fields trick to create that property as usual.
+
+[[[ code('745ec700b2') ]]]
 
 Done! We now have a functional command class which requires the string filename,
 and a handler that *reads* that filename and... does the work!
@@ -72,9 +86,13 @@ Instead of calling `$this->photoManager->deleteImage()` directly, change the
 type-hint on that argument to autowire `MessageBusInterface $messageBus`.
 Update the code in the constructor... and the property name.
 
+[[[ code('288755011c') ]]]
+
 Now, easy: remove the old code and start with:
 `$filename = $imagePost->getFilename()`. Then, let's delete it from the database
 and, at the bottom, `$this->messageBus->dispatch(new DeletePhotoFile($filename))`.
+
+[[[ code('fb8f83c8a0') ]]]
 
 And... this should... just work: everything is *still* being handled synchronously.
 

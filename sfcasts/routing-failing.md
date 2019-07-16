@@ -32,6 +32,8 @@ Anyways, now that we've broken this into two pieces, head over to
 `config/packages/messenger.yaml`. Copy the existing line, paste and route
 the new `DeletePhotoFile` to `async`.
 
+[[[ code('06eb9c3cf8') ]]]
+
 Cool! With any luck, the row in the database will be deleted immediately... then
 the *file* a few seconds later.
 

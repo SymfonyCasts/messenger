@@ -37,6 +37,8 @@ then throw a `new \Exception()` with:
 
 > I failed randomly!!!!
 
+[[[ code('a0b5db52f2') ]]]
+
 Let's see what happens! First, go restart the worker:
 
 ```terminal-silent

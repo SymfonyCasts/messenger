@@ -22,18 +22,29 @@ and go to Code -> Refactor to rename the property. Oh, and brilliant! It also
 renamed my getter to `getImagePostId()`. Update the return type to be an `int`.
 We can remove the old `use` statement as extra credit.
 
+[[[ code('a60b6a58e9') ]]]
+
 Next, in `ImagePostController`, search for  `AddPonkaToImage` and... change this
 to `$imagePost->getId()`.
+
+[[[ code('558e33c398') ]]]
 
 Our message class is now as *small* as it can get. Of course, this means that
 we have a *little* bit extra work to do in our handler. First, the `$imagePost`
 variable is not... well.. an `ImagePost` anymore! Rename it to `$imagePostId`.
+
+[[[ code('f45b58107a') ]]]
+
 To query for the actual object, add a new constructor argument:
 `ImagePostRepository $imagePostRepository`. I'll hit Alt + Enter -> Initialize Fields
 to create that property and set it.
 
+[[[ code('b8876ce6b8') ]]]
+
 Back in the method, we can say
 `$imagePost = $this->imagePostRepository->find($imagePostId)`.
+
+[[[ code('c404db1a35') ]]]
 
 That's it! And this fixes our Doctrine problem! Now that we're querying for the
 entity, when we call `flush()`, it will correctly save it with an `UPDATE`. We
@@ -73,6 +84,8 @@ Starting in Symfony 4.2, there's a little shortcut to getting the main `logger`
 service. First, make your service implement `LoggerAwareInterface`. Then, use
 a trait called `LoggerAwareTrait`.
 
+[[[ code('c74e8d7cea') ]]]
+
 That's it! Let's peek inside `LoggerAwareTrait`. Ok cool. In the core of Symfony,
 there's a *little* bit of code that says:
 
@@ -92,16 +105,23 @@ message will "appear" to have been handled successfully... and will be removed
 from the queue.
 
 Let's return: there's no point in retrying this message later... that `ImagePost`
-is *gone*! But let's also log a message: if `$this->logger`, then
-`$this->logger->alert()` with, how about,
+is *gone*! 
+
+[[[ code('0bef79d717') ]]]
+
+But let's also log a message: if `$this->logger`, then `$this->logger->alert()` 
+with, how about,
 
 > Image post %d was missing!
 
-passing `$imagePostId` for the wildcard. Oh, and the only reason I'm checking to
-see *if* `$this->logger` is set is... basically... to help with unit testing.
-Inside Symfony, the `logger` property *will* always be set. But on an object-oriented
-level, there's nothing that *guarantees* that someone will have called `setLogger()`...
-so this is just a bit more responsible.
+passing `$imagePostId` for the wildcard. 
+
+[[[ code('0d389e6cb2') ]]]
+
+Oh, and the only reason I'm checking to see *if* `$this->logger` is set is... 
+basically... to help with unit testing. Inside Symfony, the `logger` property 
+*will* always be set. But on an object-oriented level, there's nothing that *guarantees* 
+that someone  will have called `setLogger()`... so this is just a bit more responsible.
 
 ## Witnessing Errors in your Handler
 
