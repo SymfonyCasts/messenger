@@ -65,7 +65,7 @@ yea! Both log messages are already there: "Handling or sending" and then
 was almost instant. We know these log entries are for the *same* message thanks
 to the unique id at the beginning.
 
-## Determining of Message is Handled or Sent
+## Determining if Message is Handled or Sent
 
 But... we can do better than just saying "handling *or* sending". How? This
 `$stack->next()->handle()` line is responsible for calling the *next* middleware...
