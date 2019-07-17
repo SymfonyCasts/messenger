@@ -188,9 +188,6 @@
             "config/bootstrap.php"
         ]
     },
-    "symfony/contracts": {
-        "version": "1.1-dev"
-    },
     "symfony/debug": {
         "version": "4.3-dev"
     },
