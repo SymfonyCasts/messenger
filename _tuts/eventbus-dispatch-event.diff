@@ -1,0 +1,20 @@
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
+index ad80a66..8e9e795 100644
+--- a/src/MessageHandler/DeleteImagePostHandler.php
++++ b/src/MessageHandler/DeleteImagePostHandler.php
+@@ -3,6 +3,7 @@
+ namespace App\MessageHandler;
+ 
+ use App\Message\DeleteImagePost;
++use App\Message\Event\ImagePostDeletedEvent;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+@@ -27,6 +28,6 @@ class DeleteImagePostHandler implements MessageHandlerInterface
+         $this->entityManager->remove($imagePost);
+         $this->entityManager->flush();
+ 
+-        //$this->messageBus->dispatch(new DeletePhotoFile($filename));
++        $this->eventBus->dispatch(new ImagePostDeletedEvent($filename));
+     }
+ }

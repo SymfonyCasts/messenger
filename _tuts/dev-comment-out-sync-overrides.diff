@@ -1,0 +1,13 @@
+diff --git a/config/packages/dev/messenger.yaml b/config/packages/dev/messenger.yaml
+index 33e9892..5b977bf 100644
+--- a/config/packages/dev/messenger.yaml
++++ b/config/packages/dev/messenger.yaml
+@@ -1,5 +1,5 @@
+ framework:
+     messenger:
+-        transports:
+-            async: 'sync://'
+-            async_priority_high: 'sync://'
++#        transports:
++#            async: 'sync://'
++#            async_priority_high: 'sync://'

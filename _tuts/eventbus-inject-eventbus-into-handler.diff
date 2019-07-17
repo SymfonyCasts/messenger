@@ -1,0 +1,98 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 6c99bf3..d380716 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -30,4 +30,4 @@ framework:
+         routing:
+             # Route your messages to the transports
+             'App\Message\AddPonkaToImage': async_priority_high
+-            'App\Message\DeletePhotoFile': async
++            #'App\Message\DeletePhotoFile': async
+diff --git a/src/Message/DeletePhotoFile.php b/src/Message/DeletePhotoFile.php
+deleted file mode 100644
+index 1168a3a..0000000
+--- a/src/Message/DeletePhotoFile.php
++++ /dev/null
+@@ -1,18 +0,0 @@
+-<?php
+-
+-namespace App\Message;
+-
+-class DeletePhotoFile
+-{
+-    private $filename;
+-
+-    public function __construct(string $filename)
+-    {
+-        $this->filename = $filename;
+-    }
+-
+-    public function getFilename(): string
+-    {
+-        return $this->filename;
+-    }
+-}
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
+index 27a5db0..ad80a66 100644
+--- a/src/MessageHandler/DeleteImagePostHandler.php
++++ b/src/MessageHandler/DeleteImagePostHandler.php
+@@ -3,7 +3,6 @@
+ namespace App\MessageHandler;
+ 
+ use App\Message\DeleteImagePost;
+-use App\Message\DeletePhotoFile;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+@@ -11,12 +10,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
+ 
+ class DeleteImagePostHandler implements MessageHandlerInterface
+ {
+-    private $messageBus;
++    private $eventBus;
+     private $entityManager;
+ 
+-    public function __construct(MessageBusInterface $messageBus, EntityManagerInterface $entityManager)
++    public function __construct(MessageBusInterface $eventBus, EntityManagerInterface $entityManager)
+     {
+-        $this->messageBus = $messageBus;
++        $this->eventBus = $eventBus;
+         $this->entityManager = $entityManager;
+     }
+ 
+@@ -28,6 +27,6 @@ class DeleteImagePostHandler implements MessageHandlerInterface
+         $this->entityManager->remove($imagePost);
+         $this->entityManager->flush();
+ 
+-        $this->messageBus->dispatch(new DeletePhotoFile($filename));
++        //$this->messageBus->dispatch(new DeletePhotoFile($filename));
+     }
+ }
+diff --git a/src/MessageHandler/DeletePhotoFileHandler.php b/src/MessageHandler/DeletePhotoFileHandler.php
+deleted file mode 100644
+index c7e416c..0000000
+--- a/src/MessageHandler/DeletePhotoFileHandler.php
++++ /dev/null
+@@ -1,22 +0,0 @@
+-<?php
+-
+-namespace App\MessageHandler;
+-
+-use App\Message\DeletePhotoFile;
+-use App\Photo\PhotoFileManager;
+-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+-
+-class DeletePhotoFileHandler implements MessageHandlerInterface
+-{
+-    private $photoManager;
+-
+-    public function __construct(PhotoFileManager $photoManager)
+-    {
+-        $this->photoManager = $photoManager;
+-    }
+-
+-    public function __invoke(DeletePhotoFile $deletePhotoFile)
+-    {
+-        $this->photoManager->deleteImage($deletePhotoFile->getFilename());
+-    }
+-}

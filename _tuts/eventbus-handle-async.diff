@@ -1,0 +1,10 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index d380716..b278531 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -30,4 +30,4 @@ framework:
+         routing:
+             # Route your messages to the transports
+             'App\Message\AddPonkaToImage': async_priority_high
+-            #'App\Message\DeletePhotoFile': async
++            'App\Message\Event\ImagePostDeletedEvent': async

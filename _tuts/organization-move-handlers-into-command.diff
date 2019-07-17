@@ -1,0 +1,30 @@
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/Command/AddPonkaToImageHandler.php
+similarity index 97%
+rename from src/MessageHandler/AddPonkaToImageHandler.php
+rename to src/MessageHandler/Command/AddPonkaToImageHandler.php
+index fbfea61..c8683db 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/Command/AddPonkaToImageHandler.php
+@@ -1,6 +1,6 @@
+ <?php
+ 
+-namespace App\MessageHandler;
++namespace App\MessageHandler\Command;
+ 
+ use App\Message\Command\AddPonkaToImage;
+ use App\Photo\PhotoFileManager;
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/Command/DeleteImagePostHandler.php
+similarity index 96%
+rename from src/MessageHandler/DeleteImagePostHandler.php
+rename to src/MessageHandler/Command/DeleteImagePostHandler.php
+index 47dbc57..7b2574a 100644
+--- a/src/MessageHandler/DeleteImagePostHandler.php
++++ b/src/MessageHandler/Command/DeleteImagePostHandler.php
+@@ -1,6 +1,6 @@
+ <?php
+ 
+-namespace App\MessageHandler;
++namespace App\MessageHandler\Command;
+ 
+ use App\Message\Command\DeleteImagePost;
+ use App\Message\Event\ImagePostDeletedEvent;

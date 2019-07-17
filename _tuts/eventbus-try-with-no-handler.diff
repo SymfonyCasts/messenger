@@ -1,0 +1,13 @@
+diff --git a/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php b/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php
+index c90f380..4897557 100644
+--- a/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php
++++ b/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php
+@@ -6,7 +6,7 @@ use App\Message\Event\ImagePostDeletedEvent;
+ use App\Photo\PhotoFileManager;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+ 
+-class RemoveFileWhenImagePostDeleted implements MessageHandlerInterface
++class RemoveFileWhenImagePostDeleted
+ {
+     private $photoFileManager;
+ 

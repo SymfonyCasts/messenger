@@ -1,0 +1,39 @@
+diff --git a/src/Controller/MainController.php b/src/Controller/MainController.php
+index 427a55e..781619b 100644
+--- a/src/Controller/MainController.php
++++ b/src/Controller/MainController.php
+@@ -5,6 +5,7 @@ namespace App\Controller;
+ use App\Message\Query\GetTotalImageCount;
+ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+ use Symfony\Component\Messenger\MessageBusInterface;
++use Symfony\Component\Messenger\Stamp\HandledStamp;
+ use Symfony\Component\Routing\Annotation\Route;
+ 
+ class MainController extends AbstractController
+@@ -16,6 +17,12 @@ class MainController extends AbstractController
+     {
+         $envelope = $queryBus->dispatch(new GetTotalImageCount());
+ 
+-        return $this->render('main/homepage.html.twig');
++        /** @var HandledStamp $handled */
++        $handled = $envelope->last(HandledStamp::class);
++        $imageCount = $handled->getResult();
++
++        return $this->render('main/homepage.html.twig', [
++            'imageCount' => $imageCount
++        ]);
+     }
+ }
+\ No newline at end of file
+diff --git a/templates/main/homepage.html.twig b/templates/main/homepage.html.twig
+index 5a2e6c0..fd99a6d 100644
+--- a/templates/main/homepage.html.twig
++++ b/templates/main/homepage.html.twig
+@@ -1,5 +1,7 @@
+ {% extends 'base.html.twig' %}
+ 
++{% block title %}Ponka'd {{ imageCount }} Photos{% endblock %}
++
+ {% block body %}
+     <div id="images-app">
+         <image-app></image-app>

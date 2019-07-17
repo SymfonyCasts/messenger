@@ -1,0 +1,52 @@
+diff --git a/src/Message/Event/ImagePostDeletedEvent.php b/src/Message/Event/ImagePostDeletedEvent.php
+new file mode 100644
+index 0000000..c45e42b
+--- /dev/null
++++ b/src/Message/Event/ImagePostDeletedEvent.php
+@@ -0,0 +1,18 @@
++<?php
++
++namespace App\Message\Event;
++
++class ImagePostDeletedEvent
++{
++    private $filename;
++
++    public function __construct(string $filename)
++    {
++        $this->filename = $filename;
++    }
++
++    public function getFilename(): string
++    {
++        return $this->filename;
++    }
++}
+diff --git a/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php b/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php
+new file mode 100644
+index 0000000..c90f380
+--- /dev/null
++++ b/src/MessageHandler/Event/RemoveFileWhenImagePostDeleted.php
+@@ -0,0 +1,22 @@
++<?php
++
++namespace App\MessageHandler\Event;
++
++use App\Message\Event\ImagePostDeletedEvent;
++use App\Photo\PhotoFileManager;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++
++class RemoveFileWhenImagePostDeleted implements MessageHandlerInterface
++{
++    private $photoFileManager;
++
++    public function __construct(PhotoFileManager $photoFileManager)
++    {
++        $this->photoFileManager = $photoFileManager;
++    }
++
++    public function __invoke(ImagePostDeletedEvent $event)
++    {
++        $this->photoFileManager->deleteImage($event->getFilename());
++    }
++}

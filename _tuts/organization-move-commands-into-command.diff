@@ -1,0 +1,82 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 5688309..f883fb6 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -30,5 +30,5 @@ framework:
+ 
+         routing:
+             # Route your messages to the transports
+-            'App\Message\AddPonkaToImage': async_priority_high
++            'App\Message\Command\AddPonkaToImage': async_priority_high
+             'App\Message\Event\ImagePostDeletedEvent': async
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index bf609a9..a8d9341 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -3,8 +3,8 @@
+ namespace App\Controller;
+ 
+ use App\Entity\ImagePost;
+-use App\Message\AddPonkaToImage;
+-use App\Message\DeleteImagePost;
++use App\Message\Command\AddPonkaToImage;
++use App\Message\Command\DeleteImagePost;
+ use App\Repository\ImagePostRepository;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
+diff --git a/src/Message/AddPonkaToImage.php b/src/Message/Command/AddPonkaToImage.php
+similarity index 90%
+rename from src/Message/AddPonkaToImage.php
+rename to src/Message/Command/AddPonkaToImage.php
+index b0b271a..a0dd5a3 100644
+--- a/src/Message/AddPonkaToImage.php
++++ b/src/Message/Command/AddPonkaToImage.php
+@@ -1,6 +1,6 @@
+ <?php
+ 
+-namespace App\Message;
++namespace App\Message\Command;
+ 
+ use App\Entity\ImagePost;
+ 
+diff --git a/src/Message/DeleteImagePost.php b/src/Message/Command/DeleteImagePost.php
+similarity index 90%
+rename from src/Message/DeleteImagePost.php
+rename to src/Message/Command/DeleteImagePost.php
+index c11f53b..5bec85c 100644
+--- a/src/Message/DeleteImagePost.php
++++ b/src/Message/Command/DeleteImagePost.php
+@@ -1,6 +1,6 @@
+ <?php
+ 
+-namespace App\Message;
++namespace App\Message\Command;
+ 
+ use App\Entity\ImagePost;
+ 
+diff --git a/src/MessageHandler/AddPonkaToImageHandler.php b/src/MessageHandler/AddPonkaToImageHandler.php
+index 23932b5..fbfea61 100644
+--- a/src/MessageHandler/AddPonkaToImageHandler.php
++++ b/src/MessageHandler/AddPonkaToImageHandler.php
+@@ -2,7 +2,7 @@
+ 
+ namespace App\MessageHandler;
+ 
+-use App\Message\AddPonkaToImage;
++use App\Message\Command\AddPonkaToImage;
+ use App\Photo\PhotoFileManager;
+ use App\Photo\PhotoPonkaficator;
+ use App\Repository\ImagePostRepository;
+diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
+index 8e9e795..47dbc57 100644
+--- a/src/MessageHandler/DeleteImagePostHandler.php
++++ b/src/MessageHandler/DeleteImagePostHandler.php
+@@ -2,7 +2,7 @@
+ 
+ namespace App\MessageHandler;
+ 
+-use App\Message\DeleteImagePost;
++use App\Message\Command\DeleteImagePost;
+ use App\Message\Event\ImagePostDeletedEvent;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;

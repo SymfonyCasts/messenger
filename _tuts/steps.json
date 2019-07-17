@@ -209,7 +209,152 @@
             "id": "priority-add-high-priority-transport",
             "name": "Priority: add high priority transport",
             "description": null
+        },
+        {
+            "id": "dev-override-to-sync-transport",
+            "name": "Dev: override to sync transport",
+            "description": null
+        },
+        {
+            "id": "dev-comment-out-sync-overrides",
+            "name": "Dev: comment-out sync overrides",
+            "description": null
+        },
+        {
+            "id": "test-install-phpunit-dev",
+            "name": "Test: install phpunit --dev",
+            "description": null
+        },
+        {
+            "id": "test-bootstrap-test",
+            "name": "Test: bootstrap test",
+            "description": null
+        },
+        {
+            "id": "test-basic-upload-test",
+            "name": "Test: basic upload test",
+            "description": null
+        },
+        {
+            "id": "test-add-assertion",
+            "name": "Test: add assertion",
+            "description": null
+        },
+        {
+            "id": "test-use-in-memory-fetch-transport",
+            "name": "Test: use in-memory & fetch transport",
+            "description": null
+        },
+        {
+            "id": "test-assert-message-count",
+            "name": "Test: assert message count",
+            "description": null
+        },
+        {
+            "id": "supervisor-bootstrap-config-file",
+            "name": "Supervisor: bootstrap config file",
+            "description": null
+        },
+        {
+            "id": "supervisor-update-paths",
+            "name": "Supervisor: update paths",
+            "description": null
+        },
+        {
+            "id": "supervisor-add-high-priority",
+            "name": "Supervisor: add high priority",
+            "description": null
+        },
+        {
+            "id": "eventbus-add-new-bus",
+            "name": "EventBus: add new bus",
+            "description": null
+        },
+        {
+            "id": "eventbus-set-default-bus",
+            "name": "EventBus: set default_bus",
+            "description": null
+        },
+        {
+            "id": "eventbus-inject-eventbus-into-handler",
+            "name": "EventBus: inject eventBus into handler",
+            "description": null
+        },
+        {
+            "id": "eventbus-add-event-class-handler",
+            "name": "EventBus: Add event class + handler",
+            "description": null
+        },
+        {
+            "id": "eventbus-dispatch-event",
+            "name": "EventBus: dispatch event",
+            "description": null
+        },
+        {
+            "id": "eventbus-handle-async",
+            "name": "EventBus: handle async",
+            "description": null
+        },
+        {
+            "id": "eventbus-try-with-no-handler",
+            "name": "EventBus: try with no handler",
+            "description": null
+        },
+        {
+            "id": "eventbus-allow-no-handlers",
+            "name": "EventBus: allow_no_handlers",
+            "description": null
+        },
+        {
+            "id": "eventbus-put-back-handler-interface",
+            "name": "EventBus: put back handler interface",
+            "description": null
+        },
+        {
+            "id": "organization-move-commands-into-command",
+            "name": "Organization: move commands into Command",
+            "description": null
+        },
+        {
+            "id": "organization-move-handlers-into-command",
+            "name": "Organization: move handlers into Command",
+            "description": null
+        },
+        {
+            "id": "organization-add-tag-config",
+            "name": "Organization: add tag config",
+            "description": null
+        },
+        {
+            "id": "organization-rename-default-bus",
+            "name": "Organization: rename default bus",
+            "description": null
+        },
+        {
+            "id": "organization-add-auditmiddleware-to-event-bus",
+            "name": "Organization: add AuditMiddleware to event bus",
+            "description": null
+        },
+        {
+            "id": "querybus-add-new-bus",
+            "name": "QueryBus: add new bus",
+            "description": null
+        },
+        {
+            "id": "querybus-delete-me",
+            "name": "QueryBus: delete me",
+            "description": null
+        },
+        {
+            "id": "querybus-create-query-handler",
+            "name": "QueryBus: create query+handler",
+            "description": null
+        },
+        {
+            "id": "querybus-use-result",
+            "name": "QueryBus: use result",
+            "description": null
         }
     ],
-    "sha": "76e928dbfd25d3a0f8111f5e39a10180552ee717"
+    "sha": "7beb8f0f86669b09ed2c29e008915b3f5a2dc079"
 }

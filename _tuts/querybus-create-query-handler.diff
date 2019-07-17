@@ -1,0 +1,77 @@
+diff --git a/config/services.yaml b/config/services.yaml
+index fc463e8..9549957 100644
+--- a/config/services.yaml
++++ b/config/services.yaml
+@@ -37,6 +37,11 @@ services:
+         autoconfigure: false
+         tags: [{ name: messenger.message_handler, bus: event.bus }]
+ 
++    App\MessageHandler\Query\:
++        resource: '../src/MessageHandler/Query'
++        autoconfigure: false
++        tags: [{ name: messenger.message_handler, bus: query.bus }]
++
+     # add more service definitions when explicit configuration is needed
+     # please note that last definitions always *replace* previous ones
+ 
+diff --git a/src/Controller/MainController.php b/src/Controller/MainController.php
+index 3570850..427a55e 100644
+--- a/src/Controller/MainController.php
++++ b/src/Controller/MainController.php
+@@ -2,7 +2,9 @@
+ 
+ namespace App\Controller;
+ 
++use App\Message\Query\GetTotalImageCount;
+ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
++use Symfony\Component\Messenger\MessageBusInterface;
+ use Symfony\Component\Routing\Annotation\Route;
+ 
+ class MainController extends AbstractController
+@@ -10,8 +12,10 @@ class MainController extends AbstractController
+     /**
+      * @Route("/")
+      */
+-    public function homepage()
++    public function homepage(MessageBusInterface $queryBus)
+     {
++        $envelope = $queryBus->dispatch(new GetTotalImageCount());
++
+         return $this->render('main/homepage.html.twig');
+     }
+ }
+\ No newline at end of file
+diff --git a/src/Message/Query/GetTotalImageCount.php b/src/Message/Query/GetTotalImageCount.php
+new file mode 100644
+index 0000000..df06a28
+--- /dev/null
++++ b/src/Message/Query/GetTotalImageCount.php
+@@ -0,0 +1,8 @@
++<?php
++
++namespace App\Message\Query;
++
++class GetTotalImageCount
++{
++
++}
+diff --git a/src/MessageHandler/Query/GetTotalImageCountHandler.php b/src/MessageHandler/Query/GetTotalImageCountHandler.php
+new file mode 100644
+index 0000000..325820e
+--- /dev/null
++++ b/src/MessageHandler/Query/GetTotalImageCountHandler.php
+@@ -0,0 +1,14 @@
++<?php
++
++namespace App\MessageHandler\Query;
++
++use App\Message\Query\GetTotalImageCount;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++
++class GetTotalImageCountHandler implements MessageHandlerInterface
++{
++    public function __invoke(GetTotalImageCount $getTotalImageCount)
++    {
++        return 50;
++    }
++}

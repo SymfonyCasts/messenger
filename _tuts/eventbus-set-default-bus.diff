@@ -1,0 +1,12 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 28289f2..6c99bf3 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -1,5 +1,7 @@
+ framework:
+     messenger:
++        default_bus: messenger.bus.default
++
+         buses:
+             messenger.bus.default:
+                 middleware:

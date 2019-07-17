@@ -1,0 +1,12 @@
+diff --git a/tests/Controller/ImagePostControllerTest.php b/tests/Controller/ImagePostControllerTest.php
+index efb1481..edf1ad7 100644
+--- a/tests/Controller/ImagePostControllerTest.php
++++ b/tests/Controller/ImagePostControllerTest.php
+@@ -24,6 +24,6 @@ class ImagePostControllerTest extends WebTestCase
+ 
+         /** @var InMemoryTransport $transport */
+         $transport = self::$container->get('messenger.transport.async_priority_high');
+-        dd($transport);
++        $this->assertCount(1, $transport->get());
+     }
+ }

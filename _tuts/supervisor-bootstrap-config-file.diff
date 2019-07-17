@@ -1,0 +1,14 @@
+diff --git a/config/messenger-worker.ini b/config/messenger-worker.ini
+new file mode 100644
+index 0000000..1a5c3f8
+--- /dev/null
++++ b/config/messenger-worker.ini
+@@ -0,0 +1,7 @@
++[program:messenger-consume]
++command=php /path/to/your/app/bin/console messenger:consume async --time-limit=3600
++user=ubuntu
++numprocs=2
++autostart=true
++autorestart=true
++process_name=%(program_name)s_%(process_num)02d
+\ No newline at end of file

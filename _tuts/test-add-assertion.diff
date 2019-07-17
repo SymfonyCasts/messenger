@@ -1,0 +1,12 @@
+diff --git a/tests/Controller/ImagePostControllerTest.php b/tests/Controller/ImagePostControllerTest.php
+index 749ec48..adc264f 100644
+--- a/tests/Controller/ImagePostControllerTest.php
++++ b/tests/Controller/ImagePostControllerTest.php
+@@ -19,6 +19,6 @@ class ImagePostControllerTest extends WebTestCase
+             'file' => $uploadedFile
+         ]);
+ 
+-        dd($client->getResponse()->getContent());
++        $this->assertResponseIsSuccessful();
+     }
+ }

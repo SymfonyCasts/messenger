@@ -1,0 +1,33 @@
+diff --git a/config/packages/test/messenger.yaml b/config/packages/test/messenger.yaml
+new file mode 100644
+index 0000000..97d59b6
+--- /dev/null
++++ b/config/packages/test/messenger.yaml
+@@ -0,0 +1,5 @@
++framework:
++    messenger:
++        transports:
++            async: 'in-memory://'
++            async_priority_high: 'in-memory://'
+diff --git a/tests/Controller/ImagePostControllerTest.php b/tests/Controller/ImagePostControllerTest.php
+index adc264f..efb1481 100644
+--- a/tests/Controller/ImagePostControllerTest.php
++++ b/tests/Controller/ImagePostControllerTest.php
+@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
+ 
+ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+ use Symfony\Component\HttpFoundation\File\UploadedFile;
++use Symfony\Component\Messenger\Transport\InMemoryTransport;
+ 
+ class ImagePostControllerTest extends WebTestCase
+ {
+@@ -20,5 +21,9 @@ class ImagePostControllerTest extends WebTestCase
+         ]);
+ 
+         $this->assertResponseIsSuccessful();
++
++        /** @var InMemoryTransport $transport */
++        $transport = self::$container->get('messenger.transport.async_priority_high');
++        dd($transport);
+     }
+ }

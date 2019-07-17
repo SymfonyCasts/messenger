@@ -1,0 +1,13 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index e1dad53..b7ffe52 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -12,6 +12,8 @@ framework:
+                 middleware:
+                     - App\Messenger\AuditMiddleware
+ 
++            query.bus: ~
++
+         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+         failure_transport: failed
+ 

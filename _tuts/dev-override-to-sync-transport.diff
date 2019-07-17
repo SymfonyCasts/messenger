@@ -1,0 +1,11 @@
+diff --git a/config/packages/dev/messenger.yaml b/config/packages/dev/messenger.yaml
+new file mode 100644
+index 0000000..33e9892
+--- /dev/null
++++ b/config/packages/dev/messenger.yaml
+@@ -0,0 +1,5 @@
++framework:
++    messenger:
++        transports:
++            async: 'sync://'
++            async_priority_high: 'sync://'

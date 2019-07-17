@@ -1,0 +1,21 @@
+diff --git a/config/services.yaml b/config/services.yaml
+index 5e6ccbc..9aece1f 100644
+--- a/config/services.yaml
++++ b/config/services.yaml
+@@ -27,6 +27,16 @@ services:
+         resource: '../src/Controller'
+         tags: ['controller.service_arguments']
+ 
++    App\MessageHandler\Command\:
++        resource: '../src/MessageHandler/Command'
++        autoconfigure: false
++        tags: [{ name: messenger.message_handler, bus: messenger.bus.default }]
++
++    App\MessageHandler\Event\:
++        resource: '../src/MessageHandler/Event'
++        autoconfigure: false
++        tags: [{ name: messenger.message_handler, bus: event.bus }]
++
+     # add more service definitions when explicit configuration is needed
+     # please note that last definitions always *replace* previous ones
+ 

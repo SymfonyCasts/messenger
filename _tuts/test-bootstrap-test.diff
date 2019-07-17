@@ -1,0 +1,19 @@
+diff --git a/tests/Controller/ImagePostControllerTest.php b/tests/Controller/ImagePostControllerTest.php
+new file mode 100644
+index 0000000..8f8c27a
+--- /dev/null
++++ b/tests/Controller/ImagePostControllerTest.php
+@@ -0,0 +1,13 @@
++<?php
++
++namespace App\Tests\Controller;
++
++use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
++
++class ImagePostControllerTest extends WebTestCase
++{
++    public function testCreate()
++    {
++        $this->assertEquals(42, 42);
++    }
++}
