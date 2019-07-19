@@ -21,6 +21,8 @@ and new `failed` transports are using the `doctrine` transport and the `default`
 doctrine connection. But the second one *also* has this little `?queue_name=failed`
 option. OooooOOOOooo.
 
+[[[ code('81c981f68d') ]]]
+
 Go back to whatever you're using to inspect the database and check out the queue
 table:
 
@@ -67,6 +69,8 @@ message classes there and consume them, *just* like we're doing for `async`.
 But... the *purpose* of this transport is different. Near the top, there's another
 key called `failure_transport`. Uncomment that and notice that this *points*
 to our new `failed` transport.
+
+[[[ code('5bc9ca3d83') ]]]
 
 What does it do? Let's see it in action! First, go restart our worker:
 

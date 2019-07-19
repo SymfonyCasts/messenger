@@ -53,6 +53,9 @@ If you *did* want to remove this without retrying, that's the
 ## Retrying Failed Messages
 
 But... let's retry this! Back in the handler, change this back to fail randomly.
+
+[[[ code('b1bf4ef9ef') ]]]
+
 There are two ways to work with the retry command: you can retry a specific id
 like you see here *or* you can retry the messages one-by-one. Let's do that. Run:
 

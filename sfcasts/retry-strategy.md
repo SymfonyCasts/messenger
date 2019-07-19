@@ -50,12 +50,16 @@ of 2.
 Let's make this a bit *more* interesting. In the handler, let's make it *always*
 fail by adding `|| true`.
 
+[[[ code('5abb95e95c') ]]]
+
 Now, under `messenger`, let's play with the retry config. Wait... but the `async`
 transport is set to a string... are we allowed to include config options under
 that? No! Well, yes, sort of. As soon as you need to configure a transport beyond
 just the connection details, you'll need to drop this string onto the next line
 and assign it to a `dsn` key. *Now* we can add `retry_strategy`, and let's set
 the delay to 2 seconds instead of 1.
+
+[[[ code('4f54fafce9') ]]]
 
 Oh, and I also want to mention this `service` key. If you want to *completely*
 control the retry config - maybe even having different retry logic per message -
@@ -76,6 +80,9 @@ starts a full *8* seconds later. Then it's "rejected" - removed from the queue -
 and lost forever. Tragic!
 
 Retries are great... but I don't like that last part: when the message is eventually
-lost forever. Change the delay to 500 - it'll make this easier to test. Next, let's
-talk about a special concept called the "failure transport": a better alternative
-than allowing failed messages to simply... disappear.
+lost forever. Change the delay to 500 - it'll make this easier to test. 
+
+[[[ code('96e3408eba') ]]]
+
+Next, let's talk about a special concept called the "failure transport": 
+a better alternative than allowing failed messages to simply... disappear.
