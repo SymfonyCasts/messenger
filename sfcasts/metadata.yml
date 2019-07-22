@@ -20,3 +20,4 @@ chapters:
   - sent-received-logging
   - priority-transports
   - dev-sync
+  - functional-test
