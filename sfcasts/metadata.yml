@@ -18,3 +18,4 @@ chapters:
   - middleware-stamps
   - logger-channel
   - sent-received-logging
+  - priority-transports
