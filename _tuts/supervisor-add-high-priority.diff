@@ -1,11 +1,11 @@
 diff --git a/config/messenger-worker.ini b/config/messenger-worker.ini
-index 10a0908..c17173a 100644
+index 159dd8a..969ff35 100644
 --- a/config/messenger-worker.ini
 +++ b/config/messenger-worker.ini
 @@ -1,5 +1,5 @@
  [program:messenger-consume]
--command=php /Users/weaverryan/Sites/knp/knpu-repos/messenger/bin/console messenger:consume async --time-limit=3600
-+command=php /Users/weaverryan/Sites/knp/knpu-repos/messenger/bin/console messenger:consume async_priority_high async --time-limit=3600
+-command=php /Users/weaverryan/Sites/messenger/bin/console messenger:consume async --time-limit=3600
++command=php /Users/weaverryan/Sites/messenger/bin/console messenger:consume async_priority_high async --time-limit=3600
  user=weaverryan
  numprocs=2
  autostart=true
