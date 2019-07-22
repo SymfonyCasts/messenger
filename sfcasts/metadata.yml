@@ -19,3 +19,4 @@ chapters:
   - logger-channel
   - sent-received-logging
   - priority-transports
+  - dev-sync
