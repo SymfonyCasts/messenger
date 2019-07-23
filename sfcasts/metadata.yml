@@ -20,7 +20,7 @@ chapters:
   - sent-received-logging
   - priority-transports
   - dev-sync
-  - functional-test   # raw
+  - functional-test
   - test-in-memory    # raw
   - deploy            # raw
   - event-bus         # raw
