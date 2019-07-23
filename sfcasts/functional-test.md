@@ -134,17 +134,16 @@ to help make testing easier.
 So if we just stopped right now, so actually, so this is actually a really nice test.
 However, there's a couple of problems. First of all, behind the scenes, we really are
 still dispatching our ad Ponca to image to our transport. So it's literally being
-added to our database right now. Select Star from Messenger underscore messages.
-Slash g a is actually 40 rows in there cause there's lots of things from the failed
-transport. So let's actually say to head where you name does not equal fail. Problem
-number one is that our messages are being said the transport, and you can actually
-see this. If you go back to our worker tab here, this is actually, his messages are
-from us in our test by run, Vinny run our tests again, you can actually see it's
-actually processing those right here. Um, that's fine, but that's great that that's
-working. But actually it doesn't allow us to do an assertion. What you might want to
-do is actually be able to assert inside of your test that the message was actually
-delivered to the transport. There's no way for us to tell right here that that's
-actually happening successfully. So next what we're going to do is, is use something
-called an in memory transport, do actually short circuit that system and be able to
-assert literally in our tests that the message was in fact delivered to the transport
-successfully.
+added to our database right now. Select Star from Messenger_messages. /g a is
+actually 40 rows in there cause there's lots of things from the failed transport. So
+let's actually say to head where you name does not equal fail. Problem number one is
+that our messages are being said the transport, and you can actually see this. If you
+go back to our worker tab here, this is actually, his messages are from us in our
+test by run, Vinny run our tests again, you can actually see it's actually processing
+those right here. Um, that's fine, but that's great that that's working. But actually
+it doesn't allow us to do an assertion. What you might want to do is actually be able
+to assert inside of your test that the message was actually delivered to the
+transport. There's no way for us to tell right here that that's actually happening
+successfully. So next what we're going to do is, is use something called an in memory
+transport, do actually short circuit that system and be able to assert literally in
+our tests that the message was in fact delivered to the transport successfully.
