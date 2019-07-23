@@ -22,5 +22,5 @@ chapters:
   - dev-sync
   - functional-test
   - test-in-memory
-  - deploy            # raw
+  - deploy
   - event-bus         # raw
