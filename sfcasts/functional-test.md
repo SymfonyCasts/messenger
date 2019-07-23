@@ -46,98 +46,86 @@ the normal `TestCase` from PHPUnit, extend `WebTestCase`, which will give the
 functional test superpowers we need. The class lives in FrameworkBundle but...
 be careful: there are (gasp) *two* classes with this name! The one you want lives
 in the `Test` namespace... the other one lives in `Tests/Test`... so it's super
-confusing. If you choose the wrong one, delete the `use` statement and try again.
-Good news - there's an open pull request to rename the "wrong" class to make this
-all *much* more awesome.
+confusing. It should look like this. If you choose the wrong one, delete the
+`use` statement and try again. Good news - there's an open pull request to rename
+the "wrong" class to make this all *much* more awesome.
 
---> HERE
+And then, because we're going to test the `create()` endpoint, create
+`public function testCreate()`. Inside, just to make sure things are working, I'll
+try my favorite `$this->assertEquals(42, 42)`.
 
-and then instead of making this extend the normal test case for PHP unit a to get
-some a nice functional testing tools, we're going to extend the web test case. The
-one from framework bundle, and unfortunately there are actually two in framework
-bundle right now. One of them is an internal that you're not supposed to use. The one
-you actually want is the one in test, not to the one in tests that has a very similar
-name inside. It should look a little bit like this. Just make sure you've got the
-right one. And then because we're going to be testing the create end point, I'll say
-test, create and just to make sure things are working. I'll do my classic, this
-assert equals 40 to 42. You won't get out of completion on this yet. Um, because
-because technically speaking PHP unit, it hasn't been downloaded yet.
+## Running the Test
 
-We're going to see that in a second and then we'll see that right now. Cause if you
-flip over, I'll clear my screen or run PHP bin Slash P PHB unit. This is a little
-script that will actually download PHV unit into a separate directory behind the
-scenes. Um, it's outside the scope of this tutorial but symphony basically does that.
-So you can have a version of PHP unit, um, and its dependencies that don't clash with
-the dependencies of your project. So you can sort of run piece unit in isolation and
-then it runs a test one test, one assertion. And if you're wanting again, peace of
-mind, it's already downloaded. So it just works. And now on a foot back after it
-builds. And we are going to get a, you're going to see that yellow background on
-assert equals is gonna go away because now petri storm sees our assert functions.
-Okay, so let's actually get this to testing the upload endpoint. A first I'm going
-to, I'm going to need an image to upload and inside my test directory I'm actually
-going to create a fixtures directory.
+Notice I didn't get any auto-completion on this. That's because PHPUnit *itself*
+hasn't been downloaded yet. Check it out: find your terminal and run the tests
+with:
 
-And then at the command line I'm going to move one of my files. I've been uploading
-to that directory. So I'm gonna go to my needs more cat. And this is the one that I'm
-going to want. This is me and Favian and I'll move that into fixtures, tests,
-fixtures, Ryan Dash Favian, that jpeg. Perfect. So now instead of there, cool. So now
-we have an image we can actually play with. Okay. D for the test itself first and we
-need to do is say client equals static colon. Colon client. Okay. So I'll click on
-create client that will create the, basically the http client that is going to make
-requests into our application. And then I'm going to create an uploaded file variable
-set to new uploaded file. You'll see how we're going to use this in a second. Make
-sure you get the one from http foundation and this takes two arguments.
+```terminal
+php bin/phpunit
+```
 
-The first argument is the actual path to the file itself, so I can say underscore,
-underscore Dir underscore Ernest score that that slash fixtures slash Ryan Best five
-minute jpeg and the second argument, the only other required argument is the original
-name. I'm going to say it, Ryan Dash five in that jpeg. This is because when you
-upload a file on a browser, the final actually sends the physical contents of the
-file in your browser is also responsible for actually sending the file name on the
-user's file system. This could be anything, but we'll keep it consistent.
+This little script uses Composer to download PHPUnit into a separate directory
+behind the scenes, which is nice because it means you can get any version of
+PHPUnit, even if some of its dependency versions clash with those in your project.
 
-Okay,
+Once it's done... ding! Our one test is green. Next time you run:
 
-and then to actually make the request, we'll say a client error request and this is
-of course going to be a
+```terminal
+php bin/phpunit
+```
 
-post your request. So client area requests post,
+it jumps *straight* to running the tests. And now that PHPUnit is downloaded,
+once PhpStorm builds its cache, that yellow background on `assertEquals()` will
+go away.
 
-then the URL which is slash API slash images. And then we don't need any special
-parameters. We don't, but we do need to pass a files array here and array of uploaded
-files. Now if you look in image post controller, we're actually expecting the a, the
-kind of a name on the input field here to be literally the string of file. So that's
-the key that we're gonna use here when it's that file set to that uploaded file
-object and that's it. That should make the request and see if it worked. I'm going to
-use d d down here and I'm going to say client Arrow.
+## Testing the Upload Endpoint
 
-Okay. Get Response Arrow.
+To test the endpoint itself, we *first* need an image that we can upload to it.
+Inside the `tests/` directory, let's create a `fixtures/` directory to hold the
+image. Next, I'll copy one of the images I've been uploading into this directory
+and name it `ryan-fabien.jpg`.
 
-Get content. So once your client makes a request, you can actually get the response
-by saying client Eric, your response. So ideally this should give us our nice Jason
-Return of that uploaded file.
+And... there it is. Now, the test is pretty simple: create a client with
+`$client = static::createClient()` and an `UploadedFile` object that will
+simulate the file being uploaded: `$uploadedFile = new UploadedFile()` passing
+the path to the file as the first argument - `__DIR__.'/../fixtures/ryan-fabien.jpg` -
+and the filename as the second - `ryan-fabien.jpg`.
 
-Let's try it. Move over. I'll clear the screen. Okay.
+Why the, sorta, "redundant" second argument? When you upload a file in a browser,
+your browser sends *two* pieces of data: the physical contents of the file *and*
+the name of the file on your filesystem.
 
-Ron Phd been slash unit
+Finally, we can make the request: `$client->request()`. The first argument is
+the method... which is `POST`, then the URL - `/api/images` - we don't need any
+GET or POST parameters, but we *do* need to pass an array of files.
 
-and
+If you look in `ImagePostController`, we're expecting the name of the uploaded
+file - that's normally the `name` attribute on the `<input` field - to literally
+be `file`. Use that key in our test and set it to our `$uploadedFile` object.
 
-it works perfect. You can see the ID one to two. Let me try that a couple more times.
-I do. You want a three? It's adding things to the database.
+And... that's it! To see if it worked *really* easily, let's
+`dd($client->getResponse()->getContent()`.
 
-Okay.
+Let's try it! I'll find my terminal, clear the screen and run:
 
-Is that any of them to our normal database right now? I haven't gone to the trouble
-of creating a separate database for my test environment, which I usually do, but
-that's fine. All right, so I'll remove that d here I am gonna put an assertion here.
-I'm going to say this assert response is successful. Uh, this is actually, um, a new
-method in symphony 4.3, uh, where a bunch of really nice, uh, assertions were added
-by symphony related to testing. So actually if I hold command and get into this, this
-opens up something called a web at test assertions trait and needs to, there's lots
-of good stuff. You're going to start the status coding a certain things redirected,
-you can check for headers. Um, so lots of really, really good stuff in here that,
-that um, you should check out,
+```terminal
+php bin/phpunit
+```
+
+Got it! And we get a new id each time we run it. Right now this is saving to our
+*normal* database because I haven't gone to the trouble of creating a separate
+database for my test environment, which I usually like to do. But that's fine.
+
+## Asserting Success
+
+Remove the `dd()`: let's replace this with a real assertion:
+`$this->assertResponseIsSuccessful()`.
+
+This is a new method in Symfony 4.3... and it's not the only one: the new
+`WebTestAssertionsTrait` has a *ton* of nice new methods for testing a variety
+of things.
+
+---> HERE
 
 um,
 
