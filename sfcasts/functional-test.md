@@ -1,142 +1,131 @@
-# Functional Test
+# Functional Test for the Upload Endpoint
 
-Coming soon...
+How can we write automated tests for all of this? Well, the answer is a couple
+of pieces. First, you could write a unit test for your message classes. I don't
+*normally* do this... because they're so simple. But if your class is a bit more
+complex or you want to play it safe, you can *totally* unit test this.
 
-What about testing all this setup, writing actually unit or functional tests? How do
-we do that? Well, the answer is a couple of pieces. Uh, first of all, you could write
-a unit test for your individual message classes. I probably wouldn't normally do that
-because they're so simple. But if you do like to be really tight with your tests,
-this is a classic thing. You could unit tests. Um, probably more importantly is the
-um, message handlers. These are something that are definitely a good idea to unit
-test. You would of course use mocking to mock the service dependencies and then you
-could dip patent, a unit test, whatever you wanted. You gave an integration test
-these if you want it to really make sure that they're working properly. So basically
-messages and message handlers. As far as testing those, they have nothing to do with
-Messenger or transports or async. These are just PHP classes that are well written
-and so we can unit test them like we unit test anything else,
+More important are the message handlers: it's *definitely* a good idea to test
+these. You could write unit tests and mock the dependencies or an integration
+test... depending on what's most useful for what each handler does.
 
-a functional tests. Functional tests, however, are a little bit more interesting. For
-example, if we go to `src/Controller/ImagePostController.php`, the `create()` method here
-is actually the upload a end point and it does a couple of things. That of course
-actually saves the image of the database and moves the file. And then most
-importantly down here it actually dispatched, it dispatches our message, which we
-know is going to be dispatched asynchronously to queue. So writing a functional test
-for this endpoint is actually fairly straight forward. But what if you actually
-wanted to be able to test that your message was sent to the transport, not just that
-this endpoint worked, but that the `AddPonkaToImage` object was actually sent
-properly. And we can actually do that in a really cool way. So let's go to this whole
-process of setting up a nice functional tasks for that endpoint. Firstly, I want to
-do is say, 
+The point is: for your message and message handler classes... testing them has
+*nothing* to do with messenger or transports or async or workers: they're just
+well-written PHP classes that we can test like *anything* else. That's really one
+of the beautiful things about messenger: first and foremost, you're writing nice
+code.
+
+But *functional* tests can be a bit more interesting. For example, open
+`src/Controller/ImagePostController.php`. The `create()` method is the upload
+endpoint and it does a couple of things: like saving `ImagePost` to the database
+and, most important for us, dispatching the `AddPonkaToImage` object.
+
+Writing a functional test for this endpoint is actually fairly straightforward.
+But what if we wanted to be able to test not *only* that this endpoint "appears"
+to have worked, but also that the `AddPonkaToImage` object *was* sent to the
+transport? Doing *that* is a bit more interesting.
+
+## Test Setup
+
+Let's get the functional test working first. Start by finding and open terminal
+and running:
 
 ```terminal
 composer require phpunit --dev
 ```
 
-That's going to install the Symfony's phpunit, um, pack test-pack,
+That will install Symfony `test-pack`, which includes the PHPUnit bridge - a sort
+of "wrapper" around PHPUnit that makes life easier. When it finishes, it tells
+us to write our tests inside of the `tests/` directory - brilliant idea - and
+execute them by running `php bin/phpunit`. That little file was just added by
+the recipe and it'll handle all the details of getting PHPUnit running.
 
-which includes `symfony/phpunit-bridge`, which is the way that we're going to
-execute PHPunit and includes a couple of other things.
+Step one: create the test class: inside `tests`, create a new `Controller/` directory
+and then a new PHP Class: `ImagePostControllerTest`. Instead of making this extend
+the normal `TestCase` from PHPUnit, extend `WebTestCase`, which will give the
+functional test superpowers we need. The class lives in FrameworkBundle but...
+be careful: there are (gasp) *two* classes with this name! The one you want lives
+in the `Test` namespace... the other one lives in `Tests/Test`... so it's super
+confusing. It should look like this. If you choose the wrong one, delete the
+`use` statement and try again. Good news - there's an open pull request to rename
+the "wrong" class to make this all *much* more awesome.
 
-Perfect.
+And then, because we're going to test the `create()` endpoint, create
+`public function testCreate()`. Inside, just to make sure things are working, I'll
+try my favorite `$this->assertEquals(42, 42)`.
 
-Now is it that it says down here we're going to write a test inside the `tests/` folder
-and eventually we're gonna run `php bin/phpunit` to run our tests. That's a little
-script that was just added by the recipe that will help bootstrap our tests, so let's
-do that. Let's go down to the `tests/` directory here. Inside of here, I'm going to
-create a new `Controller/` directory because we're
+## Running the Test
 
-for functional tasks, I like to name them after my controller and it'll say 
-`ImagePostsControllerTest`
-
-and then instead of making this extend the normal `TestCase` for PHP unit a to get
-some a nice functional testing tools, we're going to extend the `WebTestCase`. The
-one from FrameworkBundle, and unfortunately there are actually two in framework
-bundle right now. One of them is an internal that you're not supposed to use. The one
-you actually want is the one in `Test/`, not to the one in `Tests` that has a very similar
-name inside. It should look a little bit like this. Just make sure you've got the
-right one. And then because we're going to be testing the create end point, I'll say
-`testCreate()` and just to make sure things are working. I'll do my classic, 
-`$this->assertEquals(42, 42)`. You won't get out of completion on this yet. Um, because because
-technically speaking PHP unit, it hasn't been downloaded yet.
-
-We're going to see that in a second and then we'll see that right now. Cause if you
-flip over, I'll clear my screen or run 
+Notice I didn't get any auto-completion on this. That's because PHPUnit *itself*
+hasn't been downloaded yet. Check it out: find your terminal and run the tests
+with:
 
 ```terminal
 php bin/phpunit
 ```
 
-This is a little script
-that will actually download phpunit into a separate directory behind the scenes. Um,
-it's outside the scope of this tutorial but Symfony basically does that. So you can
-have a version of PHP unit, um, and its dependencies that don't clash with the
-dependencies of your project. So you can sort of run piece unit in isolation and then
-it runs a test one test, one assertion. And if you're wanting again, peace of mind,
-it's already downloaded. 
+This little script uses Composer to download PHPUnit into a separate directory
+behind the scenes, which is nice because it means you can get any version of
+PHPUnit, even if some of its dependency versions clash with those in your project.
 
-```terminal-silent
-php bin/phpunit
-```
-
-So it just works. And now on a foot back after it builds.
-And we are going to get a, you're going to see that yellow background on `assertEquals()` is
-gonna go away because now PhpStorm sees our assert functions. Okay, so let's actually
-get this to testing the upload endpoint. A first I'm going to, I'm going to need an
-image to upload and inside my `tests/` directory I'm actually going to create a `fixtures/`
-directory.
-
-And then at the command line I'm going to move one of my files. I've been uploading
-to that directory. So I'm gonna go to my needs more cat. And this is the one that I'm
-going to want. This is me and Favian and I'll move that into 
-`tests/fixtures/ryan-fabien.jpg`  Perfect. So now instead of there, cool. So now
-we have an image we can actually play with. Okay. D for the test itself first and we
-need to do is say `$client = static::client`. Okay. So I'll click on `createClient()`
-that will create the, basically the http client that is going to make requests
-into our application. And then I'm going to create an `$uploadedFile` variable set to
-`new UploadedFile()`. You'll see how we're going to use this in a second. Make sure you
-get the one from HttpFoundation and this takes two arguments.
-
-The first argument is the actual path to the file itself, so I can say
-`__DIR__.'/../fixtures/ryan-fabien.jpg'` and the
-second argument, the only other required argument is the original name. I'm going to
-say it, `ryan-fabien.jpg`. This is because when you upload a file on a
-browser, the final actually sends the physical contents of the file in your browser
-is also responsible for actually sending the file name on the user's filesystem. This
-could be anything, but we'll keep it consistent.
-
-and then to actually make the request, we'll say a `$client->request()` and this is
-of course going to be a `POST` your request. So `$client->request('POST')`,
-
-then the URL which is `/api/images`. And then we don't need any special parameters. We
-don't, but we do need to pass a files array here and array of uploaded files. Now if
-you look in `ImagePostController`, we're actually expecting the a, the kind of a name
-on the input field here to be literally the string of `file`. So that's the key that
-we're gonna use here when it's that `'file' => $uploadedFile` object and that's
-it. That should make the request and see if it worked. I'm going to use `dd()` down here
-and I'm going to say `$client->getResponse()->getContent()`
-So once your client makes a request, you can actually get the response
-by saying client Eric, your response. So ideally this should give us our nice JSON
-Return of that uploaded file.
-
-Let's try it. Move over. I'll clear the screen.
+Once it's done... ding! Our one test is green. Next time you run:
 
 ```terminal
 php bin/phpunit
 ```
 
-and it works perfect. You can see the ID 102. Let me try that a couple more times.
-I do. You want a three? It's adding things to the database.
+it jumps *straight* to running the tests. And now that PHPUnit is downloaded,
+once PhpStorm builds its cache, that yellow background on `assertEquals()` will
+go away.
 
-Is that any of them to our normal database right now? I haven't gone to the trouble
-of creating a separate database for my test environment, which I usually do, but
-that's fine. All right, so I'll remove that `dd()` here I am gonna put an assertion here.
-I'm going to say `$this->assertResponseIsSuccessful()`. Uh, this is actually, um, a new
-method in Symfony 4.3, uh, where a bunch of really nice, uh, assertions were added by
-Symfony related to testing. So actually if I hold command and get into this, this
-opens up something called a web at test assertions trait and needs to, there's lots
-of good stuff. You're going to start the status coding a certain things redirected,
-you can check for headers. Um, so lots of really, really good stuff in here that,
-that um, you should check out,
+## Testing the Upload Endpoint
+
+To test the endpoint itself, we *first* need an image that we can upload to it.
+Inside the `tests/` directory, let's create a `fixtures/` directory to hold the
+image. Next, I'll copy one of the images I've been uploading into this directory
+and name it `ryan-fabien.jpg`.
+
+And... there it is. Now, the test is pretty simple: create a client with
+`$client = static::createClient()` and an `UploadedFile` object that will
+simulate the file being uploaded: `$uploadedFile = new UploadedFile()` passing
+the path to the file as the first argument - `__DIR__.'/../fixtures/ryan-fabien.jpg` -
+and the filename as the second - `ryan-fabien.jpg`.
+
+Why the, sorta, "redundant" second argument? When you upload a file in a browser,
+your browser sends *two* pieces of data: the physical contents of the file *and*
+the name of the file on your filesystem.
+
+Finally, we can make the request: `$client->request()`. The first argument is
+the method... which is `POST`, then the URL - `/api/images` - we don't need any
+GET or POST parameters, but we *do* need to pass an array of files.
+
+If you look in `ImagePostController`, we're expecting the name of the uploaded
+file - that's normally the `name` attribute on the `<input` field - to literally
+be `file`. Use that key in our test and set it to our `$uploadedFile` object.
+
+And... that's it! To see if it worked *really* easily, let's
+`dd($client->getResponse()->getContent()`.
+
+Let's try it! I'll find my terminal, clear the screen and run:
+
+```terminal
+php bin/phpunit
+```
+
+Got it! And we get a new id each time we run it. Right now this is saving to our
+*normal* database because I haven't gone to the trouble of creating a separate
+database for my test environment, which I usually like to do. But that's fine.
+
+## Asserting Success
+
+Remove the `dd()`: let's replace this with a real assertion:
+`$this->assertResponseIsSuccessful()`.
+
+This is a new method in Symfony 4.3... and it's not the only one: the new
+`WebTestAssertionsTrait` has a *ton* of nice new methods for testing a variety
+of things.
+
+---> HERE
 
 um,
 
@@ -144,7 +133,7 @@ to help make testing easier.
 
 So if we just stopped right now, so actually, so this is actually a really nice test.
 However, there's a couple of problems. First of all, behind the scenes, we really are
-still dispatching our `AddPonkaToImage` to our transport. So it's literally being
+still dispatching our ad Ponca to image to our transport. So it's literally being
 added to our database right now. Select Star from Messenger_messages. /g a is
 actually 40 rows in there cause there's lots of things from the failed transport. So
 let's actually say to head where you name does not equal fail. Problem number one is
