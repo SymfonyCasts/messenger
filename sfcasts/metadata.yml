@@ -24,3 +24,4 @@ chapters:
   - test-in-memory
   - deploy
   - event-bus
+  - events     # raw
