@@ -40,14 +40,20 @@ inside `src/` called `Messenger/`... though... like with pretty much *everything
 in Symfony, this directory could be called anything. Inside, add a class called,
 how about, `AuditMiddleware`.
 
+[[[ code('9d6147439d') ]]]
+
 The only rule for middleware is that they must implement - surprise! -
 `MiddlewareInterface`. I'll go to "Code -> Generate" - or Command+N on a Mac - and
 select "Implement Methods". This interface requires just one: `handle()`. We'll
 talk about the "stack" thing in a second... but mostly... the signature of this
 method makes sense: we receive the `Envelope` and *return* an `Envelope`.
 
+[[[ code('a19817ab3f') ]]]
+
 The one line that your middleware will almost definitely need is this:
 `return $stack->next()->handle($envelope, $stack)`.
+
+[[[ code('1cdc3fbcef') ]]]
 
 *This* is the line that basically says:
 
@@ -77,6 +83,8 @@ Let's copy that config. Then, open `config/packages/messenger.yaml` and, under
 `framework:`, `messenger:`, paste this right on top... and make sure it's indented
 correctly. Below, add `middleware:` a new line, then our new middleware service:
 `App\Messenger\AuditMiddleware`.
+
+[[[ code('4fe287ea10') ]]]
 
 ## Order of Middleware
 
