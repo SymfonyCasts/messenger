@@ -23,4 +23,4 @@ chapters:
   - functional-test
   - test-in-memory
   - deploy
-  - event-bus         # raw
+  - event-bus
