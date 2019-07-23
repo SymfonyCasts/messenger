@@ -21,6 +21,6 @@ chapters:
   - priority-transports
   - dev-sync
   - functional-test
-  - test-in-memory    # raw
+  - test-in-memory
   - deploy            # raw
   - event-bus         # raw
