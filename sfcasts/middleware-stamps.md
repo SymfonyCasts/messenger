@@ -12,12 +12,16 @@ In the `Messenger/` directory, create a new PHP class called `UniqueIdStamp`. St
 `MessengerEnvelopeMetadataAwareContainerReaderInterface`. Nah I'm kidding - that
 would be a silly name. They just need to implement `StampInterface`.
 
+[[[ code('3e253f2210') ]]]
+
 And... that's it! This is an empty interface that just serves to "mark" objects
 as stamps. Inside... we get to do *whatever* we want... as long as PHP can serialize
 this message... which basically means: as long as it holds simple data. Let's add
 a `private $uniqueId` property, then a constructor with no arguments. Inside, say
 `$this->uniqueId = uniqid()`. At the bottom, go to Code -> Generate - or Command+N
 on a Mac - and generate the getter... which will return a `string`.
+
+[[[ code('cfcc1c6ab8') ]]]
 
 Stamp, done!
 
@@ -35,6 +39,8 @@ would go through the bus even *more* times.
 
 So, start by checking if `null === $envelope->last(UniqueIdStamp::class)`, then
 `$envelope = $envelope->with(new UniqueIdStamp())`.
+
+[[[ code('36818753c4') ]]]
 
 ## Envelopes are Immutable
 
@@ -62,7 +68,11 @@ our `Envelope` should have exactly *one* `UniqueIdStamp`. Fetch it off with
 `$stamp = $envelope->last(UniqueIdStamp::class)`. I'm also going to add a little
 hint to my editor so that it knows that this is specifically a `UniqueIdStamp`.
 
+[[[ code('7de893d64e') ]]]
+
 To see if this is working, let's `dump($stamp->getUniqueId())`.
+
+[[[ code('b3069963f6') ]]]
 
 Let's try it! If we've done our job well, for an asynchronous message, that `dump()`
 will be executed once when the message is dispatched and *again* inside of the
