@@ -26,4 +26,4 @@ chapters:
   - event-bus
   - events
   - bus-organization
-  - query-bus   #raw
+  - query-bus
