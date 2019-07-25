@@ -276,8 +276,8 @@
             "description": null
         },
         {
-            "id": "eventbus-inject-eventbus-into-handler",
-            "name": "EventBus: inject eventBus into handler",
+            "id": "event-bus-remove-old-command-handler",
+            "name": "Event Bus: remove old command+handler",
             "description": null
         },
         {
@@ -356,5 +356,5 @@
             "description": null
         }
     ],
-    "sha": "5381c7c45550df32989a256841051dc908fbc683"
+    "sha": "f276065b69ab964d1a97c8576008f6fe288f1575"
 }

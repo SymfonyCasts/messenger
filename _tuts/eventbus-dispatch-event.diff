@@ -1,5 +1,5 @@
 diff --git a/src/MessageHandler/DeleteImagePostHandler.php b/src/MessageHandler/DeleteImagePostHandler.php
-index ad80a66..8e9e795 100644
+index 3d59098..8e9e795 100644
 --- a/src/MessageHandler/DeleteImagePostHandler.php
 +++ b/src/MessageHandler/DeleteImagePostHandler.php
 @@ -3,6 +3,7 @@
@@ -10,6 +10,22 @@ index ad80a66..8e9e795 100644
  use App\Photo\PhotoFileManager;
  use Doctrine\ORM\EntityManagerInterface;
  use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+@@ -10,12 +11,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
+ 
+ class DeleteImagePostHandler implements MessageHandlerInterface
+ {
+-    private $messageBus;
++    private $eventBus;
+     private $entityManager;
+ 
+-    public function __construct(MessageBusInterface $messageBus, EntityManagerInterface $entityManager)
++    public function __construct(MessageBusInterface $eventBus, EntityManagerInterface $entityManager)
+     {
+-        $this->messageBus = $messageBus;
++        $this->eventBus = $eventBus;
+         $this->entityManager = $entityManager;
+     }
+ 
 @@ -27,6 +28,6 @@ class DeleteImagePostHandler implements MessageHandlerInterface
          $this->entityManager->remove($imagePost);
          $this->entityManager->flush();
