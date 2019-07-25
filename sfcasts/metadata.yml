@@ -25,3 +25,5 @@ chapters:
   - deploy
   - event-bus
   - events
+  - bus-organization  #raw
+  - query-bus   #raw
