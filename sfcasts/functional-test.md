@@ -125,25 +125,19 @@ This is a new method in Symfony 4.3... and it's not the only one: the new
 `WebTestAssertionsTrait` has a *ton* of nice new methods for testing a variety
 of things.
 
----> HERE
+If we stopped now... this is a nice test and you might be perfectly happy with
+it. But... there's one part that's *not* ideal. Right now, when we run our test,
+the `AddPonkaToImage` message is *actually* being sent to our transport... or
+at least we *think* it is... we're not actually verifying that this happened...
+though we can check manually right now.
 
-um,
+To make this test more useful, we can do one of two different things. First, we
+could override the transports to be synchronous in the test environment - just like
+we did with `dev`. Then, if handling the message failed, our test would fail.
 
-to help make testing easier.
+Or, second, we could *at least* write some code here that *proves* that the message
+was *at least* sent to the transport. Right now, it's possible that the endpoint
+could return 200... but some bug in our code caused the message never to be dispatched.
 
-So if we just stopped right now, so actually, so this is actually a really nice test.
-However, there's a couple of problems. First of all, behind the scenes, we really are
-still dispatching our ad Ponca to image to our transport. So it's literally being
-added to our database right now. Select Star from Messenger_messages. /g a is
-actually 40 rows in there cause there's lots of things from the failed transport. So
-let's actually say to head where you name does not equal fail. Problem number one is
-that our messages are being said the transport, and you can actually see this. If you
-go back to our worker tab here, this is actually, his messages are from us in our
-test by run, Vinny run our tests again, you can actually see it's actually processing
-those right here. Um, that's fine, but that's great that that's working. But actually
-it doesn't allow us to do an assertion. What you might want to do is actually be able
-to assert inside of your test that the message was actually delivered to the
-transport. There's no way for us to tell right here that that's actually happening
-successfully. So next what we're going to do is, is use something called an in memory
-transport, do actually short circuit that system and be able to assert literally in
-our tests that the message was in fact delivered to the transport successfully.
+Next, let's see if we can improve by checking the transport and actually seeing
+if the message was sent. We'll do this by using a special "in memory" transport.
