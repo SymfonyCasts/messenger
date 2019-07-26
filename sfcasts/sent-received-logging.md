@@ -17,6 +17,9 @@ the way, and *these* tell us *exactly* what's going on.
 For example, when a message is *received* from a transport, messenger adds a
 `ReceivedStamp`. So, if `$envelope->last(ReceivedStamp::class)`, then this message
 is currently being processed by the worker and was just received from a transport.
+
+[[[ code('209bc336b0') ]]]
+
 Let's log that: `$this->logger->info()` with a special syntax:
 
 > [{id}] Received and handling {class}
@@ -26,10 +29,14 @@ reasons. First, each log handler receives this and can do whatever it wants with
 it - usually the `$context` is printed at the end of the log message. And second,
 if you use these little `{}` wildcards, the context values will get filled in automatically!
 
+[[[ code('12a5f84b02') ]]]
+
 If the message was *not* just received, say `$this->logger->info()` and start the
 same way:
 
 > [{id}] Handling or sending {class}
+
+[[[ code('2c51728cbd') ]]]
 
 At this point, we know that the message was *just* dispatched... but we don't
 know whether or not it will be handled right now or sent to a transport. We'll
@@ -82,6 +89,8 @@ Check it out: remove the `return` and instead say
 `$envelope = $stack->next()->handle()`. Then, move that line *above* our code and,
 at the bottom, `return $envelope`.
 
+[[[ code('e1632c7ff0') ]]]
+
 If we did *nothing* else... the result would be pretty much the same: we would
 log the *exact* same messages... but technically, the log entries would happen
 *after* the message was sent or handled instead of before.
@@ -95,9 +104,13 @@ Add `elseif` `$envelope->last(SentStamp::class)` then we know that this
 message was *sent*, *not* handled. Use `$this->logger->info()` with our `{id}`
 trick and `sent {class}`.
 
+[[[ code('38cabed984') ]]]
+
 Below, now we know that we're definitely "Handling sync". The top message -
 "Received and handling" is still true, but I'll change this to just say "Received":
 a message is *always* handled when it's received, so that was redundant.
+
+[[[ code('3f3fe5054b') ]]]
 
 Ok! Let's clear our log screen and restart the worker:
 
