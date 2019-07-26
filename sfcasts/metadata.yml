@@ -28,4 +28,4 @@ chapters:
   - events
   - dispatch-event
   - bus-organization
-  - query-bus   #raw
+  - query-bus

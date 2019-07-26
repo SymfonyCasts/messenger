@@ -21,6 +21,8 @@ To do that, directly inside `config/packages`, create a new file called
 important. What *is* important is to add a `monolog` key, then `channels` set to
 an array with one new one - how about `messenger_audit`.
 
+[[[ code('71c5f61745') ]]]
+
 Thanks to this, we now have a new logger service in the container for this channel.
 Let's find it: at your terminal, run:
 
@@ -36,6 +38,8 @@ anything. Update the file to be called `messenger.log` and - here's the magic -
 instead of saying: log all messages *except* those in the `event` channel, change
 this to *only* log messages that are *in* that `messenger_audit` channel.
 
+[[[ code('4ca2bf0605') ]]]
+
 ## Autowiring the Channel Logger
 
 Cool! To use this service, we can't just autowire it by type-hinting the normal
@@ -46,6 +50,8 @@ use the same class or interface.
 To make it wirable, back in `services.yaml`, add a new global bind:
 `$messengerAuditLogger` that points to the service id: copy that from the terminal,
 then paste as `@monolog.logger.messenger_audit`.
+
+[[[ code('e8c2081f75') ]]]
 
 Thank to this, if we use an argument named `$messengerAuditLogger` in the constructor
 of a service or in a controller, Symfony will pass us that service. By the way,
@@ -63,6 +69,8 @@ Close up the monolog config files and go to `AuditMiddleware`. Add a
 the same name we used in the config. I'll call the property itself `$logger`,
 and finish this with `$this->logger = $messengerAuditLogger`.
 
+[[[ code('315b4fbc04') ]]]
+
 ## Setting up the Context
 
 Down in `handle()`, remove the `dump()` and create a new variable called `$context`.
@@ -71,6 +79,8 @@ pass extra information to the logger... which is *super* handy! Let's create a
 key called `id` set to the unique id, and another called `class` that's set to
 the class of the *original* message class. We can get that with
 `get_class($envelope->getMessage())`.
+
+[[[ code('68ef1f5d3f') ]]]
 
 Let's do the logging next! It's a bit more interesting than you might expect.
 How can we figure out if the current message was just *dispatched* or was just
