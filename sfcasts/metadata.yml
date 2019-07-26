@@ -23,7 +23,9 @@ chapters:
   - functional-test
   - test-in-memory
   - deploy
+  - deploy-restarting
   - event-bus
   - events
+  - dispatch-event
   - bus-organization
   - query-bus   #raw
