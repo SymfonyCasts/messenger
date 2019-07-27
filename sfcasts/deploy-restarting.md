@@ -9,28 +9,29 @@ php bin/console messenger:consume --help
 We saw earlier that this has an option called `--time-limit`, which you can use
 to tell the command to run for 6 minutes and then exit. The command *also* has
 two other options - `--memory-limit` - to tell the command to exit once its memory
-usage us above a certain level - or `--limit` - to tell it to run a specific *number*
+usage is above a certain level - or `--limit` - to tell it to run a specific *number*
 of messages and then exit. All of these are *great* options to use because we really
 *don't* want our `messenger:consume` command to run too long: we really just want
-it to run a few messages, then exit. Restarting the worker is handled by Supervisor
+it to handle a few messages, then exit. Restarting the worker is handled by Supervisor
 and doesn't take a huge amount of resources. All of these options cause the worker
 to exit *gracefully*, meaning, it only exits *after* a message has been fully handled,
 never in the *middle* of it. But, if you let your worker run too long and it runs
-out of memory... that *would* cause it to exit in the middle of handling a worker
-and... well... that's not great. Use these options.
+out of memory... that *would* cause it to exit in the middle of handling a message
+and... well... that's not great. Use these options. You can even use *all* of them
+at once.
 
 ## Restarting Workers on Deploy
 
 There's also a completely different situation when you want *all* of your workers
 to restart: whenever you deploy. We've seen *why* many times already: whenever we
 make a change to our code, we've been manually restarting the `messenger:consume`
-command so that the workers *see* the new code. The same thing will happen on production:
-when deploy, your workers *won't* see the new code until they exit and are restarted.
-Right now, that could take up to *six* minutes to happen! That is not okay. Nope,
-at the moment we deploy, we need all of or worker processes to exit, and we need
-that to happen gracefully.
+command so that the worker *sees* the new code. The same thing will happen
+on production: when you deploy, your workers *won't* see the new code until they
+exit and are restarted. Right now, that could take up to *six* minutes to happen!
+That is not okay. Nope, at the moment we deploy, we need all of or worker processes
+to exit, and we need that to happen gracefully.
 
-Fortunately, Symfony has your back. Once again, run `ps -A` to see the worker processes.
+Fortunately, Symfony has our back. Once again, run `ps -A` to see the worker processes.
 
 ```terminal-silent
 ps -A | grep messenger:consume
@@ -62,22 +63,22 @@ filesystem so that everyone can read those keys.
 ## What Happens when you Deploy Message Class Changes
 
 There's *one* more detail you need to think about and it's due to the asynchronous
-nature of how we're handling our messages. Open up `AddPonkaToImage`. Imagine that
+nature of handling messages. Open up `AddPonkaToImage`. Imagine that
 our site is currently deployed and the `AddPonkaToImage` class looks like this.
 When someone uploads an image, we serialize this class and send it to the transport.
 
 Imagine now that we have a bunch of these messages sitting in the queue at the moment
-that we deploy a new version of our site. In this new version, we've refactored
+we deploy a new version of our site. In this new version, we've refactored
 the `AddPonkaToImage` class: we've renamed `$imagePostId` to `$imagePost`. What
 will happen when those *old* versions of `AddPonkaToImage` are loaded from the
 queue?
 
-The answer... the new `$imagePost` property would be null... and some non-existent
+The answer... the new `$imagePost` property will be null... and some non-existent
 `$imagePostId` property would be set instead. And that would probably cause your
 handler some serious trouble. So, *if* you need to tweak some properties on an
 existing message class, you have two options. First, don't: create a *new* message
-class instead. Then, *after* you deploy, remove the old message class. *Or* use
-the same message class but, temporarily, keep both the old and new property and
+class instead. Then, *after* you deploy, remove the old message class. *Or* second,
+update the message class but, temporarily, keep both the old and new properties and
 make your handler smart enough to look for both. Again, after one deploy, or really,
 once you're sure all the old messages have been processed, you can remove the old
 stuff.
@@ -98,7 +99,7 @@ That stops the two processes. Now I'll run my worker manually:
 php bin/console messenger:consume -vv async_priority_high async
 ```
 
-This just makes life easier and more obvious locally - I can see the output from
+This just makes life easier and more obvious locally: I can see the output from
 my worker.
 
 Next: we've talked about commands & command handlers. Now it's time to talk about

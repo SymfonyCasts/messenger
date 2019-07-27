@@ -1,14 +1,14 @@
 # Testing with the "in-memory" Transport
 
-A few minutes ago, in the `dev` environment only, we override all our transports
+A few minutes ago, in the `dev` environment only, we overrode all our transports
 so that all messages were handled synchronously. We commented it out for now, but
-this is *also* something that you could choose to do in your test environment: so
-that when you run the tests, the messages are handled *within* the test.
+this is *also* something that you could choose to do in your `test` environment,
+so that when you run the tests, the messages are handled *within* the test.
 
 This may or may not be what you want. On one hand, it means your functional test
 is testing more. On the other hand, a functional test should probably test that
-the endpoint works and the message is sent to the transport, but then testing the
-handler itself should be done in a test specifically for that handler.
+the endpoint works and the message is sent to the transport, but testing the
+handler itself should be done in a test specifically for that class.
 
 That's what we're going to do now: figure out a way to *not* run the handlers
 synchronously but *test* that the message *was* sent to the transport. Sure, if
@@ -16,10 +16,10 @@ we killed the worker, we could query the `messenger_messages` table, but that's
 a bit hacky - and only works if you're using the Doctrine transport. Fortunately,
 there's a more interesting option.
 
-Start by copying `config/packages/dev/messenger.yaml` and pasting that into the
-`config/packages/test/` directory. This gives us messenger configuration that will
-*only* be used in the `test` environment. Uncomment the code, and replace `sync`
-with `in-memory`. Do that for both of the transports.
+Start by copying `config/packages/dev/messenger.yaml` and pasting that into
+`config/packages/test/`. This gives us messenger configuration that will *only*
+be used in the `test` environment. Uncomment the code, and replace `sync` with
+`in-memory`. Do that for both of the transports.
 
 The `in-memory` transport is really cool. In fact, let's look at it! I'll hit
 `Shift+Shift` in PhpStorm and search for `InMemoryTransport` to find it.
@@ -28,18 +28,18 @@ This... is basically a fake transport. When a message is sent to it, it doesn't
 handle it or send it anywhere, it stores it in a property. If you were to use this
 in a real project, the messages would then disappear at the end of the request.
 
-But, this is *super* useful for testing. Let's try this out. A second ago, each
-time we ran our test, our worker *actually* started processing those messages...
-which makes sense: we really *were* delivering them to the transport. Now, I'll
-clear the screen and then run:
+But, this is *super* useful for testing. Let's try it. A second ago, each time
+we ran our test, our worker *actually* started processing those messages... which
+makes sense: we really *were* delivering them to the transport. Now, I'll clear
+the screen and then run:
 
-```terminal-silent
+```terminal
 php bin/phpunit
 ```
 
-It still work..., but *now* the worker does nothing, because the message isn't
-*really* being sent to the transport anymore and it's lost at the end of our tests.
-But! From within the test, we can now *fetch* that transport and *ask* it how many
+It still works... but *now* the worker does nothing: the message isn't *really*
+being sent to the transport anymore and it's lost at the end of our tests. But!
+From within the test, we can now *fetch* that transport and *ask* it how many
 messages were sent to it!
 
 ## Fetching the Transport Service
@@ -51,30 +51,30 @@ open terminal and run:
 php bin/console debug:container async
 ```
 
-Inside if here... there they are: `messenger.transport.async` and
+There they are: `messenger.transport.async` and
 `messenger.transport.async_priority_high`. Copy the second service id.
 
 We want to verify that the `AddPonkaToImage` message is sent to the transport,
-and we know that this is being routed to `async_priority_high`.
+and we know that it's being routed to `async_priority_high`.
 
 Back in the test, this is super cool: we can fetch the *exact* transport object
 that was just used from within the test by saying:
-`$transport = self::$container->get()` and then paste the service id:
+`$transport = self::$container->get()` and then pasting the service id:
 `messenger.transport.async_priority_high`
 
-This `self::$container` property is holds the container that was actually used
-during the test request and it's designed so we can etch *anything* we want out
-of it.
+This `self::$container` property holds the container that was actually used
+during the test request and is designed so that we can fetch *anything* we want
+out of it.
 
 Let's see what this looks like: `dd($transport)`.
 
-Then, jump back over to your terminal and run:
+Now jump back over to your terminal and run:
 
-```terminal-silent
+```terminal
 php bin/phpunit
 ```
 
-Nice! This is an `InMemoryTransport` object and... the `sent` property *indeed*
+Nice! This dumps the `InMemoryTransport` object and... the `sent` property *indeed*
 holds our *one* message object! All we need to do now is add an assertion for this.
 
 Back in the test, I'm going to help out my editor by adding some inline docs to
@@ -85,7 +85,7 @@ messages is `get()`.
 
 Let's try it! Run:
 
-```terminal-silent
+```terminal
 php bin/phpunit
 ```
 
@@ -95,4 +95,4 @@ using something like RabbitMQ, we also don't need to have that running whenever
 we execute our tests.
 
 Next, let's talk deployment! How do we run our workers on production... and make
-sure they stay running.
+sure they stay running?
