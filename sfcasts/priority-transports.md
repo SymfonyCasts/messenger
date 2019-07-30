@@ -33,9 +33,13 @@ table and it operates like a category: we can create multiple "queues" of messag
 inside the same table. And also, for *any* transport, you can configure these options
 as query parameters on the DSN or under this `options` key.
 
+[[[ code('71a4ec092d') ]]]
+
 At this point we have three queues, which are all stored in the same table in the
 database, but with different `queue_name` values. And now that we have this new
 transport, we can route `AddPonkaToImage` to `async_priority_high`.
+
+[[[ code('926687b4d2') ]]]
 
 ## Consuming Prioritized Transports
 

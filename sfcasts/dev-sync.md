@@ -42,6 +42,8 @@ important. Inside, we'll put the same configuration we have in our main file:
 `framework`, `messenger`, `transports` and then we can override `async` and set
 it to `sync://`. Do the same for `async_priority_high`: set it to `sync://`.
 
+[[[ code('59134df695') ]]]
+
 That's it! In the *dev* environment, *these* values will override the `dsn` values
 from the main file. And, we can see this: in an open terminal tab, run:
 
@@ -99,6 +101,8 @@ But now that we've accomplished this, let's change `APP_ENV` back to `dev` and,
 just to keep things more interesting for the tutorial, I'll comment out the new
 `sync` config we just added: I want to continue using our *real* transports while
 we're coding.
+
+[[[ code('08db7871ee') ]]]
 
 Now that we're back in the `dev` environment, stop and restart the worker:
 
