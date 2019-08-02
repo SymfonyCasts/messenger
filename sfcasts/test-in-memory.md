@@ -21,6 +21,8 @@ Start by copying `config/packages/dev/messenger.yaml` and pasting that into
 be used in the `test` environment. Uncomment the code, and replace `sync` with
 `in-memory`. Do that for both of the transports.
 
+[[[ code('83a3e94953') ]]]
+
 The `in-memory` transport is really cool. In fact, let's look at it! I'll hit
 `Shift+Shift` in PhpStorm and search for `InMemoryTransport` to find it.
 
@@ -62,11 +64,15 @@ that was just used from within the test by saying:
 `$transport = self::$container->get()` and then pasting the service id:
 `messenger.transport.async_priority_high`
 
+[[[ code('b00f9a8299') ]]]
+
 This `self::$container` property holds the container that was actually used
 during the test request and is designed so that we can fetch *anything* we want
 out of it.
 
 Let's see what this looks like: `dd($transport)`.
+
+[[[ code('a304563f40') ]]]
 
 Now jump back over to your terminal and run:
 
@@ -82,6 +88,8 @@ advertise that this is an `InMemoryTransport`. Below add `$this->assertCount()` 
 assert that we expect one message to be returned when we say `$transport->`...
 let's see... the method that you can call on a transport to get the sent, or "queued"
 messages is `get()`.
+
+[[[ code('b5621e1b35') ]]]
 
 Let's try it! Run:
 

@@ -50,6 +50,8 @@ this name! The one you want lives in the `Test` namespace. The one you *don't* w
 lives in the `Tests` namespace... so it's super confusing. It should look like this.
 If you choose the wrong one, delete the `use` statement and try again.
 
+[[[ code('e4e1fc7dd3') ]]]
+
 *But*.... while writing this tutorial and getting mad about this confusing part,
 I created an issue on the Symfony repository. And I'm *thrilled* that by the time
 I recorded the audio, the other class has already been renamed! Thanks to
@@ -58,6 +60,8 @@ I recorded the audio, the other class has already been renamed! Thanks to
 Anyways, because we're going to test the `create()` endpoint, add
 `public function testCreate()`. Inside, to make sure things are working, I'll
 try my favorite `$this->assertEquals(42, 42)`.
+
+[[[ code('a29494d17b') ]]]
 
 ## Running the Test
 
@@ -94,6 +98,8 @@ represent the file being uploaded: `$uploadedFile = new UploadedFile()` passing
 the path to the file as the first argument - `__DIR__.'/../fixtures/ryan-fabien.jpg` -
 and the filename as the second - `ryan-fabien.jpg`.
 
+[[[ code('5c7266be16') ]]]
+
 Why the, sorta, "redundant" second argument? When you upload a file in a browser,
 your browser sends *two* pieces of information: the physical contents of the file
 *and* the name of the file on your filesystem.
@@ -102,13 +108,19 @@ Finally, we can make the request: `$client->request()`. The first argument is
 the method... which is `POST`, then the URL - `/api/images` - we don't need any
 GET or POST parameters, but we *do* need to pass an array of files.
 
+[[[ code('51b446e8e8') ]]]
+
 If you look in `ImagePostController`, we're expecting the name of the uploaded
 file - that's normally the `name` attribute on the `<input` field - to literally
 be `file`. Not the *most* creative name ever... but sensible. Use that key in our
 test and set it to the `$uploadedFile` object.
 
+[[[ code('a3f5d9abdd') ]]]
+
 And... that's it! To see if it worked, let's just
 `dd($client->getResponse()->getContent())`.
+
+[[[ code('a3f5d9abdd') ]]]
 
 Testing time! Find your terminal, clear the screen, deep breath and...
 
@@ -124,6 +136,8 @@ to do.
 ## Asserting Success
 
 Remove the `dd()`: let's use a real assertion: `$this->assertResponseIsSuccessful()`.
+
+[[[ code('276fcce839') ]]]
 
 This nice method was added in Symfony 4.3... and it's not the only one: this new
 `WebTestAssertionsTrait` has a *ton* of nice new methods for testing a whole

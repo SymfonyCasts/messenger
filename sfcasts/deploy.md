@@ -44,6 +44,8 @@ this anywhere: it doesn't need to live in our project. But, I like to keep it in
 my repo so I can store it in git. In... how about `config/`, create a new file
 called `messenger-worker.ini` and paste the code inside.
 
+[[[ code('ade99551b3') ]]]
+
 The file tells Supervisor which command to run and other important info like which
 user it should run the process as and the *number* of processes to run. This will
 create *two* worker processes. The more workers you run, the more messages can
