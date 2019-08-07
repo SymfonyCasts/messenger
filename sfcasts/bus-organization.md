@@ -1,192 +1,134 @@
-# Bus Organization
+# Event & Command Bus Organization
 
-Coming soon...
+We already organized our new event class into an `Event` subdirectory. Cool! Let's
+do the same thing for our commands. Create a new `Command/` sub-directory, move
+the two command classes inside... then add `\Command` to the end of the namespace
+on both classes.
 
-We're now using both a command bus pattern where we create commands and command
-handlers. And also we have our first event and event handler. And remember the
-difference between a command and event. It's really kind of subtle. A command usually
-has exactly one handler and um, and it's commanded to perform some action, whereas an
-event is something that's usually dispatched after that action is taken and it allows
-for anyone else to do any others. Secondary tasks often called a reaction.
+Let's see... now that we've changed those namespaces... we need to update a few
+things. Start in `messenger.yaml`: we're referencing `AddPonkaToImage`. Add
+`Command` to that class name. Next, in `ImagePostController`, all the way on top,
+we're referencing *both* commands. Update the namespace on each one.
 
-Okay,
+And finally, in the handlers, we have the same thing: each handler has a `use`
+statements for the command class it handles. Add the `Command\` namespace on both.
 
-so messengers, messengers, um, but a message bus can really be used by either of
-these two different patterns. Now in `config/packages/messenger.yaml` we actually
-registered a, a bus that we're using as our command bus and a bus that we're using as
-our event bus. But really there's almost no difference between these two buses. Sure.
-This one has the `AuditMiddleware`, but honestly we could add the `AuditMiddleware`
-down here too. That'd be fine. Really the only difference between these two is that
-this one allows no handlers. So you can have an event that doesn't have any handlers
-and it wouldn't throw an exception. So the point is I've created two different buses
-to handle these two different things. But really if you wanted to, you could just
-create one bus and dispatch both commands and events to it. It wouldn't be the
-craziest thing. Some people actually add a couple of additional pieces of middleware
-to um, to the buses
+Cool! Let's do the same thing for the handlers: create a new subdirectory called
+`Command/`, move those inside... then add the `\Command` namespace to each one.
+That's... all we need to change.
 
-specifically if you Google before Symfony Messenger, multiple buses, we have a little
-article in here that talks about how to manage multiple buses and in this case they
-actually show three different buses. That command bus a query bus, which we'll talk
-about in a second, in a, in an event bus where each actually has slightly different
-middleware. Um, I wanted to highlight this because this `validation` middleware and
-this `doctrine_transaction` middleware we haven't talked about yet. The `validation`
-middleware actually allows, um, if you enable that, then when you dispatch a message
-into your, uh, bus, it will actually pass through Symfony's validator and it will
-throw an exception and validation fails. Some people like to actually put validation
-inside their bus. I prefer to actually perform validation on my message, on my data
-before I sent in the bus. But this is something you can do. `doctrine_transaction`,
-another one where instead of manually, uh, managing doctrine transactions, uh, you
-add this middleware and everything is automatically inside of a doctrine transaction.
-
-I also don't do that because I just manage the doctrine transaction myself, but I
-wanted to highlight it. So in this case,
-
-if you are using these middlewares, some of these different types of buses use
-different middleware, but if you don't use those really the buses are very, very
-similar so you can merge them into one if you wanted or if you want to, we can have
-multiple buses.
-
-I'm going to keep
-
-things organized into multiple buses even though, honestly that doesn't give me a lot
-of advantage. But if you had ever run 
-
-```terminal
-php bin/console debug:messenger
-```
-
-you actually see
-here that it actually breaks down the information by bus. It says that the following
-messages can be dispatched to the Ma, uh, our command bus and these same messages are
-allowed to be dispatched to the event bus. That's because when we set up our our
-handlers, and we never said that this type of a, this command should, can only be
-dispatched to the command bus or this event can only just be dispatched to the event
-bus. If we accidentally took this command here and send it to the event bus, it would
-work. If we took this event in x, send it to the command bus, it would also work. And
-I 
-
-and honestly that's also fine. But we're going to do a little bit of experimenting
-here and we're going to get things just a little bit more organized. So first of all,
-just looking at our message and messages handler class, we now have a mixture in here
-of events and commands. I put the event into an `Event/` subdirectory, which is kind of
-Nice. I'm not going to do the same thing with a command. So I'm gonna create a
-`Command/` sub-directory move my two commands in there and then just refactor a couple
-things. So I'll add `\Command` to the end of the namespace for each of those. Then I
-need, just need update a couple of parts of the code. One of them is in
-`messenger.yaml`. We're referencing the `AddPonkaToImage`. Should we need to add the
-`Command` namespace there and then in our controller `ImagePostController` all the way
-on top, we are referencing both of those commands because this is where we dispatch
-them.
-
-Then finally in the handlers themselves, of course we have the same thing. We have
-used statements here that reference those command classes. So we'll add the `Command\`
-names based on both of those and then we'll do the same thing for the message
-handlers. I'll put those into a subdirectory called `Command/`. Move those in there, and
-then I'll just manually add a `\Command` at sub namespace on there. So if you know that
-you're going to be using a command handler and a command bus and an event bus and
-maybe a query bus, um, this is a nice way to organize things, but it's basically
-superficial. Everything's going to work exactly the same way that it did before. And
-if you go over and run `debug:messenger`,
+I like it! There was nothing technical about this change... it's just a nice way
+to organize things if you're planning to use more than just commands - meaning
+events or query messages. And everything will work exactly the same way it did
+before. To prove it, at your terminal, run `debug:messenger`:
 
 ```terminal-silent
 php bin/console debug:messenger
 ```
 
-you'll see the same results.
-But one of the things you can do is you actually can, if you want to, you can raise,
-you can actually can add extra metadata that says that a specific, um, handler can
-only be called by a specific bus. You can actually tighten this up a little bit and
-it's again, not, maybe not that important to do, but it is kind of a fun exercise to
-check out. So open `config/services.yaml`
+Yep! We see the same info as earlier.
 
-So this line right here is what's responsible for auto registering all of this, all
-of our classes into the container. Yeah.
+## Binding Handlers to One Bus
 
-And this
+But... now that we've separated our event handlers from our command handlers...
+we can do something special: we can *tie* each handler to the *specific* bus that
+it's intended for. Again, it's not *super* important to do this, but it'll tighten
+things up.
 
-part down here, um, does the same thing overrides the services for the controllers.
-They get this extra argument, not that important what we're doing, but we can
-actually do something similar here. We can say `App\MessageHandler\Command`.
-And we're going to point that at just the command directory. So that 
-`../src/MessageHandler/Command`
+Let me show you: open up `config/services.yaml`. This `App\` line is responsible
+for auto-registering every class in the `src/` directory as a service in the container.
 
-Now, if we just stopped here, um, this wouldn't do anything. This would basically
-reregistered. Uh, and this would basically register everything in this directory as a
-service, but that's already done by this first `App\` entry anyways, but now we can add
-a tag to this
+The line below *repeats* that for classes in the `Controller/` directory. Why?
+This will *override* the controller services registered above and add a special
+*tag* that controllers need to work.
 
-whose `name: messenger.message_handler` And then here I'm going to say `bus:` and
-I'm going to use the name of my bus from `messenger.yaml`. So I'll copy that
-`messenger.bus.default` and say `bus: messenger.bus.default`
-So there's a couple of things going on here. First of all, internally automatically
-in Symfony, if your class implements `MessageHandlerInterface`, then normally this
-`messenger.message_handler` tag is automatically added, which is how somebody
-knows that this is a a message handler. But if you want to, you can actually
-reregister the service yourself. And if basically override that tag and we're doing
-it here is we're overriding that tag and we're actually adding this `messenger.bus.default`
-thing on there. Now I'm also going to add one other thing here,
-which is `autoconfigure: false` autoconfigure, thanks to the_defaults up here. Auto
-configures a feature that's on by default for all of the services. So this turns auto
-configure false offer any services that are from this namespace. The reason that's
-important is it will avoid the this tag being applied twice.
+We can use a similar trick with Messenger. Say `App\MessageHandler\Command\`,
+then use the `resource` key to re-auto-register all the classes in the
+`../src/MessageHandler/Command` directory. Whoops - I typo'ed that directory
+name - I'll see a *huge* error in a few minutes... and will fix that.
 
-So the end results of this is actually if you're on `debug:messenger` again, 
+If we *only* did this... absolutely *nothing* would change. This would register
+everything in this directory as a service... but that's already done by the
+first `App\` entry anyways.
 
-```terminal-silent
-php bin/console debug:messenger
-```
+But *now* we can add a tag to this with `name: messenger.message_handler` and
+`bus:` set to... the name of my bus from `messenger.yaml`. Copy
+`messenger.bus.default` and say `bus: messenger.bus.default`.
 
-oh, I, you'll actually get in here because I have a mistake. Oh, I forgot my arm handler. So
-if you run `debug:messenger` again, 
+There are a few things going on here. First, when Symfony sees a class in our
+code that implements `MessageHandlerInterface`, it *automatically* adds this
+`messenger.message_handler` tag. *This* is how Messenger knows which classes
+are message *handlers*.
 
-```terminal-silent
-php bin/console debug:messenger
-```
+We're now adding that tag *manually* so that we can *also* say exactly which *one*
+bus this handler should be used on. Without the `bus` option, it's added to *all*
+buses.
 
-you'll actually see that, uh, the event bus here
-suddenly does not advertise that we can dispatch the two commands to it. And that's
-because both of these handlers now are tied specifically to this bus.
+We also need to add one more key: `autoconfigure: false`.
 
-So I can actually do the same thing here. I'm gonna copy this entire section.
+Thanks to the `_defaults` section on top, all services in our `src/` directory
+will, by default, have `autoconfigure` *enabled*... which is the feature that's
+responsible for automatically adding the `messenger.message_handler` tag to all
+services that implement `MessageHandlerInterface`. We're turning it *off* for
+services in this directory so that the tag isn't added *twice*.
 
-Change the namespace to `Event\` the directory to `Event/`. And here I'm going to put 
-`bus: event.bus` the name of our other bus inside of `services.yaml` and now I'll
-complete the a kind of locking down things. So if I do `debug:messenger` again,
+Phew! You can see the end result by running `debug:messenger` again.
 
 ```terminal-silent
 php bin/console debug:messenger
 ```
 
-you can see that our two command handlers are tied to our command bus and our one event
-handler is tied to our event bus. So if we accidentally dispatch an event,
-
-a, an event to the command bus, it's not
-
-So it's really not that important of a step, but it does kind of tighten things up a
-little bit.
-
-And most importantly, this was a nice way for us to get these nice subdirectories in
-here of `Command/` and `Event/`. Now, while I'm here, uh, back in 
-`config/packages/messenger.yaml` our main buses called `messenger.bus.default`, this
-becomes the service ID in the container. And we did that, we used it that one because
-that's just the default value normally. But I'm actually gonna make things a little
-bit nicer here by just changing that to `command.bus`. And then up here, I will
-use that as our `default_bus`. And actually the only place that that's referenced in
-our code is actually in `services.yaml`, which we just created. So I'll change
-that to `command.bus` as well. It's not if you're on `debug:messenger`, 
+Oh, the end result is a huge error thanks to my typo! Make sure you're referencing
+the `MessageHandler` directory. Try `debug:messenger` again:
 
 ```terminal-silent
 php bin/console debug:messenger
 ```
 
-it's a
-really clean set up. We have two buses. They're servers had, these are command bus
-and event bus in both of them. Only a really worry about the handlers, uh, for their
-specific type. And also, while I'm here, as I mentioned earlier, and this `AuditMiddleware`
- is something that we could also apply to our `event.bus`. Um, something that
-just adds logging, so why not add it there as well.
+Nice! The event bus *no longer* says that we can dispatch the two commands two
+it. What this *really* means is that the command handlers were added to the
+command bus, but *not* to the event bus.
 
-So if you do want a little bit more organization between your messages and events,
-you can totally do this. If this seemed like a lot to you, just keep one bus and put
-both of your events and your commands into that one bus, that's honestly going to
-work just fine. Yeah.
+Let's repeat this for the events: copy this section, paste, change the
+namespace to `Event\`, the directory to `Event/` and update the `bus` option to
+`event.bus` - the name of our other bus inside `messenger.yaml`.
+
+Cool! Try `debug:messenger` again:
+
+```terminal-silent
+php bin/console debug:messenger
+```
+
+Perfect! Our two command handlers are bound to the command bus and our one event
+handler is tied to the event bus.
+
+Again, doing this last step wasn't *that* important... but I *do* really like
+these sub-directories... and tightening things up is nice.
+
+## Renaming the Command Bus
+
+Oh, but while we're cleaning things up, back in `config/packages/messenger.yaml`,
+our main bus is called `messenger.bus.default`, which becomes the bus's service
+id in the container. We used this name... just because that's the default value
+Symfony uses when you have only *one* bus. But because this is a *command* bus,
+let's... call it that! Rename it to `command.bus`. And above, use that as our `default_bus`.
+
+Where was the old key referenced in our code? Thanks to the fact that we
+autowire that service via its type-hint... almost nowhere - just in `services.yaml`.
+Change the bus option to `command.bus` as well.
+
+Check everything out by running `debug:messenger` one more time:
+
+```terminal-silent
+php bin/console debug:messenger
+```
+
+That's nice: two buses, each with a great name and only aware of the correct
+handlers.
+
+Oh, and this `AuditMiddleware` is something that we really should also use on
+`event.bus`: it logs the journey of messages... which is equally valid here.
+
+If you love this organization, great! If it seems like too much, keep it simple.
+Messenger is here to do what you want. Next, let's talk about the last type of
+message bus: the query bus.

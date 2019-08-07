@@ -27,5 +27,7 @@ chapters:
   - event-bus
   - events
   - dispatch-event
+  - messenger-event-dispatcher
+  - other-middleware
   - bus-organization
   - query-bus

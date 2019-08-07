@@ -1,29 +1,29 @@
 # Events & Event Bus
 
-Messenger is a "message bus". And it turns out a "message" is a pretty generic
-term in computer science. In fact, there are *three* common types of messages
-that you'll hear about.
+Messenger is a "message bus". And it turns out that a "message" is a pretty generic
+term in computer science. In fact, there are *three* types of messages you'll
+commonly hear about.
 
 ## Messages: Commands, Events & Queries
 
-The first type of message is a "command". And *that* is the type of thing we've
+The first type of message is a "command". And *that* is the type we've
 been creating so far: we create message classes that *sound* like a command:
 `AddPonkaToImage` or  `DeleteImagePost` and whose handlers *do* some action.
-When you pass this type of stuff to Messenger, you're using Messenger as a
-"command bus". And one of the, sorta, "rules" of commands is that each command
-should have exactly one handler. That's the "command" design pattern.
+When you create message classes & handlers that look like this, you're using
+Messenger as a "command bus". And one of the, sort of, "rules" of commands is that
+each command should have exactly one handler. That's the "command" design pattern.
 
 The *second* type of message is an "event". If you create an "event" class and
 pass it to Messenger, then you're using Messenger as an "event" bus. The difference
-between what a "command" class looks like an what an "event" class looks like is
+between what a "command" class looks like and what an "event" class looks like is
 subtle: it comes down to naming conventions and what you're ultimately trying to
 accomplish. An event is dispatched *after* something happens and can have zero
-to many handlers. Don't worry, we'll see what this all looks like soon.
+to many handlers. Don't worry, we'll see what this looks like soon.
 
 The third type of message is a "query" and we'll talk about those later. For now,
-let's focus on understanding events and how they're different than commands..
+let's focus on understanding events and how they're different from commands...
 because... it *can* be super confusing. And Messenger, being a generic
-"message bus" can work perfectly well with either.
+"message bus" works perfectly with either.
 
 ## Creating a Second Bus
 
@@ -36,10 +36,10 @@ events.
 
 To do that, under the `buses:` key, add a new one called, how about, `event.bus`.
 Set this to `~` which is null... just because we don't have any other configuration
-that we need to put under it yet. *This* will cause a *new* `MessageBus` service
+that we need to put here yet. *This* will cause a *new* `MessageBus` service
 to be added to the container.
 
-So far, whenever we needed the message bus - like an `ImagePostController` - we
+So far, whenever we needed the message bus - like in `ImagePostController` - we
 autowired it by using the `MessageBusInterface` type-hint. The question *now* is:
 how can we get access to the *new* message bus service?
 
@@ -86,5 +86,5 @@ though I've created one service to handle commands and another service to handle
 events... ah... we really could send all our commands and events to just *one*
 service.
 
-Next, let's get to work: let's create an event, learn what it looks like, why we
-might use them, and how they're different than commands.
+Next, let's create an event, learn what it looks like, why we might use them, and
+how they're different than commands.

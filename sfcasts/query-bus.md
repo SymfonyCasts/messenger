@@ -1,109 +1,133 @@
 # Query Bus
 
-Coming soon...
+The last type of message bus that you'll hear about is... the double-decker tourist
+bus! Um... the query bus! But... full disclosure... I'm not a huge fan of query
+buses: I think it makes your code a bit too complex for little benefit. That being
+said, I want you to *at least* understand what it is and how it fits into the
+message bus methodology.
 
-The last type of message bus that your common they're going to hear it you hear about
-is a query bus, which it shows here. I will tell you up front that I am not a huge
-fan of query buses. I think they can make your code a little bit unnecessarily
-complex for the benefits. That being said, I want you to under at least understand
-what they are and how they kind of fit into this methodology. So following in what
-we're doing so far and `config/packages/messenger.yaml` and we already have a 
-`command.bus` and
-an and an `event.bus`. So let's add a `query.bus` and keep things simple. I'll just put
-um, `: ~`. Now we already understand the purpose of a command or a command
-bus. We actually issue commands and our messages actually sound like commands, like
-`AddPonkaToImage` and `DeleteImagePost`. And with a command bus, every command has at
-least as exactly one handler and that handler performs that work, but it doesn't
-return anything. It just performs work. One property of command bosses is that they
-can be synchronous or asynchronous depending on what you need to do, but some
-handlers are handled synchronously or asynchronously, like our `AddPonkaToImageHandler`
+## Creating the Query Bus
 
-In query bus is used when instead of e instead of wanting to do something, you
-actually want to get information back. So for example, we're gonna, we're gonna
-pretend like on our homepage here we want to print the number of messages, the number
-of photos that we've uploaded. So that is actually a question we want to ask. This
-system's a query. Want to ask to our system? How many photos have we been uploaded?
-And to do that, we're going to use a query class. So inside the `Message/` directory,
-I'm gonna Create a new `Query/` directory. Inside of here, I'm gonna create a new PHP
-class and it's going to say `GetTotalImageCount`. So you can see, it sounds like a
-query. I want to get the total image count.
+In `config/packages/messenger.yaml` we have `command.bus` and `event.bus`. Let's
+add `query.bus`. I'll keep things simple and just set this to `~` to get the
+default settings.
 
-And actually we're going to leave this blank because this doesn't need a, we don't
-need to pass any parameters to this. We just want to get the total image count of the
-entire system. Now, inside of a `MessageHandler/`, I'm going to do the same thing. I'm
-going to create a `Query/` directory and here I'm going to create a class that's called,
-it `GetTotalImageCountHandler` and like everything else, this is gonna implement a
-`MessageHandlerInterface`. We'll do `public function __invoke()` what the
-type end four `GetTotalImageCount $getTotalImageCount`. And here this is where I
-would normally make a database query or something like that. I'm just gonna `return 50`
-I'll leave that actual part up to you, but hold on a second cause we already did
-something crazy. I'm returning a value that is not something that I have done from
-anywhere else. Normally commands just do work, they return the value. But here I am
-actually returning a value that is the difference between a query and a query
-handler. Also I'm going to go before we actually dispatch this message, I'm gonna go
-to `services.yaml` and because we're keeping our command event, inquiry buses really
-organized, I will paste on another one of these import lines here. Um,
+## What is a Query?
 
-so that the, anything in the `/Query` directory is only sent to the `query.bus`. Cool. So
-for an over on
+Ok: so what *is* the point of a "query bus". We understand the purpose of commands:
+we dispatch messages that *sound* like commands: `AddPonkaToImage` or
+`DeleteImagePost`. Each command has exactly one handler that performs that work...
+but doesn't *return* anything. I haven't really mentioned that yet: commands *just*
+do work, but they *don't* communicate anything *back*. Because of this, it's ok
+to process commands synchronously or asynchronously - our code isn't waiting to
+get information back from the handler.
+
+A query bus is the *opposite*. Instead of commanding the bus to do work, the point
+of a *query* is to get information back fro the handler. For example, let's pretend
+that, on our homepage, we want to print the number of photos that have been
+uploaded. That is a *question* or *query* that we want to ask our system:
+
+> How many photos are in the database?
+
+If you're using the query bus pattern, instead of getting that info directly,
+you'll dispatch a *query*.
+
+## Creating the Query & Handler
+
+Inside the `Message/` directory, create a new `Query/` subdirectory. And inside
+of that, create a new PHP class called `GetTotalImageCount`.
+
+Even that *name* sounds like a query instead of a command: I want to get the
+total image count. And... we can leave the query class blank: we won't need to
+pass any data to the handler - we're just asking this simple question.
+
+Next, inside of `MessageHandler/`, do the same thing: add a `Query/` subdirectory
+and then a new class called `GetTotalImageCountHandler`. And like with *everything*
+else, make this implement `MessageHandlerInterface` and create the
+`public function __invoke()` with the message type-hinted argument:
+`GetTotalImageCount $getTotalImageCount`.
+
+What do we do inside here? Find the image count - probably by injecting the
+`ImagePostRepository` and executing a query - and then *return* that value. I'll
+leave the querying part to you and just `return 50`.
+
+But hold on a second... cause we just did something *totally* new! We're returning
+a value from our handler! This is *not* something that we've done *anywhere* else.
+Commands do work but *don't* return any value. A query doesn't really do any work,
+its *only* point is to return a value. That's the difference between a query and
+a command.
+
+Before we dispatch the query, open up `config/packages/services.yaml` so we can
+do our same trick of binding each handler to the correct bus. Copy the `Event\`
+section, paste, change `Event` to `Query` in both places... then set the bus
+to `query.bus`.
+
+Love it! Let's check our work by running:
 
 ```terminal
 php bin/console debug:messenger
 ```
 
-you can see, yep. `query.bus` has this one `event.bus` has this one and
-`command.bus` has these too.
+Yep! `query.bus` has one handler, `event.bus` has one and `command.bus` has
+these two.
 
-All right, so let's actually use this. And this is actually going to go into our
-controller `MainController` cause this is what renders our homepage. So we're gonna
-start the same way. We need to actually get that query bus instance. Now you remember
-if you were on 
+## Dispatching the Message
+
+Let's do this! Open up `src/Controller/MainController.php`. This renders the
+homepage and so *this* is where we need to know how many photos have been uploaded.
+To get the query bus, we need to know which type-hint & argument name combination
+to use. We get that info from running:
 
 ```terminal
 php bin/console debug:autowiring mess
 ```
 
-You can see that the main message bus, the main `command.bus`, you can, we'll respond. We can
-get that by just type any `MessageBusInterface`. Or if we want the `event.bus` we have,
-we can call it `$eventBus` or the `query.bus`, we can call it `$queryBus`. So here we can
-say a `MessageBusInterface $queryBus`.
+We can get the main `command.bus` by using the `MessageBusInterface` type-hint
+with *any* argument name. To get the query bus, the type-hint *and* the argument
+needs to be called `$queryBus`.
 
-And that will give us that query of us. And then down here, I'm actually just going
-to say `$envelope = $queryBus->dispatch(new GetTotalImageCount())`. Now remember we
-haven't used it too much, but when you dispatch, uh, when you called `dispatch()` on the
-bus, it will actually return to you the final envelope
+Do that: `MessageBusInterface $queryBus`. Inside the function, say
+`$envelope = $queryBus->dispatch(new GetTotalImageCount())`.
 
-that represents that image and that envelope will probably have a number of different
-stamps on it. And in fact, once a, uh, once a message has been handled and with query
-buses, we're gonna always make sure that our messages are handled synchronously. Once
-a message is handled, it's going to have a `HandledStamp` on it. So I'm going to say
+We haven't used it too much, but the `dispatch()` method *returns* the final
+Envelope object, which will have a number of different stamps on it. One of the
+properties of a *query* bus is that every query will *always* be handled synchronously.
+Why? Simple: we need the answer to our query *right* now - so our handlers need
+to run *immediately*. In Messenger, there's nothing that *enforces* this on a
+query bus... it's just that we won't ever route our queries to a transport, so
+they'll always be handled right now.
 
-`$handled = $envelope->last()` 
-and then `HandledStamp::class` now below inline documentation above
-that so that can advertise this as a `HandledStamp`. And then to get the result of
-your handler that's actually stored on that stamp. So I can say 
-`$imageCount = $handled->getResult()`. So to make sure that's working, I'll pass it into my template as
-an `imageCount` variable. And then in my template `templates/main/homepage.html.twig`
-[inaudible], however, everything is built via Vue JS. So let's actually just for
-simplicity, we'll actually add this as a title to our page. We'll say 
+Anyways, once a message is handle, it will always have a `HandledStamp` on it.
+Let's get that: `$handled = $envelope->last()` with `HandledStamp::class`. I'll
+add some inline documentation above that to tell my editor that this will be a
+`HandledStamp` instance.
 
-> Ponka'd {{ imageCount }} Photos
+Why are we reading this stamp? We need to know the *return* value of our handler.
+And, conveniently, *that* is stored inside of this stamp. We can say
+`$imageCount = $handled->getResult()`.
 
-That's it. Move over, refresh and it works. Punk, good 50 photos.
-So query your buses as I mentioned are my favorite. Um, cause we're not guaranteed.
-Like what type of this returns. If it's a string or an object, it's a little indirect
-and you also can't take care of it. Can't take advantage of asynchronous. You know,
-querying buses are meant to be synchronous. So it's not like you're saving
-performance any of this. But if you like this pattern you can totally use this. And
-on the Symfony documentation, they actually
+Let's pass that into the template as an `imageCount` variable.... and then in the
+template - `templates/main/homepage.html.twig` - because our entire frontend is
+built in Vue.js, let's override the `title` block on the page and use it there:
+`Ponka'd {{ imageCount }} Photos`.
 
-somewhere inside of here, back on the documentation. If you go back to the main
-messenger page and go all the way at the bottom, there's actually a thing in here
-called, um, getting results from your handler. And it includes some shortcuts that
-you can take down here, uh, that we're not going to go through that can make getting
-the, uh, return value a little bit easier because, you know, this, hopefully it makes
-sense to you, but it's not that easy. So that's it. So now we know, like, why is
-messenger is called a message bus? But it can really be used as a command bus, an
-event bus, or a query bus. And those are all really just the same things. They're
-just kind of different ways to use this pattern. So I don't overly stress out about
-it. Um, command buses are use, use, uh, whatever's useful, et Cetera, et cetera.
+Let's check it out! Move over, refresh and... it works! We've Ponka's 50 photos...
+at least according to our hardcoxed logic.
+
+So... that's a query bus! It's not my favorite because we're not guaranteed
+what *type* it returns - the `imageCount` could really be a string... or an object.
+Because we're not calling a *direct* method, the data we'll get back feels a little
+fuzzy. Plus, because queries need to be handled synchronously, you're not saving
+any performance with this: it's purely a pattern.
+
+But, this is *totally* subjective, and a lot of people love query buses. In fact,
+we've been talking mostly about the *tools* themselves: command, event & query
+buses. But there are some deeper patterns like CQRS or event sourcing that these
+tools can unlock. This is not something we currently use here on SymfonyCasts...
+but if you're interested, you can read more about this topic -
+[Matthias Noback's blog](https://matthiasnoback.nl/) is my favorite source.
+
+Oh, and before I forget, if you look back on the Symfony docs... back on the
+main messenger page... all the way at the bottom... there's a spot here a about
+getting results from your handler. It shows some shortcuts that you can use to
+more easily get the value from the bus.
