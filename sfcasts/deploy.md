@@ -14,7 +14,7 @@ If you're *not* using a hosting platform like that, it's ok - but you *will* nee
 to do a little bit of work to get that same result. And actually, it's not *just*
 that we need a way to make sure that someone starts this command and then it
 runs forever. We actually *don't* want the command to run forever. No matter how
-well you write your PHP code, PHP just isn't mean to be ran *forever* - eventually
+well you write your PHP code, PHP just isn't meant to be ran *forever* - eventually
 your memory footprint will increase too much and the process will die. And... that's
 perfect! We *don't* want our process to run forever. Nope: what we *really* want
 is for `messenger:consume` to run, handle... a few messages... then close itself.
