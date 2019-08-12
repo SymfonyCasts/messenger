@@ -90,7 +90,7 @@ it. What this *really* means is that the command handlers were added to the
 command bus, but *not* to the event bus.
 
 Let's repeat this for the events: copy this section, paste, change the
-namespace to `Event\`, the directory to `Event/` and update the `bus` option to
+namespace to `Event\`, the directory to `Event` and update the `bus` option to
 `event.bus` - the name of our other bus inside `messenger.yaml`.
 
 Cool! Try `debug:messenger` again:
