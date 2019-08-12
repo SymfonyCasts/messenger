@@ -62,7 +62,7 @@ Oh, and if you look closely at the command, it's running
 `messenger:consume async`. Make sure to also consume `async_priority_high`.
 The command *also* has a `--time-limit=3600` option. We'll talk more about this
 and some other options in a bit, but this is great: it tells the worker to run
-for 6 minutes and then exit, to make sure it doesn't get too old and take up
+for 60 minutes and then exit, to make sure it doesn't get too old and take up
 too much memory. As soon as it exits, Supervisor will restart it.
 
 ## Running Supervisor

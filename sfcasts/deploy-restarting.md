@@ -7,7 +7,7 @@ php bin/console messenger:consume --help
 ```
 
 We saw earlier that this has an option called `--time-limit`, which you can use
-to tell the command to run for 6 minutes and then exit. The command *also* has
+to tell the command to run for 60 minutes and then exit. The command *also* has
 two other options - `--memory-limit` - to tell the command to exit once its memory
 usage is above a certain level - or `--limit` - to tell it to run a specific *number*
 of messages and then exit. All of these are *great* options to use because we really
