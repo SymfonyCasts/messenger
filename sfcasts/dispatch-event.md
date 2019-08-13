@@ -17,8 +17,12 @@ Inside `DeleteImagePostHandler`, change the argument to `$eventBus`. I don't hav
 to, but I'm also going to rename the property to `$eventBus` for clarity. Oh, and
 variables need a `$` in PHP. Perfect!
 
+[[[ code('303f4b730d') ]]]
+
 Inside `__invoke()`, it's really the same as before: `$this->eventBus->dispatch()`
 with `new ImagePostDeletedEvent()` passing that `$filename`.
+
+[[[ code('910a58c952') ]]]
 
 That's it! The end result of all of this work... was to do the *same* thing as
 before, but with some renaming to match the "event bus" pattern. The handler
@@ -40,6 +44,8 @@ out into space:
 Anyways, the last piece we need to fix to make this *truly* identical to before
 is, in `config/packages/messenger.yaml`, down under `routing`, route
 `App\Message\Event\ImagePostDeletedEvent` to the `async` transport.
+
+[[[ code('dc0a84cae3') ]]]
 
 Let's try this! Find your worker and restart it. All of this refactoring was around
 deleting images so... let's delete a couple of things, move back over and... yea!
@@ -69,6 +75,8 @@ because... what's the point of dispatching an event with no handlers? But... for
 the sake of trying it, open `RemoveFileWhenImagePostDeleted` and take off the
 `implements MessageHandleInterface` part.
 
+[[[ code('298d329ef1') ]]]
+
 I'm doing this temporarily to see what happens if Symfony sees *zero* handlers
 for an event. Let's... find out! Back in the browser, try to delete an image.
 It works! Wait... oh, I forgot to stop the worker... let's do that... then try
@@ -90,6 +98,8 @@ that handle & send the messages, among other things. But you can also set it to
 `allow_no_handlers` if you want to *keep* the normal middleware, but *hint* to
 the `HandleMessageMiddleware` that it should *not* panic if there are zero handlers.
 
+[[[ code('96db3c2c63') ]]]
+
 Go back and restart the worker. Then, delete another image... come back here and...
 cool! It says "No handler for message" but it doesn't freak out and cause a failure.
 
@@ -97,6 +107,8 @@ So now our command bus and event bus *do* have a small difference... though they
 still *almost* identical... and we could *really* still get away with sending both
 commands and events through the same bus. Put the `MessageHandlerInterface` back
 on the class... and restart our worker one more time.
+
+[[[ code('f5c0278b7b') ]]]
 
 Now that we're feeling good about events... I have a question: what's the difference
 between dispatching an event into Messenger versus dispatching an event into
