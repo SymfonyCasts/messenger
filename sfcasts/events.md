@@ -42,10 +42,15 @@ an event is more of an "announcement" that something *did* happen.
 
 To fully understand this, let's back up and re-implement all of this fresh.
 Comment out the `$messageBus->dispatch()` call and then remove the `DeletePhotoFile`
-use statement on top. Next, to get a clean start: remove the `DeletePhotoFile`
-command class itself and `DeletePhotoFileHandler`. Finally, in
-`config/packages/messenger.yaml`, we're routing the command we just deleted.
-Comment that out.
+use statement on top. 
+
+[[[ code('a6a76aae83') ]]]
+
+Next, to get a clean start: remove the `DeletePhotoFile` command class itself 
+and `DeletePhotoFileHandler`. Finally, in `config/packages/messenger.yaml`, 
+we're routing the command we just deleted. Comment that out.
+
+[[[ code('dfe1ab5a10') ]]]
 
 Let's look at this with fresh eyes. We've successfully made `DeleteImagePostHandler`
 perform is *primary* job only: deleting the `ImagePost`. And now we're wondering:
@@ -57,6 +62,8 @@ file? We could put that logic right here, or leverage an *event*.
 Commands, events & their handlers look identical. In the `src/Message`
 directory, to start organizing things a bit better, let's create an `Event/`
 subdirectory. Inside, add a new class: `ImagePostDeletedEvent`.
+
+[[[ code('86fdc32311') ]]]
 
 Notice the *name* of this class: that's *critical*. Everything so far has sounded
 like a command: we're running around our code base shouting: `AddPonkaToImage`!
@@ -77,6 +84,8 @@ to create that property and set it. Then, at the bottom, I'll go to
 "Code -> Generate" - or Command + N on a Mac - and select "Getters" to generate
 this one getter.
 
+[[[ code('07ef42914f') ]]]
+
 You may have noticed that, other than its name, this "event" class looks *exactly*
 like the command we just deleted!
 
@@ -86,6 +95,8 @@ Creating an event "handler" *also* looks identical to command handlers.
 In the `MessageHandler` directory, let's create another subdirectory called
 `Event/` for organization. Then add a new PHP class. Let's call this
 `RemoveFileWhenImagePostDeleted`. Oh... but make sure you spell that all correctly.
+
+[[[ code('3d01d91156') ]]]
 
 This *also* follows a different naming convention. For commands, if a command was
 named `AddPonkaToImage`, we called the handler `AddPonkaToImageHandler`. The big
@@ -97,11 +108,15 @@ But the inside of a handler looks the same: implement `MessageHandlerInterface`
 and then create our beloved `public function __invoke()` with the type-hint for
 the event class: `ImagePostDeletedEvent $event`.
 
+[[[ code('1383b84b6b') ]]]
+
 Now... we'll do the work... and this will be identical to the handler we just
 deleted. Add a constructor with the one service we need to delete files:
 `PhotoFileManager`. I'll initialize fields to create that property then, down
 below, finish things with `$this->photoFileManager->deleteImage()` passing that
 `$event->getFilename()`.
+
+[[[ code('1383b84b6b') ]]]
 
 I hope this was *delightfully* boring for you. We deleted a command and command
 handler... and replaced them with an event and an event handler that are... other
