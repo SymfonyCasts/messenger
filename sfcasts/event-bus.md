@@ -39,6 +39,8 @@ Set this to `~` which is null... just because we don't have any other configurat
 that we need to put here yet. *This* will cause a *new* `MessageBus` service
 to be added to the container.
 
+[[[ code('b1461e7a94') ]]]
+
 So far, whenever we needed the message bus - like in `ImagePostController` - we
 autowired it by using the `MessageBusInterface` type-hint. The question *now* is:
 how can we get access to the *new* message bus service?
@@ -56,6 +58,8 @@ php bin/console debug:autowiring
 Copy the name of the default bus. Once you define more than one bus, you need a
 `default_bus` key set to your "main" bus. This tells Symfony which MessageBus service
 to pass us when we use the `MessageBusInterface` type-hint.
+
+[[[ code('173c8b2076') ]]]
 
 Try the `debug:autowiring` command again... and search for "mess".
 
