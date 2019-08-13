@@ -116,7 +116,7 @@ deleted. Add a constructor with the one service we need to delete files:
 below, finish things with `$this->photoFileManager->deleteImage()` passing that
 `$event->getFilename()`.
 
-[[[ code('1383b84b6b') ]]]
+[[[ code('6a2cf60847') ]]]
 
 I hope this was *delightfully* boring for you. We deleted a command and command
 handler... and replaced them with an event and an event handler that are... other
