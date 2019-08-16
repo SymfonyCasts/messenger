@@ -23,7 +23,7 @@ to process commands synchronously or asynchronously - our code isn't waiting to
 get information back from the handler.
 
 A query bus is the *opposite*. Instead of commanding the bus to do work, the point
-of a *query* is to get information back fro the handler. For example, let's pretend
+of a *query* is to get information back from the handler. For example, let's pretend
 that, on our homepage, we want to print the number of photos that have been
 uploaded. That is a *question* or *query* that we want to ask our system:
 
