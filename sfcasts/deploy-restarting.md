@@ -27,8 +27,8 @@ to restart: whenever you deploy. We've seen *why* many times already: whenever w
 make a change to our code, we've been manually restarting the `messenger:consume`
 command so that the worker *sees* the new code. The same thing will happen
 on production: when you deploy, your workers *won't* see the new code until they
-exit and are restarted. Right now, that could take up to *six* minutes to happen!
-That is not okay. Nope, at the moment we deploy, we need all of or worker processes
+exit and are restarted. Right now, that could take up to *sixty* minutes to happen!
+That is not okay. Nope, at the moment we deploy, we need all of our worker processes
 to exit, and we need that to happen gracefully.
 
 Fortunately, Symfony has our back. Once again, run `ps -A` to see the worker processes.
