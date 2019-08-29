@@ -96,19 +96,19 @@ supervisorctl -c /usr/loca/etc/supervisord.ini reread
 By the way, you *may* need to run this command with `sudo`. If you do, no big deal:
 it will execute the processes themselves as the user in your config file.
 
-Cool! It sees the new `messager-consume` group. That names comes from the key
+Cool! It sees the new `messenger-consume` group. That name comes from the key
 at the top of our file. Next, run the `update` command... which would restart
 any processes with the new config... *if* they were already running... but our's
 aren't yet:
 
 ```terminal-silent
-supervisorctl -c /usr/loca/etc/supervisord.ini update
+supervisorctl -c /usr/local/etc/supervisord.ini update
 ```
 
 To start them, run `start messenger-consume:*`:
 
 ```terminal-silent
-supervisorctl -c /usr/loca/etc/supervisord.ini start messenger-consume:*
+supervisorctl -c /usr/local/etc/supervisord.ini start messenger-consume:*
 ```
 
 That last argument - `messenger-consume:*` isn't very obvious. When you create a
