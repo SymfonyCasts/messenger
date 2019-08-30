@@ -90,7 +90,7 @@ If you're on Ubuntu, you shouldn't need to do this - it'll know where to look
 already. Then say `reread`: that tells Supervisor to reread the config files:
 
 ```terminal-silent
-supervisorctl -c /usr/loca/etc/supervisord.ini reread
+supervisorctl -c /usr/local/etc/supervisord.ini reread
 ```
 
 By the way, you *may* need to run this command with `sudo`. If you do, no big deal:
@@ -102,13 +102,13 @@ any processes with the new config... *if* they were already running... but our's
 aren't yet:
 
 ```terminal-silent
-supervisorctl -c /usr/loca/etc/supervisord.ini update
+supervisorctl -c /usr/local/etc/supervisord.ini update
 ```
 
 To start them, run `start messenger-consume:*`:
 
 ```terminal-silent
-supervisorctl -c /usr/loca/etc/supervisord.ini start messenger-consume:*
+supervisorctl -c /usr/local/etc/supervisord.ini start messenger-consume:*
 ```
 
 That last argument - `messenger-consume:*` isn't very obvious. When you create a
