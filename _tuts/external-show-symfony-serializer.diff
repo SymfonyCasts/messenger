@@ -1,0 +1,12 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 4e0ce5e..a47abe5 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -21,6 +21,7 @@ framework:
+             # https://symfony.com/doc/current/messenger.html#transports
+             async:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
++                serializer: messenger.transport.symfony_serializer
+                 retry_strategy:
+                     delay: 500
+                 options:

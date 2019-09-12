@@ -1,0 +1,26 @@
+diff --git a/src/MessageHandler/Command/DeleteImagePostHandler.php b/src/MessageHandler/Command/DeleteImagePostHandler.php
+index 7b2574a..4cf5c2a 100644
+--- a/src/MessageHandler/Command/DeleteImagePostHandler.php
++++ b/src/MessageHandler/Command/DeleteImagePostHandler.php
+@@ -7,9 +7,10 @@ use App\Message\Event\ImagePostDeletedEvent;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+ use Symfony\Component\Messenger\MessageBusInterface;
+ 
+-class DeleteImagePostHandler implements MessageHandlerInterface
++class DeleteImagePostHandler implements MessageSubscriberInterface
+ {
+     private $eventBus;
+     private $entityManager;
+@@ -30,4 +31,9 @@ class DeleteImagePostHandler implements MessageHandlerInterface
+ 
+         $this->eventBus->dispatch(new ImagePostDeletedEvent($filename));
+     }
++
++    public static function getHandledMessages(): iterable
++    {
++        // TODO: Implement getHandledMessages() method.
++    }
+ }

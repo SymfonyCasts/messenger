@@ -1,0 +1,19 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 980b61e..4e0ce5e 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -39,9 +39,12 @@ framework:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                 options:
+                     exchange:
+-                        name: messages_high_priority
++                        name: messages
++                        type: direct
++                        default_publish_routing_key: high
+                     queues:
+-                        messages_high: ~
++                        messages_high:
++                            binding_keys: [high]
+ 
+             failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'

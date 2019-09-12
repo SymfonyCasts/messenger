@@ -1,0 +1,14 @@
+diff --git a/src/MessageHandler/Command/DeleteImagePostHandler.php b/src/MessageHandler/Command/DeleteImagePostHandler.php
+index b477bae..6bbf900 100644
+--- a/src/MessageHandler/Command/DeleteImagePostHandler.php
++++ b/src/MessageHandler/Command/DeleteImagePostHandler.php
+@@ -40,6 +40,9 @@ class DeleteImagePostHandler implements MessageSubscriberInterface
+             // but unless you use priority transports... the message
+             // will still be handled in the order it was received
+             'priority' => 10,
++            // unnecessary: useful if a message has multiple handlers
++            // and you want to "send" each handler to a separate transport
++            'from_transport' => 'async'
+         ];
+     }
+ }

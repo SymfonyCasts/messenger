@@ -1,0 +1,14 @@
+diff --git a/src/MessageHandler/Command/DeleteImagePostHandler.php b/src/MessageHandler/Command/DeleteImagePostHandler.php
+index 9213c0b..b364958 100644
+--- a/src/MessageHandler/Command/DeleteImagePostHandler.php
++++ b/src/MessageHandler/Command/DeleteImagePostHandler.php
+@@ -34,6 +34,8 @@ class DeleteImagePostHandler implements MessageSubscriberInterface
+ 
+     public static function getHandledMessages(): iterable
+     {
+-        yield DeleteImagePost::class;
++        yield DeleteImagePost::class => [
++            'method' => '__invoke'
++        ];
+     }
+ }

@@ -354,7 +354,77 @@
             "id": "querybus-use-result",
             "name": "QueryBus: use result",
             "description": null
+        },
+        {
+            "id": "subscriber-implement-messagesubscriberinterface",
+            "name": "Subscriber: implement MessageSubscriberInterface",
+            "description": null
+        },
+        {
+            "id": "subscriber-simple-yield",
+            "name": "Subscriber: Simple yield",
+            "description": null
+        },
+        {
+            "id": "subscriber-add-method",
+            "name": "Subscriber: add method",
+            "description": null
+        },
+        {
+            "id": "subscriber-add-priority",
+            "name": "Subscriber: add priority",
+            "description": null
+        },
+        {
+            "id": "subscriber-add-from-transport",
+            "name": "Subscriber: add from_transport",
+            "description": null
+        },
+        {
+            "id": "amqp-configure-amqp-transport",
+            "name": "AMQP: configure amqp transport",
+            "description": null
+        },
+        {
+            "id": "amqp-remove-delaystamp",
+            "name": "AMQP: remove DelayStamp",
+            "description": null
+        },
+        {
+            "id": "amqp-transport-to-different-exchange",
+            "name": "AMQP: transport to different exchange",
+            "description": null
+        },
+        {
+            "id": "amqp-re-add-10-second-delay",
+            "name": "AMQP: Re-add 10 second delay",
+            "description": null
+        },
+        {
+            "id": "amqp-messages-direct-exchange",
+            "name": "AMQP: messages direct exchange",
+            "description": null
+        },
+        {
+            "id": "amqp-async-high-use-direct-exchange",
+            "name": "AMQP: async_high use direct exchange",
+            "description": null
+        },
+        {
+            "id": "amqp-amqpstamp-for-custom-routing",
+            "name": "AMQP: AmqpStamp for custom routing",
+            "description": null
+        },
+        {
+            "id": "external-show-symfony-serializer",
+            "name": "External: show Symfony serializer",
+            "description": null
+        },
+        {
+            "id": "external-remove-symfony-serializer",
+            "name": "External: Remove symfony serializer",
+            "description": null
         }
     ],
-    "sha": "f276065b69ab964d1a97c8576008f6fe288f1575"
+    "sha": "1def4ee40add8be19b4cfa127ad224dd8d117d8b"
 }

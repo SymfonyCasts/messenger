@@ -1,0 +1,22 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index c651b8c..980b61e 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -23,6 +23,17 @@ framework:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                 retry_strategy:
+                     delay: 500
++                options:
++                    # Messenger will create then send to this exchange
++                    exchange:
++                        name: messages
++                        type: direct
++                        default_publish_routing_key: normal
++                    # Messenger will create this queue & add binding keys
++                    # The worker will know to consume from this queue
++                    queues:
++                        messages_normal:
++                            binding_keys: [normal]
+ 
+             async_priority_high:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'

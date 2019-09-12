@@ -1,0 +1,17 @@
+diff --git a/src/MessageHandler/Command/DeleteImagePostHandler.php b/src/MessageHandler/Command/DeleteImagePostHandler.php
+index b364958..b477bae 100644
+--- a/src/MessageHandler/Command/DeleteImagePostHandler.php
++++ b/src/MessageHandler/Command/DeleteImagePostHandler.php
+@@ -35,7 +35,11 @@ class DeleteImagePostHandler implements MessageSubscriberInterface
+     public static function getHandledMessages(): iterable
+     {
+         yield DeleteImagePost::class => [
+-            'method' => '__invoke'
++            'method' => '__invoke',
++            // priority vs other handlers once message is handled
++            // but unless you use priority transports... the message
++            // will still be handled in the order it was received
++            'priority' => 10,
+         ];
+     }
+ }
