@@ -424,7 +424,82 @@
             "id": "external-remove-symfony-serializer",
             "name": "External: Remove symfony serializer",
             "description": null
+        },
+        {
+            "id": "external-create-logemojie-setup",
+            "name": "External: create LogEmojie setup",
+            "description": null
+        },
+        {
+            "id": "external-finish-logemojihandler",
+            "name": "External: finish LogEmojiHandler",
+            "description": null
+        },
+        {
+            "id": "external-dispatch-manually",
+            "name": "External: dispatch manually",
+            "description": null
+        },
+        {
+            "id": "external-comment-out-manual-dispatch",
+            "name": "External: comment out manual dispatch",
+            "description": null
+        },
+        {
+            "id": "external-add-external-messages-transport",
+            "name": "External: add external_messages transport",
+            "description": null
+        },
+        {
+            "id": "external-bootstrap-custom-serializer",
+            "name": "External: bootstrap custom serializer",
+            "description": null
+        },
+        {
+            "id": "external-finish-serializer",
+            "name": "External: finish serializer",
+            "description": null
+        },
+        {
+            "id": "external-dump-real-message-envelope",
+            "name": "External: dump real message Envelope",
+            "description": null
+        },
+        {
+            "id": "external-remove-dump",
+            "name": "External: remove dump()",
+            "description": null
+        },
+        {
+            "id": "external-add-busnamestamp",
+            "name": "External: Add BusNameStamp()",
+            "description": null
+        },
+        {
+            "id": "external-serializer-error-handling",
+            "name": "External: serializer error handling",
+            "description": null
+        },
+        {
+            "id": "external-messagedecodingfailedexception",
+            "name": "External: MessageDecodingFailedException",
+            "description": null
+        },
+        {
+            "id": "external-refactor-emoji-to-private",
+            "name": "External: refactor emoji to private",
+            "description": null
+        },
+        {
+            "id": "external-array-argument",
+            "name": "External: array argument",
+            "description": null
+        },
+        {
+            "id": "external-use-type-header",
+            "name": "External: use \"type\" header",
+            "description": null
         }
     ],
-    "sha": "5e1dc34268228e6f8e2abae5e4fe6dff46cc63c0"
+    "sha": "84276f7753eadda984bb97620358628d216a164b"
 }

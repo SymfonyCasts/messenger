@@ -1,0 +1,23 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 4e0ce5e..9c372bf 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -46,6 +46,18 @@ framework:
+                         messages_high:
+                             binding_keys: [high]
+ 
++            # a transport used consuming messages from an external system
++            # messages are not meant to be *sent* to this transport
++            external_messages:
++                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
++                options:
++                    # assume some other system will create this
++                    auto_setup: false
++                    # exchange config not needed because that's only
++                    # for *sending* messages
++                    queues:
++                        messages_from_external: ~
++
+             failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'
+ 

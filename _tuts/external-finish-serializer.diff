@@ -1,0 +1,44 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 9c372bf..e77d6bf 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -50,6 +50,7 @@ framework:
+             # messages are not meant to be *sent* to this transport
+             external_messages:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
++                serializer: App\Messenger\ExternalJsonMessageSerializer
+                 options:
+                     # assume some other system will create this
+                     auto_setup: false
+diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
+index 406818b..8c63478 100644
+--- a/src/Messenger/ExternalJsonMessageSerializer.php
++++ b/src/Messenger/ExternalJsonMessageSerializer.php
+@@ -2,6 +2,7 @@
+ 
+ namespace App\Messenger;
+ 
++use App\Message\Command\LogEmoji;
+ use Symfony\Component\Messenger\Envelope;
+ use Symfony\Component\Messenger\Exception\MessageDecodingFailedException;
+ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
+@@ -10,11 +11,17 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+ {
+     public function decode(array $encodedEnvelope): Envelope
+     {
+-        // TODO: Implement decode() method.
++        $body = $encodedEnvelope['body'];
++        $headers = $encodedEnvelope['headers'];
++
++        $data = json_decode($body, true);
++        $message = new LogEmoji($data['emoji']);
++
++        return new Envelope($message);
+     }
+ 
+     public function encode(Envelope $envelope): array
+     {
+-        // TODO: Implement encode() method.
++        throw new \Exception('Transport & serializer not meant for sending messages');
+     }
+ }

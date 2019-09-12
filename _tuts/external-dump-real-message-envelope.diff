@@ -1,0 +1,13 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 95ee8ac..e538db6 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -69,7 +69,7 @@ class ImagePostController extends AbstractController
+             // routing key than its transport uses by default
+             new AmqpStamp('normal')
+         ]);
+-        $messageBus->dispatch($envelope);
++        dump($messageBus->dispatch($envelope));
+ 
+         //$messageBus->dispatch(new LogEmoji(2));
+ 

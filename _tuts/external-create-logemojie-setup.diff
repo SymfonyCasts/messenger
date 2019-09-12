@@ -1,0 +1,44 @@
+diff --git a/src/Message/Command/LogEmoji.php b/src/Message/Command/LogEmoji.php
+new file mode 100644
+index 0000000..c6176bf
+--- /dev/null
++++ b/src/Message/Command/LogEmoji.php
+@@ -0,0 +1,18 @@
++<?php
++
++namespace App\Message\Command;
++
++class LogEmoji
++{
++    private $emojiIndex;
++
++    public function __construct(int $emojiIndex)
++    {
++        $this->emojiIndex = $emojiIndex;
++    }
++
++    public function getEmojiIndex(): int
++    {
++        return $this->emojiIndex;
++    }
++}
+diff --git a/src/MessageHandler/Command/LogEmojiHandler.php b/src/MessageHandler/Command/LogEmojiHandler.php
+new file mode 100644
+index 0000000..b01b402
+--- /dev/null
++++ b/src/MessageHandler/Command/LogEmojiHandler.php
+@@ -0,0 +1,13 @@
++<?php
++
++namespace App\MessageHandler\Command;
++
++use App\Message\Command\LogEmoji;
++use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
++
++class LogEmojiHandler implements MessageHandlerInterface
++{
++    public function __invoke(LogEmoji $logEmoji)
++    {
++    }
++}
+\ No newline at end of file

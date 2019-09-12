@@ -1,0 +1,26 @@
+diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
+index 8c63478..101fe87 100644
+--- a/src/Messenger/ExternalJsonMessageSerializer.php
++++ b/src/Messenger/ExternalJsonMessageSerializer.php
+@@ -5,6 +5,7 @@ namespace App\Messenger;
+ use App\Message\Command\LogEmoji;
+ use Symfony\Component\Messenger\Envelope;
+ use Symfony\Component\Messenger\Exception\MessageDecodingFailedException;
++use Symfony\Component\Messenger\Stamp\BusNameStamp;
+ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
+ 
+ class ExternalJsonMessageSerializer implements SerializerInterface
+@@ -17,7 +18,12 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+         $data = json_decode($body, true);
+         $message = new LogEmoji($data['emoji']);
+ 
+-        return new Envelope($message);
++        $envelope = new Envelope($message);
++
++        // needed only if you need this to be sent through the non-default bus
++        $envelope = $envelope->with(new BusNameStamp('command.bus'));
++
++        return $envelope;
+     }
+ 
+     public function encode(Envelope $envelope): array

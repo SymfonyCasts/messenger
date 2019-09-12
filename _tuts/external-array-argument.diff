@@ -1,0 +1,13 @@
+diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
+index 4fad853..81b630e 100644
+--- a/src/Messenger/ExternalJsonMessageSerializer.php
++++ b/src/Messenger/ExternalJsonMessageSerializer.php
+@@ -29,7 +29,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+         throw new \Exception('Transport & serializer not meant for sending messages');
+     }
+ 
+-    private function createLogEmojiEnvelope($data): Envelope
++    private function createLogEmojiEnvelope(array $data): Envelope
+     {
+         if (!isset($data['emoji'])) {
+             throw new MessageDecodingFailedException('Missing the emoji key!');

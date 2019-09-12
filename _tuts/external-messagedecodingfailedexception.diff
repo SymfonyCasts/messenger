@@ -1,0 +1,13 @@
+diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
+index eb84491..aabf9f4 100644
+--- a/src/Messenger/ExternalJsonMessageSerializer.php
++++ b/src/Messenger/ExternalJsonMessageSerializer.php
+@@ -22,7 +22,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+         }
+ 
+         if (!isset($data['emoji'])) {
+-            throw new \Exception('Missing the emoji key!');
++            throw new MessageDecodingFailedException('Missing the emoji key!');
+         }
+         $message = new LogEmoji($data['emoji']);
+ 

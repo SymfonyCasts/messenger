@@ -1,0 +1,21 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index ccd8046..cbf3fc1 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -5,6 +5,7 @@ namespace App\Controller;
+ use App\Entity\ImagePost;
+ use App\Message\Command\AddPonkaToImage;
+ use App\Message\Command\DeleteImagePost;
++use App\Message\Command\LogEmoji;
+ use App\Repository\ImagePostRepository;
+ use App\Photo\PhotoFileManager;
+ use Doctrine\ORM\EntityManagerInterface;
+@@ -70,6 +71,8 @@ class ImagePostController extends AbstractController
+         ]);
+         $messageBus->dispatch($envelope);
+ 
++        $messageBus->dispatch(new LogEmoji(2));
++
+         return $this->toJson($imagePost, 201);
+     }
+ 

@@ -1,0 +1,22 @@
+diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
+index 81b630e..f5d9170 100644
+--- a/src/Messenger/ExternalJsonMessageSerializer.php
++++ b/src/Messenger/ExternalJsonMessageSerializer.php
+@@ -21,7 +21,16 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+             throw new MessageDecodingFailedException('Invalid JSON');
+         }
+ 
+-        return $this->createLogEmojiEnvelope($data);
++        if (!isset($headers['type'])) {
++            throw new MessageDecodingFailedException('Missing "type" header');
++        }
++
++        switch ($headers['type']) {
++            case 'emoji':
++                return $this->createLogEmojiEnvelope($data);
++        }
++
++        throw new MessageDecodingFailedException(sprintf('Invalid type "%s"', $headers['type']));
+     }
+ 
+     public function encode(Envelope $envelope): array

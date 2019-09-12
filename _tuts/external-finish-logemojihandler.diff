@@ -1,0 +1,38 @@
+diff --git a/src/MessageHandler/Command/LogEmojiHandler.php b/src/MessageHandler/Command/LogEmojiHandler.php
+index b01b402..9d1325e 100644
+--- a/src/MessageHandler/Command/LogEmojiHandler.php
++++ b/src/MessageHandler/Command/LogEmojiHandler.php
+@@ -3,11 +3,32 @@
+ namespace App\MessageHandler\Command;
+ 
+ use App\Message\Command\LogEmoji;
++use Psr\Log\LoggerInterface;
+ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+ 
+ class LogEmojiHandler implements MessageHandlerInterface
+ {
++    private static $emojis = [
++        '🍪',
++        '🦖',
++        '🧀',
++        '🤖',
++        '💩'
++    ];
++
++    private $logger;
++
++    public function __construct(LoggerInterface $logger)
++    {
++        $this->logger = $logger;
++    }
++
+     public function __invoke(LogEmoji $logEmoji)
+     {
++        $index = $logEmoji->getEmojiIndex();
++
++        $emoji = self::$emojis[$index] ?? self::$emojis[0];
++
++        $this->logger->info('Important message! '.$emoji);
+     }
+ }
+\ No newline at end of file
