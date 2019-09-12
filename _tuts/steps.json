@@ -381,6 +381,11 @@
             "description": null
         },
         {
+            "id": "subscriber-remove-from-transport",
+            "name": "Subscriber: remove from_transport",
+            "description": null
+        },
+        {
             "id": "amqp-configure-amqp-transport",
             "name": "AMQP: configure amqp transport",
             "description": null
@@ -501,5 +506,5 @@
             "description": null
         }
     ],
-    "sha": "84276f7753eadda984bb97620358628d216a164b"
+    "sha": "02a41c1a05c5d41f2fed8a776c23f93d9785c7b0"
 }

@@ -1,23 +1,22 @@
 diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
-index b7ffe52..c197194 100644
+index c197194..b7ffe52 100644
 --- a/config/packages/messenger.yaml
 +++ b/config/packages/messenger.yaml
-@@ -36,3 +36,4 @@ framework:
+@@ -36,4 +36,3 @@ framework:
              # Route your messages to the transports
              'App\Message\Command\AddPonkaToImage': async_priority_high
              'App\Message\Event\ImagePostDeletedEvent': async
-+            'App\Message\Command\DeleteImagePost': [async, async_priority_high]
+-            'App\Message\Command\DeleteImagePost': [async, async_priority_high]
 diff --git a/src/MessageHandler/Command/DeleteImagePostHandler.php b/src/MessageHandler/Command/DeleteImagePostHandler.php
-index b477bae..6bbf900 100644
+index 6bbf900..39ff8e4 100644
 --- a/src/MessageHandler/Command/DeleteImagePostHandler.php
 +++ b/src/MessageHandler/Command/DeleteImagePostHandler.php
-@@ -40,6 +40,9 @@ class DeleteImagePostHandler implements MessageSubscriberInterface
-             // but unless you use priority transports... the message
-             // will still be handled in the order it was received
+@@ -42,7 +42,7 @@ class DeleteImagePostHandler implements MessageSubscriberInterface
              'priority' => 10,
-+            // unnecessary: useful if a message has multiple handlers
-+            // and you want to "send" each handler to a separate transport
-+            'from_transport' => 'async'
+             // unnecessary: useful if a message has multiple handlers
+             // and you want to "send" each handler to a separate transport
+-            'from_transport' => 'async'
++            //'from_transport' => 'async'
          ];
      }
  }
