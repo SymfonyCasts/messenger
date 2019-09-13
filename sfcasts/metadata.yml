@@ -31,3 +31,8 @@ chapters:
   - other-middleware
   - bus-organization
   - query-bus
+  - message-subscriber  # raw
+  - amqp                # raw
+  - priority-exchange   # raw
+  - delays-exchange     # raw
+  - amqp-direct-routing # raw
