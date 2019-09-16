@@ -34,7 +34,7 @@ chapters:
   - message-subscriber
   - amqp
   - priority-exchange
-  - delays-exchange     # raw
+  - delays-exchange
   - amqp-direct-routing # raw
   - sending-json        # raw
   - external-transport  # raw
