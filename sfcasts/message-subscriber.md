@@ -1,135 +1,118 @@
-# Message Subscriber
+# Advanced Handler Config: Handler Subscribers
 
-Coming soon...
+Open up `DeleteImagePostHandler`. The *main* thing that a message bus needs to know
+is the *link* between the `DeleteImagePost` message class and it handler: that
+when we dispatch a `DeleteImagePost` object, it should call `DeleteImagePostHandler`.
 
-Open up `DeleteImagePostHandler`. One of the things that message the message bus
-needs to know is the link between the `DeleteImagePost` message object and then
-`DeleteImagePostHandler`. It needs to know and we know that that the way that
-Messenger knows this is that all of our handlers need to implement this 
-`MessageHandlerInterface`. And once we do that Symfony looks at the type n for the `__invoke()` and
-that helps it know that this `DeleteImagePost` should be handled by this class and
-we can see this if we go to our own terminal and run 
+How does Messenger know these two classes are connected? It knows because our
+handler implements `MessageHandlerInterface` - which marks it as a message handler
+*and* because its `__invoke()` method is *type-hinted* with `DeleteImagePost`.
+If you follow these rules: implement that interface, create a method called
+`__invoke()` and type-hint the first and only argument with the message class,
+then... you're done!
+
+Find your terminal and run:
 
 ```terminal
 php bin/console debug:messenger
 ```
 
-it shows up here that the `DeleteImagePost` is handled by the `DeleteImagePostHandler`
-thanks to that interface and um, type in combination. We also in 
-`config/services.yaml` got a little bit fancier. My kind of separating out my using service
-auto registration, we were actually able to add a tag to all of our command handlers
-that meant handles and query handlers.
+Yep! This proves it: `DeleteImagePost` is handled by `DeleteImagePostHandler`.
 
-And what that did is it actually, we added a little bus configuration there and that
-basically told somebody, hey, I want you to make that connection between the 
-`DeleteImagePost` message and the `DeleteImagePostHandler` But I only want you to
-um, tell the command and boss about that. That's the only bus that that message is
-going to be dispatched to. So when you're on `debug:messenger`, you can see that
-communicated the command buses, aware of the `DeleteImagePost` and `DeleteImagePostHandler`
-connection. The event bus has is aware of the events and the query or buses
-are aware of the relationship between `GetTotalImageCount` and `GetTotalImageCountHandler`
-So this is a review of stuff that we already know.
+Then... in `config/services.yaml`, we got a little bit fancier. By organizing
+each *type* of message - commands, events and queries - into different directories,
+we were able to add a *tag* to each service. This gives a bit *more* info to
+Messenger. It says:
 
-Now, of course in the system there are a couple of things that you can't change. For
-example, you can't change the fact that this method is called `__invoke()`.
-That's just what Symfony looks for. And because a class can only have one `__invoke()`
-method, it means that you can't have a single handler that handles multiple
-messages. And honestly that's not that big of a problem. I don't that I typically
-only have one. I typically only want a handler to handle one type of message. But
-this, the way that you sit, the way that you configure a message, uh, being tied to a
-handler is actually more highly configurable. Let me show what I mean. Instead of
-implementing a `MessageHandlerInterface`, we can optionally implement 
-`MessageSubscriberInterface`. And real quick if I open up that you can say this extends
-`MessageHandlerInterface`. So we're still effectively implementing the same interface
-but now we're forced to have one new method called `getHandledMessages()`. So I got to
-the bottom of this method,
+> Hey! I want you to make that normal connection between the `DeleteImagePost`
+> message class and `DeleteImagePostHandler`... but I *only* want you to configure
+> the "command bus" about that connection... because that's the only bus I
+> intend to dispatch that class to.
 
-got a Code -> Generate menu or Command + N on a mac select "Implement Methods"
-and add that as soon as we implement this interface, instead of magically
-looking for the `__invoke()` method and looking at the type end, it's actually
-going to call this method and we are going to tell it all of the messages that we
-handle. So the easiest thing can be in here is you can say `yield` and we'll just say
-`DeleteImagePost::class`. 
+We also see that on `debug:messenger`: the command bus is aware of the
+`DeleteImagePost` and `DeleteImagePostHandler` connection and the other two buses
+know about *other* message and message handler links. Oh, and as a reminder, if
+this whole "tags" thing confuses you... skip it - it organizes things a bit more,
+but you can just as effectively have *one* bus that handles everything.
 
-who did that and went back and run `debug:messenger`. 
+Anyways, this system is quick to use but there are a *few* things that you *can't*
+change. For example, the method in your handler *must* be called `__invoke()`...
+that's just what Symfony looks for. And because a class can only have one method
+named `__invoke()`, this means that you can't have a single handler class that
+handles multiple different message classes. I don't usually like to have one
+handler handle different messages anyways... but it *is* technically a limitation.
 
-```terminal-silnet
-php bin/console debug:messenger
-```
+## MessageHandlerInterface
 
-You'd see that there's no change.
-It's still says it's distill, knows that the we, it was supposed 
-`DeleteImagePostHandler` is tied to `DeleteImagePost`.
+Now that we're reviewed *all* of that... it turns out that we can take *more*
+control of how a message class is linked to a handler... and include even more
+config related to that.
 
-but technically this type head does not need it anymore. If I deleted that Taipan and
-rerun, 
+How? Instead of implementing `MessageHandlerInterface`, implement
+`MessageSubscriberInterface`.
+
+This is less of a huge change than it may see. If you open up
+`MessageSubscriberInterface`,
+it *extends* `MessageHandlerInterface`. So, we're still *effectively* implementing
+same interface... but now we're forced to have one new method:
+`getHandledMessages()`.
+
+At the bottom of my class, I'll go to Code -> Generate - or Command + N on a Mac -
+and select ""Implement Methods"".
+
+As soon as we implement this interface, instead of magically looking for the
+`__invoke()` method and checking the type-hint on the argument for which message
+class this handler handles, Symfony will call this method. Our job here? Tell
+it *exactly* which classes we handle, which method to call and... some other fun
+stuff!
+
+## Message Handling Config
+
+The easiest thing you can put here is `yield DeleteImagePost::class`. Don't
+over-think that yield... it's just syntax sugar. You could also return an array
+with a `DeleteImagePost::class` string inside.
+
+What difference did that make? Go back and run `debug:messenger`.
 
 ```terminal-silent
 php bin/console debug:messenger
 ```
 
-you can say it still knows that connection because of our `getHandledMessages()`
-So that's not that interesting. But now that we have this, we can start
-adding other options that serve. Describe this connection. For example, we can say
-`'method' => '__invoke'`. So suddenly I'm going to keep calling this `__invoke()`
-but I could call it `handleMessage()` now and call it handle message down there
-and we're allowed to call that method something different. That's really important
-because a, we could actually put another `yield` down here and have a second and have
-his handler handle a second type of a message
+And... it made absolutely *no* difference. With this *super* simple config, we've
+told Messenger that this class handles `DeleteImagePost` objects... and then
+Messenger *still* assumes that it should execute a method called `__invoke()`.
 
-and have that call. Some other method
+But technically, this type-hint isn't needed anymore. Delete that, then re-run:
 
-and there were a couple other bits of configuration you can do here. Um, in a few of
-them aren't really that important. One of them that you're going to see is called
-`priority`, which you can set to, let's put which slots set to, for example `10`. Now
-earlier we talked about priority transports. So if you look in 
-`config/packages/messenger.yaml` we have this, uh, `async` transport and this `async_priority_high`
-and we're routing some messages to `async` and other messages to `async_priority_high`.
-Now the reason that the `async_priority_high` becomes the high priority transport is
-simply that when we consume the messages, we tell our worker to read everything from
-`async_priority_high` first, then read everything from `async` this prior to here is
-much less important.
+```terminal-silent
+php bin/console debug:messenger
+```
 
-this just says if `DeleteImagePost` had two different handlers for it, then this
-handler would be called first because that's priority zero. And the default priority
-is 10 and the default priority is zero.
+It *still* sees the connection between the message class and handler.
 
-but if you sent 10, 10 different, um, you've sent 10 messages to the same transport,
-um, those messages are still going to be a consumed in the order that they were sent
-there. The priority is going to have no effect on the order in which the messages are
-consumed from the, the transport. So it doesn't end up being that important of a
-thing. The last one, which is kind of interesting, uh, but a little more advanced is
-you can say `from_transport`. So if you look, this `DeleteImagePost` is being routed to
+## Controlling the Method & Handling Multiple Classes
 
-Is actually not being routed anywhere. This is a synchronous message. Well, let's
-pretend that it's being routed to the `async` transport.
+Ok... but since we probably *should* use type-hints... this isn't that interesting
+yet. What else can we do?
 
-Now the from transport is kind of confusing. That's why I don't love this as a
-feature. But what it allows you to do is if you have a [inaudible] particular, if you
-have a message that has multiple handlers and you want each handler to be handled by
-a different transport. Now what you can do is for example, just to make this a little
-more realistic, we can say
+Well, by assigning this to an array, we can add some config. For example, we can
+say `'method' => '__invoke'`. Yep, we can now *control* which method Messenger
+will call. That's especially useful if you decide that you want to add *another*
+yield to handle a *second* message and want Messenger to call a *different* method.
 
-we'll set, we'll pretend that we do want our `DeleteImagePost` to be handled. Once
-that's done, this both `async` and `async_priority_high`. Now that on its own should be a
-little bit weird. That's going to mean it's actually going to be sent to both
-transports and when we consume those, our delete image was handled. It would normally
-be run two times each time it would read or consume the message once from `async` and
-run our handler and then consume it again from `async_priority_high` and run the
-handler. That's actually backwards. But by adding this from transport `async`, it means
-that when the `DeleteImagePost` is consuming from `async`, it will run this handler,
-but when it's consumed from `async_priority_high`, it won't run this handler. Why would
-we ever do that? Because it allows us to have a second handler for this same 
-`DeleteImagePost` and that second handler can have from transport `async_priority_high`. So
-you effectively send your message to two transports, but one transfer only runs one
-handler and another transport only runs another handler. So you can have your two
-handlers run asynchronously of each other. So that's a little bit more advanced. I'm
-actually gonna comment that out cause it doesn't make any sense for this and go and
-remove that routing there.
+## Handler Priority
 
-Okay.
+What else can we put here? One option is `priority` - let's set it to... 10.
+This option is... much less interesting than it might look like at first.
+We talked earlier about priority transports: in `config/packages/messenger.yaml`
+we created *two* transport - `async` & `async_priority_high` - and we route
+some messages to each. We did that so that, when we run our worker, we can tell
+it to always read messages from `async_priority_high` first before reading messages
+from `async`.
 
-And that's basically it for the options. Uh, if you look at the `MessageSubscriberInterface`
-it kind of talks about some of these. Um, and, and for the most part,
-they're a little bit confusing, but if you need to do a little bit more advanced
-stuff, the `MessageSubscriberInterface` is a, is how you can do that.
+The `priority` option is... less powerful. If you send two messages to the
+*same* transport with *different* priorities... they will *still* be read and
+processed in the order they were sent. The `priority` does *not* influence how
+"soon" they are processed. So... what does it do? Well, if `DeleteImagePost`
+had *two* different handlers... and one had the default priority of zero and
+another had 10, the handler with priority 10 would be called first.

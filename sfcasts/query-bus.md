@@ -1,8 +1,9 @@
 # Query Bus
 
-The last type of message bus that you'll hear about is... the double-decker tourist
-bus! Um... the query bus! But... full disclosure... I'm not a huge fan of query
-buses: I think it makes your code a bit too complex for little benefit. That being
+The last type of bus that you'll hear about is... the double-decker tourist
+bus! Um... the query bus! Full disclosure... while I *am* a fan of waving like
+an idiot on the top-level of a tourist bus, I'm not a *huge* fan of query buses:
+I think htey makes your code a bit more complex... for little benefit. That being
 said, I want you to *at least* understand what it is and how it fits into the
 message bus methodology.
 
