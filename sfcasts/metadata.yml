@@ -36,3 +36,8 @@ chapters:
   - priority-exchange   # raw
   - delays-exchange     # raw
   - amqp-direct-routing # raw
+  - sending-json        # raw
+  - external-transport  # raw
+  - transport-serializer # raw
+  - external-stamps     # raw
+  - serializer-classes  # raw
