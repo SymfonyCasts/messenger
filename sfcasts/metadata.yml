@@ -33,7 +33,7 @@ chapters:
   - query-bus
   - message-subscriber
   - amqp
-  - priority-exchange   # raw
+  - priority-exchange
   - delays-exchange     # raw
   - amqp-direct-routing # raw
   - sending-json        # raw
