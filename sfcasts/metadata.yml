@@ -32,7 +32,7 @@ chapters:
   - bus-organization
   - query-bus
   - message-subscriber
-  - amqp                # raw
+  - amqp
   - priority-exchange   # raw
   - delays-exchange     # raw
   - amqp-direct-routing # raw
