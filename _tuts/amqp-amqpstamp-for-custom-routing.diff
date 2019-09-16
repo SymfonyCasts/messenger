@@ -1,5 +1,5 @@
 diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
-index 4600088..ccd8046 100644
+index 0433d13..d3aceee 100644
 --- a/src/Controller/ImagePostController.php
 +++ b/src/Controller/ImagePostController.php
 @@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
@@ -14,8 +14,8 @@ index 4600088..ccd8046 100644
  
          $message = new AddPonkaToImage($imagePost->getId());
          $envelope = new Envelope($message, [
--            new DelayStamp(10000)
-+            new DelayStamp(10000),
+-            new DelayStamp(1000)
++            new DelayStamp(1000),
 +            // pretend we want to route this message via a different
 +            // routing key than its transport uses by default
 +            new AmqpStamp('normal')

@@ -1,5 +1,5 @@
 diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
-index e538db6..95ee8ac 100644
+index a8a74c3..f9605d8 100644
 --- a/src/Controller/ImagePostController.php
 +++ b/src/Controller/ImagePostController.php
 @@ -69,7 +69,7 @@ class ImagePostController extends AbstractController

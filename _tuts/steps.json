@@ -406,6 +406,16 @@
             "description": null
         },
         {
+            "id": "amqp-60-second-delay",
+            "name": "AMQP: 60 second delay",
+            "description": null
+        },
+        {
+            "id": "amqp-back-to-1-second-delay",
+            "name": "AMQP: back to 1 second delay",
+            "description": null
+        },
+        {
             "id": "amqp-messages-direct-exchange",
             "name": "AMQP: messages direct exchange",
             "description": null
@@ -506,5 +516,5 @@
             "description": null
         }
     ],
-    "sha": "02a41c1a05c5d41f2fed8a776c23f93d9785c7b0"
+    "sha": "8a20cd532a19572f0fe4a8f0d89dd69e0d20a4f9"
 }

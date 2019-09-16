@@ -1,0 +1,13 @@
+diff --git a/src/Controller/ImagePostController.php b/src/Controller/ImagePostController.php
+index 4600088..39ffc71 100644
+--- a/src/Controller/ImagePostController.php
++++ b/src/Controller/ImagePostController.php
+@@ -62,7 +62,7 @@ class ImagePostController extends AbstractController
+ 
+         $message = new AddPonkaToImage($imagePost->getId());
+         $envelope = new Envelope($message, [
+-            new DelayStamp(10000)
++            new DelayStamp(60000)
+         ]);
+         $messageBus->dispatch($envelope);
+ 
