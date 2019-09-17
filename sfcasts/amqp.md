@@ -2,13 +2,13 @@
 
 Open up your `.env` file and check out our `MESSENGER_TRANSPORT_DSN` setting.
 We've been using the doctrine transport type. The `doctrine://default` string
-says that messages should be stored using Doctrine `default` connection. In
+says that messages should be stored using Doctrine's `default` connection. In
 `config/packages/messenger.yaml`, we're referencing this environment variable
 for both the `async` and `async_priority_high` transports.
 
-So.. yep! We've been storing messages in a database table. It was quick to set up,
-easy - because we already understand databases - and robust enough for *most*
-use-cases.
+So... yep! We've been storing messages in a database table. It was quick to set
+up, easy to use - because we already understand databases - and robust enough
+for most use-cases.
 
 ## Hello AMQP... RabbitMQ
 
