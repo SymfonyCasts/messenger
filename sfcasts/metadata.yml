@@ -39,7 +39,7 @@ chapters:
   - delays-exchange
   - amqp-direct-routing
   - sending-json
-  - external-transport  # raw
+  - external-transport
   - transport-serializer # raw
   - external-stamps     # raw
   - serializer-classes  # raw
