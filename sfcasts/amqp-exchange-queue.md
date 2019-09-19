@@ -1,87 +1,129 @@
 # AMQP Internals: Exchanges & Queues
 
-Coming soon...
+We've just changed our messenger configuration to send messages to a cloud-based
+RabbitMQ instance instead of sending them to Doctrine to be stored in the database.
+And after we made that change... everything... just kept working! We can send messages
+like normal and consume them with the `messenger:consume` command. That's awesome!
 
-Hit it and there it is.
-Received the message in, handled the message, and it's done. Sure enough, if we
-refresh back over here, boom, Ponka is in our image.
+But I want to look a bit more at how this *works*... what's *actually* happening
+inside of RabbitMQ. Stop the worker... and then lets go delete a few images: one,
+two, three. This should have caused *three* new messages to be sent to RabbitMQ.
 
-So let's look a little bit more on how this works. I want you to stop the worker and
-then let's go over and delete a few images. Images, how one, two, three. So we just
-deleted three images and that should've caused three messages to be sent to uh, to
-rabbit MQ to AMQP. One of the really cool things about rabbit MQ is that it has
-this cool thing called Rabbit MQ manager. So I'm gonna Click that and this gives you
-really, really good, um, view into what's going on inside of your rabbit MQ instance.
-So the first and foremost, it's this idea of exchanges. So exchanges are what you
-send messages to and all of these exchanges here were automatically created for us so
-you can ignore them except for `messages` that was created by our application. And it's
-what Messenger is sending all of its messages to. You don't see it in our
-configuration here, but each transport has an `exchange` option. We'll see it in a few
-minutes and then defaults to `messages`.
+When we were using the Doctrine transport, we could query a database table to see
+these. Can we do something similar with RabbitMQ. Yea...you can! RabbitMQ comes
+with a *lovely* tool called the RabbitMQ Manager. Click to jump into it.
 
-Now you see the type here, it says as a type called `fanout`. We're gonna talk a
-little bit more about that in a little bit, but basically messenger sends the
-messages to this messages exchange, and if I click on it and open up bindings, you
-can see it as a binding to a queue called messages. So this can be a little bit
-confusing. The messages are sent out to an exchange and then the exchange has these
-rules called bindings that basically say, under this condition, this message should
-go to this QA under this other condition. As you go to QB or under this other
-condition that should go to QC. We're gonna talk more about how those conditions,
-they're called routing keys and a little bit, but by default it's very, very simple
-because this is a fanout exchange. It basically means every single message that gets
-sent that gets sent to this exchange goes to all of the cues that it's bound to.
+Aw yea, we've got data! And if we can learn what some of these terms mean... we
+can even make this data make sense!
 
-And by default it's only bound to one. So this is a very overkilled way of saying
-that Messenger is going to, is currently sending all of its messages to the messages
-exchange, which causes all of them to go to this queue called messages. What you
-going to click on here to get, or you can click on queues on top. And yes, you can
-see we have exactly one key running right now called `messages`. And if you look
-inside, look ready `3`, it has three messages inside of it are three delete
-messages that were sent. By the way, we didn't have to go into rabbit MQ and create
-this messages exchange and this binding and we didn't have to create this message as
-cute. And that's because like with the doctrine transport, the AMQP
-transport is auto set up. By default it means that it will detect if the exchange and
-the cues are that it needs are there and if they're not, it's going to automatically
-create them. So it took care of creating the exchange, creating the queue, um, and, and
-tying them together for us.
+## Exchanges
 
-so the key concept in AMQP is exchanges in queues. And the key concept is that you send to
-exchanges. So are when we deleted a second ago, these 3 messages were sent to
-this exchange. Then it follows. Then based on the rules of that exchange, those
-messages end up in one or more queues and they just sit there. The second part of the
-equation is your consumer, your worker, your worker doesn't know anything about
-exchanges. It consumes from queues
+The *first* big concept in RabbitMQ is an *exchange*... and, for me, this was the
+most confusing part of learning how Rabbit works. When you send a message to RabbitMQ,
+you send it to a specific *exchange*. Most of these exchanges were automatically
+created for us... and you can ignore them. But see that `messages` exchange? That
+was created by *our* application and, right now, *all* messages that Messenger
+transports to RabbitMQ are being sent to *this* exchange.
 
-so when we execute our your worker, it's going to be asking Rabbit MQ, please give me
-the messages from the `messages` queue
+You won't see the name of this exchange in our messenger config yet, but each
+transport that uses AMQP has an `exchange` option and it *defaults* to `messages`.
+See this "Type" column? Our exchange is a type called `fanout`. Click into this
+exchange to get more info... and open up "bindings". This exchange has a "binding"
+to a "queue" that's *also* called "messages".
 
-Now before we actually do that, let's upload 4 photos and then if we go over here
-in quicken, this messages, you can see there's three messages right now, but if I hit
-refresh year in a second, messages that boom, you can see it popped up to 7
-messages. So our original three plus our four and there not four messages waiting in
-that queue.
+## Exchanges Send to Queues
 
-so let's go consume them. Now as a reminder, before we consume, we're sending the
-`AddPonkaToImage` to `async_priority_high` and the delete to `async`. The idea was that we
-with their other own that puts them in sort of two buckets and we can read them
-independently. You can already see a problem with our setup right here cause that's
-putting all of those messages into the same bucket. And we're not, we don't have two
-queues right now. We ended up with just one queue with everything mixed together. And
-in fact if we go over here and just consume the `async` transport, that should cause us
-just to uh, consume `ImagePostDeletedEvent`s. But when we run it,
+And *this* is where things can get a little confusing... but it's *really* a
+simple idea. The two main concepts in RabbitMQ are *exchanges* and *queues*.
+We're a lot more familiar with the idea of a queue. When we used the Doctrine
+transport type, our database table was basically the queue: it was a big list
+of queued messages... and when we ran the worker, it read messages from that
+queue.
+
+In RabbitMQ, queues have the same role: queues hold messages and we *read*
+messages from queues. So then... where the heck to *exchanges* come into play?
+
+The *key* difference between the Doctrine transport type and AMQP is that with
+AMQP you do *not* send a message directly to a queue. You can't say:
+
+> Hey RabbitMQ! I would like to send this message to the `important_stuff` queue.
+
+Nope, in RabbitMQ, you send messages to an *exchange*. Then, that exchange will
+have some config that *routes* that message to a specific queue... or possibly
+multiple queues. The "Bindings" represents that config.
+
+The *simplest* type of exchange is this `fanout` type. It says that each
+message that's sent to this exchange should be sent to *all* the queues that have
+been bound to it... which in our case is just one. The "binding" rules can get a
+lot smarter - sending different messages to different queues - but let's worry
+about that later. For now, this *whole* fancy setup means that *every* message
+will ultimately end up in a queue called `messages`.
+
+Let's click on the Queues link on top. Yep, we have exactly *one* queue: `messages`.
+And... hey! It has *3* messages "Ready" inside of it waiting for us to consume
+them!
+
+## auto_setup Exchange & Queues
+
+By the way... who *created* the `messages` exchange and `messages` queue? Are
+they... just standard to RabbitMQ? RabbitMQ *does* come with some exchanges
+out-of-the-box, but *these* were created by *our* app. Yep, like with the Doctrine
+transport-type, Messenger's AMQP transport has something called `auto_setup` that
+defaults to true. This means that it will detect if the exchange and queues it
+needs exist, and if they're don't, it will automatically create them. Yep, Messenger
+took care of creating the exchange, creating the queue *and* tying them together
+with the exchange binding. Both the exchange name *and* queue name are options
+that you can configure on your transport... and both default to the word `messages`.
+We'll see that config a bit later.
+
+## Send to an Exchange, Read from a Queue
+
+To summarize *all* of this: we *send* a message to an exchange and it forwards it
+to one or more queues based on some internal rules. Whoever is "sending" - or
+"producing" - the message just says:
+
+> Go to the exchange called "messages"
+
+... and in theory... the "sender" doesn't really know or care what queue that
+message will end up in. Once the message *is* in a queue... it just sits there..
+and waits!
+
+The second part of the equation is your "worker" - the thing thing *consumes*
+messages. The worker is the *opposite* of the sender: it doesn't know *anything*
+about *exchanges*. It just says:
+
+> Hey! Give me the next message in the "messages" queue.
+
+We send messages to exchanges, RabbitMQ routes those to queues, and we consume
+from the queues. The exchange is a new, extra layer... but it's still a pretty
+simple setup.
+
+Phew! Before we try to run our worker, let's upload 4 photos. Then.... if you
+look at the `messages` queue... and refresh.... there it is! It has 7 messages!
+
+## Consuming from the Queue
+
+As a reminder, we're sending `AddPonkaToImage` messages to `async_priority_high`
+and `ImagePostDeletedEvent` to `async`. The idea is that we can put different
+messages into different queues and then consume messages in the `async_priority_high`
+queue before consuming messages in the `async` queues. The problem is that...
+right now... everything is ending up in the *same*, *one* queue!
+
+Check this out - find your terminal and *only* consume from the `async` transport.
+This *should* cause *only* the `ImagePostDeletedEvent` messages to be consumed:
 
 ```terminal-silent
 php bin/console messenger:consume -vv async
 ```
 
-Yup, it does handle `ImagePostDeletedEvent`s.
+And... yup, it does handle a few `ImagePostDeletedEvent` objects. But if you keep
+watching... once it finishes those, it *does* start processing the `AddPonkaToImage`
+messages.
 
-But if we keep watching eventually you can see it actually finishes those and it
-starts with the `AddPonkaToImage`
+We have *such* a simple AMQP setup right now that we've introduced a bug into
+our app: our two transports are *actually* sending to the exact same queue...
+which kills our ability to consume them in a prioritized way. We'll fix that
+next by using *two* exchanges.
 
-so we have such a simple setup right now that we've actually introduced a bug into
-our application where our two types of transports are actually sending to the exact
-same place, uh, which kills our, um, our priority feature. So we need to fix that
-next. But if you look back over on Rabbit MQ Admin, it actually is pretty cool. You
-can see all the messages getting kind of consumed out of it. All right, so let's
-figure out what's going on with that, et Cetera, et cetera. Next.
+Oh, but if you flip back over to the RabbitMQ manager - you can see the all
+the messages being consumed. Cool stuff.
