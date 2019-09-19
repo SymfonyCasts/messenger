@@ -7,14 +7,14 @@ like normal and consume them with the `messenger:consume` command. That's awesom
 
 But I want to look a bit more at how this *works*... what's *actually* happening
 inside of RabbitMQ. Stop the worker... and then lets go delete a few images: one,
-two, three. This should have caused *three* new messages to be sent to RabbitMQ.
+two, three. This should have caused *three* new messages to be sent to Rabbit.
 
 When we were using the Doctrine transport, we could query a database table to see
-these. Can we do something similar with RabbitMQ. Yea...you can! RabbitMQ comes
+these. Can we do something similar with RabbitMQ? Yea... we can! RabbitMQ comes
 with a *lovely* tool called the RabbitMQ Manager. Click to jump into it.
 
-Aw yea, we've got data! And if we can learn what some of these terms mean... we
-can even make this data make sense!
+Aw yea, we've got data! And if we learn what some of these terms mean... this
+data will even start to make sense!
 
 ## Exchanges
 
@@ -29,19 +29,19 @@ You won't see the name of this exchange in our messenger config yet, but each
 transport that uses AMQP has an `exchange` option and it *defaults* to `messages`.
 See this "Type" column? Our exchange is a type called `fanout`. Click into this
 exchange to get more info... and open up "bindings". This exchange has a "binding"
-to a "queue" that's *also* called "messages".
+to a "queue" that's... by coincidence... *also* called "messages".
 
 ## Exchanges Send to Queues
 
 And *this* is where things can get a little confusing... but it's *really* a
 simple idea. The two main concepts in RabbitMQ are *exchanges* and *queues*.
 We're a lot more familiar with the idea of a queue. When we used the Doctrine
-transport type, our database table was basically the queue: it was a big list
+transport type, our database table was basically a queue: it was a big list
 of queued messages... and when we ran the worker, it read messages from that
-queue.
+list.
 
 In RabbitMQ, queues have the same role: queues hold messages and we *read*
-messages from queues. So then... where the heck to *exchanges* come into play?
+messages from queues. So then... what the heck do these *exchange* things do?
 
 The *key* difference between the Doctrine transport type and AMQP is that with
 AMQP you do *not* send a message directly to a queue. You can't say:
@@ -60,16 +60,16 @@ about that later. For now, this *whole* fancy setup means that *every* message
 will ultimately end up in a queue called `messages`.
 
 Let's click on the Queues link on top. Yep, we have exactly *one* queue: `messages`.
-And... hey! It has *3* messages "Ready" inside of it waiting for us to consume
+And... hey! It has *3* messages "Ready" inside of it, waiting for us to consume
 them!
 
 ## auto_setup Exchange & Queues
 
 By the way... who *created* the `messages` exchange and `messages` queue? Are
-they... just standard to RabbitMQ? RabbitMQ *does* come with some exchanges
+they... just standard to RabbitMQ? Rabbit *does* come with some exchanges
 out-of-the-box, but *these* were created by *our* app. Yep, like with the Doctrine
-transport-type, Messenger's AMQP transport has something called `auto_setup` that
-defaults to true. This means that it will detect if the exchange and queues it
+transport-type, Messenger's AMQP transport has an `auto_setup` option that
+defaults to true. This means that it will detect if the exchange and queue it
 needs exist, and if they're don't, it will automatically create them. Yep, Messenger
 took care of creating the exchange, creating the queue *and* tying them together
 with the exchange binding. Both the exchange name *and* queue name are options
@@ -88,15 +88,15 @@ to one or more queues based on some internal rules. Whoever is "sending" - or
 message will end up in. Once the message *is* in a queue... it just sits there..
 and waits!
 
-The second part of the equation is your "worker" - the thing thing *consumes*
+The second part of the equation is your "worker" - the thing that *consumes*
 messages. The worker is the *opposite* of the sender: it doesn't know *anything*
 about *exchanges*. It just says:
 
 > Hey! Give me the next message in the "messages" queue.
 
 We send messages to exchanges, RabbitMQ routes those to queues, and we consume
-from the queues. The exchange is a new, extra layer... but it's still a pretty
-simple setup.
+from those queues. The exchange is a new, extra layer... but the end-result is
+still pretty simple.
 
 Phew! Before we try to run our worker, let's upload 4 photos. Then.... if you
 look at the `messages` queue... and refresh.... there it is! It has 7 messages!
@@ -106,7 +106,7 @@ look at the `messages` queue... and refresh.... there it is! It has 7 messages!
 As a reminder, we're sending `AddPonkaToImage` messages to `async_priority_high`
 and `ImagePostDeletedEvent` to `async`. The idea is that we can put different
 messages into different queues and then consume messages in the `async_priority_high`
-queue before consuming messages in the `async` queues. The problem is that...
+queue before consuming messages in the `async` queue. The problem is that...
 right now... everything is ending up in the *same*, *one* queue!
 
 Check this out - find your terminal and *only* consume from the `async` transport.
@@ -120,10 +120,10 @@ And... yup, it does handle a few `ImagePostDeletedEvent` objects. But if you kee
 watching... once it finishes those, it *does* start processing the `AddPonkaToImage`
 messages.
 
-We have *such* a simple AMQP setup right now that we've introduced a bug into
-our app: our two transports are *actually* sending to the exact same queue...
-which kills our ability to consume them in a prioritized way. We'll fix that
-next by using *two* exchanges.
+We have *such* a simple AMQP setup right now that we've introduced a bug: our
+two transports are *actually* sending to the exact same queue... which kills
+our ability to consume them in a prioritized way. We'll fix that next by using
+*two* exchanges.
 
-Oh, but if you flip back over to the RabbitMQ manager - you can see the all
-the messages being consumed. Cool stuff.
+Oh, but if you flip back over to the RabbitMQ manager - you can see all the
+messages being consumed. Cool stuff.
