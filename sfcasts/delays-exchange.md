@@ -1,88 +1,105 @@
-# Delays Exchange
+# Delaying in AMQP: Dead Letter Exchange
 
-Coming soon...
+When we started working with AMQP, I told you to go into `ImagePostController` and
+remove the `DelayStamp`. Remember, this stamp is a way to tell the transport system
+to *wait* at least 500 milliseconds before allowing a worker to receive the message.
+Let's change this to 10 seconds - so `10000` milliseconds.
 
-When we started working with AMQP, I had you go into `ImagePostController` and
-remove the `DelayStamp`. Remember this tells the, uh, the, the, this tells your
-transport system to delay this message for `500` milliseconds before allowing a worker
-to receive it. Let's change this to 10 seconds. So `10000` at milliseconds. Then go
-over and make sure that your worker is not working currently. And let's go try this
-right now. You can see that our queues are both empty. So let's go over it.
+Then, move over to your terminal and make sure that your worker is *not* running.
+currently. Ok, let's go try this! Right now *both* queues are empty. We'll upload
+3 photos... then... quick, quick, quick! Go look at the queues. Suddenly, there's
+a new one with a strange name `delay_messages_high_priority__10000` with 3 messages
+in it. This queue has a *bunch* of features activated on it.
 
-upload 3 photos and quick go back, look at cues. And we have a new Hugh with a
-very strange name `delay_messages_high_priority__10000` with 3 messages
-in it and it has a whole bunch of features on it. And if you look inside of here, it
-actually looks like the messages were delivered here. Interesting. Well, but then
-look at that. They're gone. We had 3 cute messages and now they're gone. And
-suddenly,
+Let's look inside. Interesting, the messages were delivered *here*, instead of
+the normal queue. But then... they disappeared? The graph shows how the messages
+waiting in this queue went from 3 to 0. But... how? Our worker isn't even running.
 
-that queue is actually 404
+Woh! Now this page just 404'ed! The queue is gone! Something is attacking our queues!
 
-what?
+Head back to the queue list. Yea, that weird "delay queue *is* gone... oh, but
+now the three messages are in `messages_high`. What the heck just happened?
 
-And the messages are in `messages_high`. What the heck just happened? Well,
-first of all to prove that, uh, this all actually did work. If we consume from our
-`async_priority_high` and `async`, 
+Well first, to prove that the whole system *still* works... regardless of what
+craziness just happened... let's run our worker and consume from both the
+`async_priority_high` and `async` transports:
 
 ```terminal-silent
 php bin/console -vv async_priority_high async
 ```
 
-you can see it is actually consuming those
-messages messages right now and go over to the homepage and refresh and you can see
-yet Punka was added to those images. So delaying and delaying messages in, in Rabbit
-MQ is actually kind of tricky behind the scenes and it exposes some really cool,
-interesting features about how AMQP works.
+It consumes them and... then, when we move over, go to the homepage and refresh,
+yep! Ponka *was* added to those images.
 
-So first I'm going to go over and upload three more photos. Garver here, are you
-fresh? Once again, see that cue there and then I'm actually going to turn my wifi off
-because I don't want this page to suddenly disappear. I want to look at it cause it
-has some really interesting things. So as soon as you have a delay on your message,
-the first thing that happens that messenger does not send to the normal exchange
+## The Delay Exchange
 
-[inaudible]. Okay, cool. Cool, cool, cool, cool, cool.
+Ok, let's figure out what just happened. I mean, on the one hand, it's not important:
+if we had been running our worker the entire time, you would have seen that those
+messages *were* delayed by 10 seconds. *How* you delay messages in RabbitMQ is
+kinda crazy... but if you don't care about the details, Messenger just takes care
+of it for you.
 
-I'm going to go back and re up all those photos. Actually before we upload those
-photos, I want you to go do exchanges and notice there's a new one here called
-delays, and this is not a a a `fanout` anymore, and this is actually a `direct` type
-which we're gonna talk about. So the first thing to know is as soon as your message
-has a delay on it, instead of going to the correct exchange, it's actually sent to
-the delays exchange. And you'll see right now that this has temporarily hasn't no
-bindings on it to make this all easier to see. I'm actually going to temporarily make
-this delay even higher up to 60 seconds.
+I *do* want to see how this works... in part because it will expose us to some
+really cool AMQP features.
 
-All right, now let's go over and now let's upload 3 photos. Those are instantly
-going to be sent to the delay exchange. And if I refresh this page here, you can see
-it as a new binding that says if there's a routing key called 
-`delay_messages_high_priority__60000` then it's sent to this particular queue. A
-router key is a property that you can set on the message. When it's deliberate, it's
-a little flag that helps the exchange figure out where it's going to go. So all those
-messages were sent, messengers sent of that routing key, which means that it was sent
-it to this queue. Now this queue is really, really interesting because notice it has
-a couple of important properties here. First has an `x-message-ttl` of 60 seconds
-that actually says after a message has lived in here for 60 seconds, remove it from
-this queue, which seems crazy, right? Why would we want messages only to live for 60
-seconds? Well, it's by design because the second thing here, the `x-dead-letter-exchange`
-that is a fancy key that says if a message is removed from this queue
-because it was sitting here because it hit the TTL, you should actually send it to
-the message `messages_high_priority` exchange. So it's a little trick going to
-send messages to this queue, tell the messages in this queue to expire after 60
-seconds and after 60 seconds to send it to the correct exchange,
+Click on "Exchanges". Surprise! There's a *new* type of exchange called `delays`.
+And instead of `fanout` type like our other two exchanges, this is a `direct` type.
+We'll talk more about that that means soon.
 
-And Boom, you can see as soon as it does that the queue is actually marked as a temporary
-queue. So it actually sends those messages and deletes itself. Now if I click back on
-cues, those messages have been sent to the `messages_high`, exchange back to the messages
-IQ. And over here you can see it actually, uh, it actually consumed those. Wow.
-Right? So the key takeaway here is that, um, this, you don't really need to know and
-understand like how the delay is working behind the scenes. But this is a really nice
-way to see some of the, a kind of more advanced power AMQP and a couple of the
-properties that you can set when you're setting messages. The real star of this show
-just also was the first time that we saw an exchange that was not `fanout`, but was
-actually a `direct` and relied on routing keys to figure out what that this message
-should go to this queue. And this message. Did you go to the barbecue? You notice you
-can't see any bindings any more? Because I'm the, those delay cues are temporary. So
-as soon as at the lake, you have no messages in it, it deletes itself and it deletes
-the binding board to talk more about those routing, uh, routing keys and bindings.
-Um, next.
+But the *first* thing to know is that as soon as a delay is added to your message,
+instead of sending it to the "correct" exchange, Messenger will send that messages
+to this `delays` exchange. Right now, it has *no* bindings on it... but that will
+change when we send a delayed message.
 
-Okay.
+To make this all easier to see, let's temporarily increase the delay to 60 seconds.
+We're going to *really* see what happens with the messages now. Ok, upload 3 more
+photos. We *now* know that these were just *sent* to the `delays` exchange. And...
+check this out, if you refresh, it has a new binding that says:
+
+> If the message has a "routing key" called `delay_messages_high_priority__60000`,
+> then I will send the message to a queue that has the same name.
+
+A "routing key" is an extra property that you an set on a message when you're
+sending it to AMQP. Normally Messenger doesn't set *any* routing key, but when
+a message has a *delay* it *does*. And thanks to this binding - those three messages
+are sent to the `delay_messages_high_priority__60000` queue. This is how a `direct`
+exchange works: instead of sending each message to *all* queues bound to it, it
+uses the "binding key" rules to figure out which queue a message should go to.
+
+## Delay Queues: x-message-ttl and x-deal-letter-exchange
+
+Click into the queue because it's *super* interesting. It has a few important
+properties. The first is an `x-message-ttl` set to 60 seconds. What does that means?
+When you set this in a queue, it means that, after a message has been sitting in
+this queue for 60 seconds, RabbitMQ should remove it... which seems crazy, right?
+Why would we want messages to only live for 60 seconds and then be deleted? Well...
+it's by design and works together with this second important property:
+`x-dead-letter-exchange`.
+
+When a queue has this property, it tells Rabbit that when a message hits its 60
+second TTL and needs to be removed, it should *not* be deleted. Instead, it should
+be sent to the `messages_high_priority` exchange.
+
+So Messenger delivers messages to the `delays` exchange with a routing key that
+makes it get sent here, the message just sits for 60 seconds, then gets delivered
+to the right spot. And then... 404! Even the queue itself is marked as "temporary":
+once it doesn't have any messages left, it deletes itself.
+
+When you click back to see the Queues, the messages *were* delivered to
+the `messages_high` queue... but that's already empty because our worker consumed
+them.
+
+So... yea... wow! Whenever we delay a message, Messenger sets *all* of this up:
+it creates the temporary delay queue with the TTL and dead letter exchange settings,
+adds a binding to the `delays` exchange to route to this queue, then adds the
+correct routing key to the message to make sure it ends up in that queue.
+
+You may or may not need them, but you can start to see how *rich* the features
+are in AMQP. The most important feature we just saw was the `direct` transport
+type: the kind that rely on routing keys to figure out where each message should
+go.
+
+Next, could we use direct exchanges for our *non-delayed* message. Instead of
+two exchanges that each "fan out" to a different queue, could we create just
+*one* exchange that, by using routing keys, delivers the correct messages to
+the correct queues? Totally.

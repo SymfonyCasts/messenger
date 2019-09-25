@@ -38,6 +38,7 @@ chapters:
   - priority-exchange
   - delays-exchange
   - amqp-direct-routing
+  - dynamic-routing-key
   - sending-json
   - external-transport
   - transport-serializer
