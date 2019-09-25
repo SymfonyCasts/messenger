@@ -40,6 +40,7 @@ chapters:
   - amqp-direct-routing
   - dynamic-routing-key
   - sending-json
+  - serializer-headers-options
   - external-transport
   - transport-serializer
   - external-stamps
