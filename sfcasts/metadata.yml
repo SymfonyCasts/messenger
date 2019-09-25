@@ -40,6 +40,6 @@ chapters:
   - amqp-direct-routing
   - sending-json
   - external-transport
-  - transport-serializer # raw
-  - external-stamps     # raw
-  - serializer-classes  # raw
+  - transport-serializer
+  - external-stamps
+  - serializer-classes
