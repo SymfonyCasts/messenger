@@ -3,9 +3,9 @@
 The last option I want to mention *is* interesting... but can also be confusing.
 It's called `from_transport`.
 
-If you look at `messenger.yaml`, this `DeleteImagePost` is not being routed
+If you look at `messenger.yaml`, this `DeleteImagePost` isn't being routed
 anywhere, which means it's handled synchronously. Let's pretend that we want to
-handle it *asynchronously* and that we're routing it to the `async` transport.
+handle it *asynchronously*... and that we're routing it to the `async` transport.
 Set `from_transport` to `async`... then temporarily route this class to that
 transport in `messenger.yaml`.
 
@@ -18,15 +18,17 @@ this `from_transport` config yet, if you sent `DeleteImagePost` to the
 But what if you wanted to, sort of, send *one* handler of that message to
 *one* transport, maybe `async_priority_high`, and *another* handler to
 *another* transport. Well, in Messenger, you don't send "handlers"... you send
-messages... and when Messenger consumes those messages, it calls whatever handlers
-it needs to. But... this workflow *is* possible.
+messages... and when Messenger consumes a message, it calls *all* the handlers
+for that message. Does that mean it's impossible to make one handler of a message
+"high" priority and another one low? Nope! This workflow *is* possible.
 
 ## Route to Two Transports
 
 First, route `DeleteImagePost` to *both* the `async` and `async_priority_high`
 transports. If we *only* did this, the message would be sent to *both* transports,
 it would be consumed *two* times, and *every* handler would be called *twice*...
-which is totally *not* what we want.
+which is totally *not* what we want... unless each handler is baking cookies... or
+something.
 
 But when we add this `from_transport` option set to `async`, it means that this handler
 should *only* be called when a `DeleteImagePost` object is consumed *from* the
