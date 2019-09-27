@@ -1,4 +1,4 @@
-# Amqp with RabbitMQ
+# AMQP with RabbitMQ
 
 Open up your `.env` file and check out the `MESSENGER_TRANSPORT_DSN` setting.
 We've been using the doctrine transport type. The `doctrine://default` string
