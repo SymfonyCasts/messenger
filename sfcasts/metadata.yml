@@ -42,6 +42,7 @@ chapters:
   - sending-json
   - serializer-headers-options
   - external-transport
+  - custom-serializer
   - transport-serializer
   - external-stamps
   - serializer-classes

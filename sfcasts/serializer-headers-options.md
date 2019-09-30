@@ -10,16 +10,16 @@ Why did Messenger do this? Well, find your terminal and consume the `async` tran
 php bin/console messenger:consume -vv async
 ```
 
-This *still* works. Internally, the Symfony serializer used the info on the
-`headers` to figure out how to take this JSON and turn it into the correct
-object. It used the `type` header to know that the JSON should become an
+This *still* works. Internally, the Symfony serializer uses the info on the
+`headers` to figure out how to take this simple JSON string and turn it into the
+correct object. It used the `type` header to know that the JSON should become an
 `ImagePostDeletedEvent` object and then looped over the stamps and turned each
-of *those* back into stamp objects for the envelope.
+of *those* back into a stamp object for the envelope.
 
 The *really* nice thing about using the Symfony serializer in Messenger is that
-the `payload` is this simple, pure JSON structure that could be consumed by
+the `payload` is this simple, pure JSON structure that can be consumed by
 any application in any language. It *does* contain some PHP class info on the
-*headers*, but another app can just ignore that. But thanks to those headers,
+*headers*, but another app can just ignore that. But *thanks* to those headers,
 if the same app *does* both send and consume a message, the Symfony serializer
 can still be used.
 
@@ -30,9 +30,10 @@ can be consumed by external systems *or* by our same app - then why isn't it
 the default serializer in Messenger? An *excellent* question! The reason is
 that the Symfony serializer requires your classes to follow a few *rules* in
 order to be serialized and unserialized correctly - like each property needs a
-setter method or a constructor argument with the same name. If your class doesn't
-follow those rules, you could end up with a property that is set on the original
-object, but suddenly becomes null when it's read from the transport.
+setter method or a constructor argument where the name matches the property name.
+If your class doesn't follow those rules, you can end up with a property that is
+set on the original object, but suddenly becomes null when it's read from the
+transport. No fun.
 
 In other words, the PHP serializer is easier and more dependable when everything
 is done by the same app.
@@ -48,9 +49,9 @@ php bin/console config:dump framework messenger
 
 Check out that `symfony_serializer` key. *This* is where you configure the behavior
 of the serializer: the format - `json`, `xml` or something else, and the
-`context`, which is an array of options you can pass to the serializer.
+`context`, which is an array of options for the serializer.
 
 Of course, you can *also* create a totally *custom* serializer service. And if
 you have the *opposite* workflow to what we just described - one where your
 app *consumes* messages that were sent to Rabbit from some *other* system - a custom
-serializer is *exactly* what you'll need. Let's talk about that next.
+serializer is *exactly* what you need. Let's talk about that next.
