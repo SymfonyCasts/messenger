@@ -1,88 +1,105 @@
-# Consuming Messages From an External System
+# Transport for Consuming External Messages
 
-What if a queue on RabbitMQ was filled with messages that originated from an
-*external* system... and we wanted to consume and *handle* those from our Symfony
-App? For example, maybe a user can request that a photo be deleted from some
-totally different system, and that system needs to communicate back to our app
-so that it can actually *do* the deleting? How would that work?
+We've just created a new message class & handler, then instantiated it and dispatched
+it directly into the message bus. Yep, we just did something totally... boring!
+But... it's actually pretty similar to our *real* goal. Our *real* goal is to
+pretend that an *outside* system is putting messages into a RabbitMQ queue...
+probably formatted as JSON, and *we* will read those messages, transform that
+JSON into a `LogEmoji` object and... basically dispatch that through the message
+bus. It's really the same basic flow: we create a `LogEmoji` object and pass
+it to Messenger.
 
-Each transport in Messenger really has *two* jobs: one, to send messages to some
-message broker or queue system and two, to *receive* messages from that same
-system and handle them.
+## Creating a Dedicated Transport
 
-And, like we talked about in the last video, you don't need to use *both* features
-of a transport: you could choose to *send* to a transport, but never read and
-*consume* those messages because some other system will. Or, you can do the
-opposite: create a transport that you will *never* send to, but that you *will*
-use to *consume* messages... that were probably put there by some outside system.
-The *trick* is creating a serializer that can understand the *format* of those
-outside messages.
+The first step is to create a transport that will read these messages from whatever
+queue the outside system is placing them into. We'll keep the `async` and
+`async_priority_high` transports: we'll continue to send and receive from those.
+But now create a new one called, how about: `external_messages`. I'll use the same
+DSN because we're *still* consuming things from RabbitMQ. But for the options,
+instead of consuming messages from `message_high` or `messages_normal`, we'll
+consume them from whatever queue that outside system is using - let's pretend
+it's called `messages_from_externals`. Set that to just `~`.
 
-## Creating a new Message & Handler
+By the way, it *is* important that we use a *different* transport that reads from
+a *different* queue for these external messages. Why? Because, as you'll see in
+a minute, these external messages will need some special logic to decode them
+back into the correct object.
 
-Instead of over-explaining this, let's see it in action. First, pretend that
-some external system needs to be able to tell our app to do something... very...
-important: to log an Emoji. Ok, this may not be the *most* important part of our
-app, but the details of *what* this outside message is telling our app to do
-isn't important: it could be telling us to upload an image with details about
-where the file is located, delete an image, send an email to a registered user
-or log an emoji.
+Anyways, above this add `auto_setup: false`.
 
-Let's get this set up. Normally, if we wanted to dispatch a command to log an
-Emojie, we would start by creating a message class and message handler. In this
-case... we'll do the *exact* same thing. In the `Command/` directory, create a
-new PHP class called `LogEmoji`. Add a `public function __construct()`. In order
-to tell us *what* emoji to log, the outside system will send us an integer *index*
-of which emoji they want - our app will keep a list. So, add an `$emojiIndex`
-argument and then press Alt+Enter and select "Initialize Fields" to create that
-property and set it.
+Ok, there are a few important things happening here. The first is having this
+queue config means that when we *consume* from the `external_messages` transport,
+Messenger will read messages from a queue called `messages_from_external`. The
+second important thing is `auto_setup: false`. This tells Messenger *not* to
+try to create this queue. Why? Well... I guess our app *could* create that queue...
+that would probably be fine... but since we're expecting an external system to
+send messages to this queue, I'm guessing that *that* system will want to be
+responsible for making sure it actually exists.
 
-To make this property *readable* by the handler, go to the Code -> Generate menu -
-or Command + N on a Mac - select getters and generate `getEmojiIndex()`.
+Oh, and you probably also noticed that I didn't add any `exchange` config. That
+was on purpose. An exchange is only used when *sending* a message. And because
+we're not planning on ever sending a message through this transport, that part
+of the transport just won't ever be used.
 
-Brilliant! A *perfectly* boring, um, normal, message class. Step two: in the
-`MessageHandler/Command/` directory, create a new `LogEmojiHandler` class.
-Make this implement our normal `MessageHandlerInterface` and add
-`public function __invoke()` with the type-hint for the message: `LogEmoji $logEmoji`.
-
-Now... we get to work! I'll paste an emoji list on top: here are the five that
-the outside system can choose from: cookie, dinosaur, cheese, robot, and of course,
-poop. And then, because we're going to be logging something, add an `__construct()`
-method with the `LoggerInterface` type hint. Hit Alt + Enter and select
-"Initialize Fields" one more time to to create that property and set it.
-
-Inside `__invoke()`, our job is pretty simple. To get the emoji, set an
-`$index` variable to `$logEmoji->getEmojiIndex()`. Then
-`$emoji = self::emojis` - to reference that static property -
-`self::$emojis[$index] ?? self::emojis[0]`.
-
-In other words, *if* the index exists, use it. Otherwise, fallback to logging a
-cookie... cause... everyone loves cookies. Log with
-`$this->logger->info('Important message! ')`and then `$emoji`.
-
-The *big* takeaway from this new message and message handler is that it is
-absolutely *no* different from *any* other message or message handler. Messenger
-does *not* care whether the `LogEmoji` object will be dispatched manually in
-our app or put onto a queue by an outside system and consumed via a worker.
-
-To prove it, go up to `ImagePostsController`, find the `create()` method and,
-*just* to see make sure this is working, add:
-`$messageBus->dispatch(new LogEmoji(2))`.
-
-If this *is* working, we should see a message in our logs each time we upload
-a photo. Find your terminal: let's watch the logs with:
+So with *just* this, we should be able to consume from the new transport. Spin over
+to your terminal and run:
 
 ```terminal
-tail -f var/log/dev.log
+php bin/console messenger:consume -vv external_messages
 ```
 
-That's the log file for the `dev` environment. I'll clear my screen, then move
-over, select a photo and... move back. There it is:
+And... it explodes! This is awesome.
 
-> Important message! 🧀
+> Server channel error: 404, message: NOT_FOUND - no queue 'messages_from_external'
 
-I agree! That *is* important! This is cool... but not what we really want. What
-we *really* want to do is use a worker to consume a message from a queue - probably
-a JSON message - and *transform* that intelligently into a `LogEmoji` object so
-Messenger can handle that. How do we do that? With a dedicated transport and
-a customer serializer. Let's do that next!
+We're seeing our `auto_setup: false` in action! Instead of creating that queue
+when it didn't exist, it exploded. Love it!
+
+## Creating the Queue By Hand
+
+So now, let's pretend that we're that "external" system that we keep talking
+about. Copy the queue name - `messages_from_external` - and, inside the Rabbit
+Manager, create a new queue with that name. Don't won't about the options - they
+won't matter for us.
+
+And... hello queue! Let's go see if we can consume from it:
+
+```terminal-silent
+php bin/console messenger:consume -vv external_messages
+```
+
+It works! Well... there aren't any *messages* in the queue yet, but it's happily
+checking for them.
+
+## Putting an "External" Message into the queue
+
+Let's *continue* to pretend like we're that "external" system that will be sending
+messages to this queue. On the queue management screen, we can publish a message
+directly to this queue. Convenient!
+
+So... what will these messages look like? Well... they can *look* like anything:
+JSON, XML, ASCII art, a binary image - whatever we want. We'll just need to make
+sure that our Symfony app can *understand* the message - that's something we'll
+work on in a few minutes.
+
+Ok, so if an outside system wants to send our app a *command* to log an emoji...
+and it can choose *which* emoji with a number... then... maybe the message is
+JSON that looks like this: an `emoji` key set to 2:
+
+```json
+{
+  "emoji": 2
+}
+```
+
+Publish! Ok, go check the worker! Woh... it exploded! Cool!
+
+> Could not decode message using PHP serialization
+
+And then it shows our JSON. Of course! If you're consuming a message that was
+placed in the queue by an external system... that message *probably* won't be
+in the PHP serialized format... and it really *shouldn't* be. Nope, the message
+will probably be JSON or XML. The problem is that our transport is trying to
+transform that JSON into an object by using the default PHP serializer. When
+a transport consumes messages from an external system, it needs to have a
+*custom* serializer. Let's do that next.

@@ -41,8 +41,8 @@ chapters:
   - dynamic-routing-key
   - sending-json
   - serializer-headers-options
+  - external-message-handler
   - external-transport
-  - custom-serializer
   - transport-serializer
   - external-stamps
   - serializer-classes
