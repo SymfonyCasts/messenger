@@ -1,74 +1,6 @@
-# Serializer Classes
+# Mapping Messages to Classes in a Transport Serializer
 
 Coming soon...
-
-Thanks to our new `external_messages` transport. It reads messages from this queue
-that's being populated by some external application. We're taking this JSON and our
-`ExternalJsonMessengerSerializer` decoding that, creating the `LogEmoji` object, putting it
-into an envelope, even adding a stamp and ultimately returning it so that it can then
-be, uh, uh, synth back through the message bus system. This is looking great, but
-there are two improvements that I want to make first there. It's first, this could be
-a little air prone. We're not coding very defensively. For example, like if invalid,
-JSON said, let's check for that. If `null === $data`, then we'll say new message. We'll say
-throw `new MessageDecodingFailedException()` 
-
-> Invalid JSON 
-
-I'm going to show you why we're using this exact exception class in a second.
-But first let's try this and see what happens. So go over here and let's restart our
-workers so it sees their new code.
-
-```terminal-silent
-php bin/console messenger:consume -vv external_messages
-```
-
-Then we'll go over and we'll do the very annoying thing where we add a comment to
-JSON. Publish that message.
-
-Move over and exploded. Yep. Message Decoding Failed Invalid JSON now does notice
-one thing this actually killed our worker worker process stopped. So if you have a
-decoding failure, it actually kills your worker. That's not as big of a problem as
-you might think because on production your worker commands are going to need to run.
-Um, you're going to need some process like supervisor anyways to make sure that
-whenever your worker is killed, it's really started. So it's actually not that big of
-a deal. Uh, it's not a big deal when your worker is killed like this. So let's code
-something else defensively. Let's say, let's check for this `emoji` key. You know what,
-if we have a Typo in the Emoji keys missing, so if not `isset($data['emoji'])` this time
-that's actually throwing normal exception. Throw a `new \Exception()`. 
-
-> Missing the emoji key!
-
-All right, go over. Let's restart our worker. 
-
-```terminal-silent
-php bin/console messenger:consume -vv external_messages
-```
-
-Good. I'll take off my extra comma. And
-this time I'll say `emojis: 4` publish and cool. It exploded and the explosion looks
-almost the same as before. Just as different. It says Exception, Missing the emoji key!
-But this time tried to check this out. Try running it again. 
-
-```terminal-silent
-php bin/console messenger:consume -vv external_messages
-```
-
-It explodes. Missing the Emoji key. Run it again. 
-
-```terminal-silent
-php bin/console messenger:consume -vv external_messages
-```
-
-It explodes. Missing the Emoji key. This is the
-difference between throwing just a normal `Exception` inside of here versus this
-special `MessageDecodingFailedException`. When you throw a `MessageDecodingFailedException`
-it tells the, it says, I want to throw an exception, but I want to discard
-this message from the queue, which is important because if you don't discard message
-when your worker restarts, it's going to forever and ever and ever just choke on this
-same one message. So let's just change this to `MessageDecodingFailedException`. Now
-let me try it. It's going to explode the first time, but that now the 
-`MessageDecodingFailedException` removed it from the queue. So when you run it now it's just
-sitting there cause the queue is actually empty.
 
 All right. The other one thing I want to talk about is that right now our transport
 can only really handle this one type of message and that's because our serializers
@@ -97,9 +29,9 @@ we're not putting the class name or anything. We're just kind of putting a gener
 string that is understood as one. We're sending a uh, an Emoji type of a message.
 We'll put an Emoji type here. Now over here we can just check for that. So for
 example, first of all code defensively, if not `isset($headers['type'])` well that's there
-a new `MessageDecodingFailedException` and say 
+a new `MessageDecodingFailedException` and say
 
-> Missing "type" header 
+> Missing "type" header
 
 down here we'll do
 a good old fashioned switch case statement on headers type. We'll say that if the
@@ -110,7 +42,7 @@ then we will return `$this->createLogEmojiEnvelope()`. And down here you might h
 something else, like a delete photo and you'd have some other function that you call
 whatever other types of messages that you actually want. I'll come with those off for
 now. And then if you don't hit any of the cases, just to be extra safe down here or
-throw a new `MessageDecodingFailedException` and we'll pass 
+throw a new `MessageDecodingFailedException` and we'll pass
 
 > Invalid type "%s"
 
@@ -122,7 +54,7 @@ our logs. And if we somehow change this type to something else like `photo` and 
 that.
 
 then you're going to see that it still works out. Of course. Cause I need to restart
-my worker. 
+my worker.
 
 ```terminal-silent
 php bin/console messenger:consume -vv external_messages

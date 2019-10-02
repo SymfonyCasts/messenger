@@ -45,4 +45,5 @@ chapters:
   - external-transport
   - transport-serializer
   - external-stamps
+  - serializer-errors
   - serializer-classes
