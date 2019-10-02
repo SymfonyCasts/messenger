@@ -1,87 +1,108 @@
-# Transport Serializer
+# Custom Transport Serializer
 
-Coming soon...
+If an external system sends messages to a queue that we're going to read, those
+messages will probably be sent as JSON or XML. We added a message formatted as
+JSON. To read those, we set up a transport called `external_messages`. But when
+we consumed that JSON message... it exploded! Why? Because the *default* serializer
+for every transport is the `PhpSerializer`. Basically, it's trying to call
+`unserialize()` on our JSON. That's... not gonna work.
 
-If messages somehow get sent to our new messages from external queue, we're set
-from an external system, they're probably going to be sent as some JSON that looks
-something like this. We've set up a transport now called `external_messages`, but when
-we consume those messages, it explodes because by default a messenger uses a PHP
-serializer to actually take that data and turn it into objects.
+Nope, if you're consuming messages that came from from an external system, you're
+going to need a custom serializer for your transport. Creating a custom serializer
+is... actually a very pleasant experience.
 
-So if you're consuming from an external system, you're going to need a custom
-serializer on your transport, which actually is a really nice and easy thing to do.
-So inside of our app `Messenger/` directory though, this could go anywhere. Let's create
-a new PHP class called `ExternalJsonMessengerSerializer`. The only rule is that
-this needs to implement a `SerializerInterface`. Careful. There are two of them. One
-of them is from the serializer component. We want the one from the Messenger
-Component. I'll go to a "Code Generate" or Command + N. Go ahead "Implement Methods"
-and add the two that we need `decode()` in `encode()`. So this is very simple. When we send a
-message through a transport that uses this serializer
+## Creating the Custom Serializer Class
 
-The transport will pass us the envelope object that contains the message. And our job
-is to turn that into the, uh, into the final, um, uh, package that will be sent to
-the, um, that will be sent to the w that will actually be send to the transport.
-Notice this returns an array, but if you look at the serializer interface, um, that's
-because we actually return an array with a `body` key and a `headers` key. So it's up
-to us inside of `encode()` to turn it into the body and headers that we want ultimately
-sent to Rabbit MQ or doctrine or wherever. Of course, we're not gonna use this
-transport for sending. So instead in, in code, I'm gonna throw in an `Exception` that
-says 
+Inside of our `src/Messenger/` directory... though this class could live anywhere..
+let's create a new PHP class called `ExternalJsonMessengerSerializer`. The only
+rule is that this needs to implement a `SerializerInterface`. But, careful! There
+are *two* `SerializerInterface`: one is from the Serializer component. We want the
+*other* one: the one from the Messenger component. I'll go to a "Code Generate" menu -
+or Command + N on a Mac - and select "Implement Methods" to add the two that this
+interface requires: `decode()` and `encode()`.
+
+## The encode() Method
+
+The idea is beautifully simple: when we *send* a message through a transport that
+uses this serializer, the transport will call the `encode()` method and pass us
+the `Envelope` object that contains the message. And our job is to turn that into
+a string format that can be sent to the transport. Oh, well, notice that this returns
+an *array*. But if you look at the `SerializerInterface`, this method should return
+an array with two keys: `body` - the body of the message - and `headers` - any
+headers that should be sent.
+
+Nice, right? But... we're actually *never* going to *send* any messages through
+our external transport... so we don't need this method. To prove it will never
+be called, throw a new `Exception` with:
 
 > Transport & serializer not meant for sending message
 
-s just in case we do something silly and try to use it.
+That'll give us a gentle reminder in case we do something silly and route a message
+to a transport that uses this serializer.
 
-Now when you consume from a transport, it's going to take the it's gonna call the
-`decode()` message in. Our job here is to take the data that was being received from our
-transport and turn that back into an `Envelope` object. Now once again, I felt like at
-the `SerializerInterface`, and I'll tell you actually that this `$encodedEnvelope` is
-going to have a `body` key and a `headers` key. So the first thing I want to do inside of
-here is just say `$body = $encodedEnvelope['body']`, and then `$headers = $encodedenvelope['headers']`
-Now the body is going to be this JSON Body
-here. You notice there is a headers key. We're not using a app, so we'll talk about
-some headers and a little bit, but right now our headers are going to be empty and
-the headers are not going to be important [inaudible] so because this body will not
-be the JSON, our end goal is transported to actually turn this JSON into a `LogEmoji`
-object and then stick that into an envelope.
+## The decode() Method
 
-So we can make this very, very simple. We could say `$data = json_decode($body, true)`
-to turn it into an associate of array. And I'm not going to do any air checking
-at this point. I'm just gonna assume everything works. Now we can say 
-`$message = new LogEmoji($data['emoji'])` because that's the key that we've decided we're
-going to expect there to be on the JSON. Then finally we need to return an `Envelope`
-object and as a reminder, an envelope is just a small wrapper around some sort of
-message with some optional stamps. So down here we'll say return `new Envelope()`
+The method that *we* need to focus on is `decode()`. When a worker consumes a
+message from a transport, the transport calls `decode()`. Our job is to read
+the message from the queue and turn that into an `Envelope` object with the
+message object inside. If you check out the `SerializerInterface` one more time,
+you'll see that the argument we're passed - `$encodedEnvelope` - is really just
+an array with the same two keys we saw with `encode()`: `body` and `headers`.
 
-and inside of there we'll put our `$message` and that's it. This is a fully functional
-serializer used for a reading, things from a queue to make our transfer use that we
-already know that there's a `serializer` option that you can pass to each transport. So
-let's add serializer and we'll put the ID of our service, which is actually going to
-be the class name `App\Messenger\` and then I'll go copy the class name 
-`ExternalJsonMessengerSerializer`. This is actually why we created a separate transport
-with a separate queue because we're going to have this one transport and messages
-from this one queue. Go through our `ExternalJsonMessengerSerializer` but our other
-two transports `async` and `async_priority_high`. They're still gonna use the other s
-simpler PHP serealizer which is going to be perfect. All right, so let's try this.
-First thing I'm gonna do is go over to one of my open tabs and 
+Let's separate the pieces first: `$body = $encodedEnvelope['body']` and
+`$headers = $encodedenvelope['headers']`. The `$body` will be the raw JSON in
+the message. We'll talk about the headers later: it will be empty right now.
+
+## Turning JSON into the Envelope
+
+Ok, remember our goal here: to turn this JSON into a `LogEmoji` object and then
+put that into an `Envelope` object. How? Let's keep it simple! Start with
+`$data = json_decode($body, true)` to turn the JSON into an associative array.
+
+I'm not doing any error-checking yet... like to check that this is *valid* JSON -
+we'll do that a bit later. Now say: `$message = new LogEmoji($data['emoji'])`
+because `emojie` is the key in the JSON that we've decided will hold the emoji
+index.
+
+Finally, we need to return an `Envelope` object. As a reminder, an `Envelope` is
+just a small wrapper *around* the message itself, and might also hold some stamps.
+At the bottom, return `new Envelope()` and put the `$message` inside.
+
+## Configuring the Serializer on the Transport
+
+Done! We rock! This is already a *fully* functional serializer that can *read*
+objects from a queue. But our transport won't just start "magically" using it:
+we need to configure that. And.. we already know how! We learned earlier that
+each transport can have a `serializer` option. Below the external transport, add
+`serializer` and set this to the *id* of our service, which is the same as the
+class name: `App\Messenger\`... and then I'll go copy the class name:
+`ExternalJsonMessengerSerializer`.
+
+*This* is why we created a separate transport with a separate queue: we *only*
+want the external messages to use our `ExternalJsonMessengerSerializer`. The other
+two transports - `async` and `async_priority_high` - will still use the simpler
+PhpSereilizer... which is *perfect*.
+
+Ok, let's try this! First, find an open terminal and tail the logs:
 
 ```terminal
 tail -f var/log/dev.log
 ```
 
-and I'll clear the screen.
-
-And then over here and my other thing I'm going to consume from the `external_messages`
-transport. 
+And I'll clear the screen. Then, in my other terminal, I'll consume messages
+from the `external_messages` transport:
 
 ```terminal-silent
 php bin/console messenger:consume -vv external_messages
 ```
 
-Perfect. So there's no messages yet. So it's just waiting. And what we're
-hoping is that when we send this, uh, publish this message to our transport, it will
-be consumed by our worker and that will cause a log message to be displayed. So let's
-try it. Publish and let's move over. There it is. We got an important message.
-Cheese, you can see, receive the message and it handled it down here you can see. So
-that is the key to reading things from an external transport. There were a couple of
-other details to top out and we'll talk about those next.
+Perfect! There are no messages yet... so it's just waiting. But we're *hoping*
+that when we publish this message to the queue, it will be consumed by our worker,
+decoded correctly, and that an emoji will be logged! Ah, ok - let's try it. Publish!
+Then move back to the terminal.... there it is! We got an important message:
+cheese: it received the message and handled it down here.
+
+So... we did it! But... when we created the `Envelope`, we didn't put any stamps
+into it. Should we have? Does a message that goes through the "normal" flow have
+some stamps on it that we should include? Let's dive into the workflow of a message
+and its *stamps*, next.
