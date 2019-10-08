@@ -3,9 +3,9 @@
 We've written our transport serializer to *always* expect only *one* type of message
 to be put into the queue: a message that tells our app to "log an emoji". Your
 app *might* be that simple, but it's more likely that this "external" system might
-send 5 or 10 different types of messages. In that case, our serializer needs to
-detect which *type* of message this is and then turn it into one of 10 different
-message classes.
+send 5 or 10 different *types* of messages. In that case, our serializer needs to
+detect which *type* of message this is and then turn it into the correct
+message *object*.
 
 How can we do that? How can we figure out which *one* type of message this is?
 Do we... just look at what fields the JSON has? We *could*... but we can also
@@ -14,17 +14,17 @@ do something smarter.
 ## Refactoring to a switch
 
 Let's start by reorganizing this class a bit. Select the code at the bottom of
-this method - the stuff related to the `LogEmoji` object and then go to the
-Refactor -> Refactor this menu, which is Ctrl+T on a Mac. Refactor this code
+this method - the stuff related to the `LogEmoji` object - and then go to the
+Refactor -> "Refactor This" menu, which is Ctrl+T on a Mac. Refactor this code
 to a method called `createLogEmojiEnvelope`.
 
 Cool! That created a private function down here with that code. I'll add an
-`array` type-hint. Back in `decode()`, we're already calling this method. So,
+`array` type-hint. Back in `decode()`, we're already calling this method. So, no
 big change.
 
 ## Using Headers for the Type
 
-So, the *key* question is: if multiple *types* of messages are being added to the
+The *key* question is: if multiple *types* of messages are being added to the
 queue, how can the serializer determine which *type* of message this is? Well,
 we could add maybe a `type` key to the JSON itself. That might be fine. But, there's
 *another* spot on the message that can hold data: the *headers*. These work a lot
@@ -44,12 +44,12 @@ with:
 > Missing "type" header
 
 Then, down here, we'll use a good, old-fashioned switch case statement on
-`$headers['type']`. If this is set to `emoji`, then return
+`$headers['type']`. If this is set to `emoji`, return
 `$this->createLogEmojiEnvelope()`.
 
 After this, you would add any other "types" that the external system publishes,
 like `delete_photo`. In those cases you would instantiate a *different* message
-object and return it. And, if some unexpected "type" is passed, let's throw a
+object and return that. And, if some unexpected "type" is passed, let's throw a
 new `MessageDecodingFailedException` with
 
 > Invalid type "%s"
@@ -63,22 +63,22 @@ php bin/console messenger:consume -vv external_messages
 ```
 
 Back in the Rabbit manager, I'll change the `emojis` key back to `emoji` and...
-publish! Over in the terminal... sweet! It worked! Now change the `type` header
+publish! In the terminal... sweet! It worked! Now change the `type` header
 to something we don't support, like `photo`. Publish and... yea! An exception
 killed our worker:
 
 > Invalid type "photo".
 
-Ok friends... yea... that's it! Woh, congrats on making it to the end! I hope
+Ok friends... yea... that's it! Congrats on making it to the end! I hope
 you enjoyed the ride as much as I did! I mean, handling messages asynchronously...
-that's pretty fun stuff. The *great* thing about Messenger is that it works great
+that's pretty fun stuff. The *great* thing about Messenger is that it works brilliantly
 out of the box with a *single* message bus and the Doctrine transport. Or, you
 can go *crazy*: create multiple transports, send things to RabbitMQ, create custom
 exchanges with binding keys or use your own serializer to... well... basically
-do *whatever* you want. The power... it's.. intoxicating!
+do *whatever* you want. The power... it's... intoxicating!
 
-So, start writing some crazy handler code and then... handle it later! Let us know
-what you're building. And as always, if you have some questions, we're there for
-you in the comments.
+So, start writing some crazy handler code and then... handle that work later! And
+let us know what you're building. As always, if you have some questions, we're there
+for you in the comments.
 
 Alright friends, seeya next time!
