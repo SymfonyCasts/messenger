@@ -95,7 +95,7 @@ tells Messenger:
 
 But... did Messenger *send* the message with that routing key? Until now, other
 than the delay stuff, Messenger has been delivering our messages to AMQP with
-*no* routing key. The `default_published_routing_key` config changes that. It
+*no* routing key. The `default_publish_routing_key` config changes that. It
 says:
 
 > Hey! Whenever a message is routed to the `async` transport, I want
