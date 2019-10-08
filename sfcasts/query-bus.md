@@ -13,6 +13,8 @@ In `config/packages/messenger.yaml` we have `command.bus` and `event.bus`. Let's
 add `query.bus`. I'll keep things simple and just set this to `~` to get the
 default settings.
 
+[[[ code('602f5d0add') ]]]
+
 ## What is a Query?
 
 Ok: so what *is* the point of a "query bus"? We understand the purpose of commands:
@@ -42,25 +44,33 @@ Even that *name* sounds like a query instead of a command: I want to get the
 total image count. And... in this case, we can leave the query class blank: we
 won't need to pass any extra data to the handler.
 
+[[[ code('e1efceb84f') ]]]
+
 Next, inside of `MessageHandler/`, do the same thing: add a `Query/` subdirectory
 and then a new class called `GetTotalImageCountHandler`. And like with *everything*
 else, make this implement `MessageHandlerInterface` and create
 `public function __invoke()` with an argument type-hinted with the message class:
 `GetTotalImageCount $getTotalImageCount`.
 
+[[[ code('a8fd7e470f') ]]]
+
 What do we do inside of here? Find the image count! Probably by injecting the
 `ImagePostRepository`, executing a query and then *returning* that value. I'll
 leave the querying part to you and just `return 50`.
+
+[[[ code('05c61ac5b9') ]]]
 
 But hold on a second... cause we just did something *totally* new! We're returning
 a value from our handler! This is *not* something that we've done *anywhere* else.
 Commands do work but *don't* return any value. A query doesn't really do any work,
 its *only* point is to return a value.
 
-Before we dispatch the query, open up `config/packages/services.yaml` so we can
+Before we dispatch the query, open up `config/services.yaml` so we can
 do our same trick of binding each handler to the correct bus. Copy the `Event\`
 section, paste, change `Event` to `Query` in both places... then set the bus
 to `query.bus`.
+
+[[[ code('b31927d4b4') ]]]
 
 Love it! Let's check our work by running:
 
@@ -89,6 +99,8 @@ with *any* argument name. To get the query bus, we need to use that type-hint
 Do that: `MessageBusInterface $queryBus`. Inside the function, say
 `$envelope = $queryBus->dispatch(new GetTotalImageCount())`.
 
+[[[ code('6dc6de5e59') ]]]
+
 ## Fetching the Returned Value
 
 We haven't used it too much, but the `dispatch()` method *returns* the final
@@ -104,14 +116,23 @@ Anyways, once a message is handled, Messenger automatically adds a stamp called
 `HandledStamp::class`. I'll add some inline documentation above that to tell my
 editor that this will be a `HandledStamp` instance.
 
+[[[ code('dcca333caf') ]]]
+
 So... why did we get this stamp? Well, we need to know what the *return* value of
 our handler was. And, conveniently, Messenger stores that on this stamp! Get it
 with `$imageCount = $handled->getResult()`.
 
-Let's pass that into the template as an `imageCount` variable.... and then in the
-template - `templates/main/homepage.html.twig` - because our entire frontend is
-built in Vue.js, let's override the `title` block on the page and use it there:
-`Ponka'd {{ imageCount }} Photos`.
+[[[ code('e73f919b50') ]]]
+
+Let's pass that into the template as an `imageCount` variable.... 
+
+[[[ code('f7358992be') ]]]
+
+and then in the template - `templates/main/homepage.html.twig` - because our 
+entire frontend is built in Vue.js, let's override the `title` block on the 
+page and use it there: `Ponka'd {{ imageCount }} Photos`.
+
+[[[ code('ab2c848ae8') ]]]
 
 Let's check it out! Move over, refresh and... it works! We've Ponka's 50 photos...
 at least according to our hardcoded logic.
