@@ -51,6 +51,8 @@ is linked to its handler... including some extra config.
 How? Instead of implementing `MessageHandlerInterface`, implement
 `MessageSubscriberInterface`.
 
+[[[ code('09d6bf3c0e') ]]]
+
 This is less of a huge change than it may seem. If you open up
 `MessageSubscriberInterface`, it *extends* `MessageHandlerInterface`. So, we're
 still *effectively* implementing the same interface... but now we're forced to
@@ -65,11 +67,15 @@ class this should handle, Symfony will call this method. Our job here? Tell
 it *exactly* which classes we handle, which method to call and... some *other* fun
 stuff!
 
+[[[ code('9dc404486a') ]]]
+
 ## Message Handling Config
 
 The easiest thing you can put here is `yield DeleteImagePost::class`. Don't
 over-think that yield... it's just syntax sugar. You could also return an array
 with a `DeleteImagePost::class` string inside.
+
+[[[ code('0ac50455c8') ]]]
 
 What difference did that make? Go back and run `debug:messenger`.
 
@@ -99,9 +105,14 @@ say `'method' => '__invoke'`. Yep, we can now *control* which method Messenger
 will call. That's especially useful if you decide that you want to add *another*
 yield to handle a *second* message... and want Messenger to call a *different* method.
 
+[[[ code('8fdab60f6b') ]]]
+
 ## Handler Priority
 
 What else can we put here? One option is `priority` - let's set it to... 10.
+
+[[[ code('1d6175bba9') ]]]
+
 This option is... much less interesting than it might look like at first.
 We talked earlier about priority transports: in `config/packages/messenger.yaml`
 we created *two* transport - `async` & `async_priority_high` - and we route
