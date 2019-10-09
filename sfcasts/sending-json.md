@@ -1,4 +1,4 @@
-# Serializing to Messages JSON
+# Serializing Messages as JSON
 
 Once you start using RabbitMQ, a totally different workflow becomes possible...
 a workflow that's *especially* common with bigger systems. The idea is that the
