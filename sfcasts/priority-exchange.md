@@ -69,6 +69,8 @@ Let's configure this inside of `messenger.yaml`. Under `options` add `exchange`
 then `name` set to, how about, `messages_high_priority`. Below this, add
 `queues` with just one key below: `messages_high` set to `null`.
 
+[[[ code('121cf747af') ]]]
+
 This config has *three* effects. First, because we have the `auto_setup` feature
 enabled, the first time we talk to RabbitMQ, Messenger will create the
 `messages_high_priority` exchange, the `messages_high` queue *and* bind them together.
