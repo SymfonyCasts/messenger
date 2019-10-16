@@ -3,6 +3,8 @@
 Let's change this delay back to one second... so we're not waiting all day for our
 photos to be processed.
 
+[[[ code('cd12692aea') ]]]
+
 ## Simple Setup: 1 Fanout Exchange per Queue
 
 In `messenger.yaml`, the messages sent to each transport - `async` and
@@ -40,13 +42,19 @@ transport, add `options`, then `exchange`, and set `name` to `messages`. If we
 stopped here, this would change *nothing*: this is the default exchange name
 in Messenger.
 
+[[[ code('ac1475fe07') ]]]
+
 But now, add a `type` key set to `direct`. This *does* change things: the default
 value is `fanout`. Add one more key below this: `default_publish_routing_key`
 set to `normal`.
 
+[[[ code('343ffab36d') ]]]
+
 I'll talk about that in a second. Next, add a `queues` section. Let's "bind" this
 exchange to a queue called `messages_normal`. But we won't stop there! Under this,
 add `binding_keys` set to `[normal]`.
+
+[[[ code('5eb3bee106') ]]]
 
 That word `normal` could be *any* string. But it's no accident that this matches
 what we set for `default_publish_routing_key`.
