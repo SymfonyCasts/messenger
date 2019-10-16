@@ -12,6 +12,8 @@ Below, for the `messages_high` queue, this tells Messenger that we want this que
 to be created and bound to the exchange. That's cool, but we *now* need that binding
 to have a routing key. Set `binding_keys` to `[high]`.
 
+[[[ code('1528a0f27c') ]]]
+
 How can we trigger Messenger to create that new queue and add the new binding? Just
 perform *any* operation that uses this transport... like uploading a photo! Ok,
 go check out the RabbitMQ manager - start with Exchanges.
@@ -71,6 +73,8 @@ the message. After the `DelayStamp`, add a new `AmqpStamp` - but be careful not
 to choose `AmqpReceivedStamp` - that's something different... and isn't useful
 for us. This stamp accepts a few arguments and the first one - gasp! - is the
 routing key to use! Pass this `normal`.
+
+[[[ code('d1e8c4baab') ]]]
 
 Let's try it! Stop the worker so we can see what happens internally. Then, upload
 a photo, go to the RabbitMQ manager, click on queues... refresh until you see
