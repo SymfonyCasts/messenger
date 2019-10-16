@@ -65,6 +65,8 @@ for dispatching the `AddPonkaToImage` command. It *also* adds a 500 millisecond
 delay via this stamp. Comment that out for now... I'll show you *why* we're doing
 this a bit later.
 
+[[[ code('c67362577c') ]]]
+
 ## The AMQP PHP Extension
 
 Ok! Other than removing that delay, *all* we've done is swap our transport config
