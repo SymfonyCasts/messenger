@@ -6,8 +6,11 @@ It's called `from_transport`.
 If you look at `messenger.yaml`, this `DeleteImagePost` isn't being routed
 anywhere, which means it's handled synchronously. Let's pretend that we want to
 handle it *asynchronously*... and that we're routing it to the `async` transport.
-Set `from_transport` to `async`... then temporarily route this class to that
-transport in `messenger.yaml`.
+Set `from_transport` to `async`... 
+
+[[[ code('a5ba58b0a5') ]]]
+
+then temporarily route this class to that transport in `messenger.yaml`.
 
 Now, pretend that the `DeleteImagePost` message actually has *two* handlers...
 something that's very possible for events. Assuming that we did *not* add
@@ -25,7 +28,11 @@ for that message. Does that mean it's impossible to make one handler of a messag
 ## Route to Two Transports
 
 First, route `DeleteImagePost` to *both* the `async` and `async_priority_high`
-transports. If we *only* did this, the message would be sent to *both* transports,
+transports. 
+
+[[[ code('3fb5eeef3c') ]]]
+
+If we *only* did this, the message would be sent to *both* transports,
 it would be consumed *two* times, and *every* handler would be called *twice*...
 which is totally *not* what we want... unless each handler is baking cookies... or
 something.
@@ -43,6 +50,8 @@ to be queued and executed by workers independently of each other. It's a
 *messages* to transports, over-using this *can* be confusing.
 
 Let's comment that out and remove the routing config.
+
+[[[ code('194442abf3') ]]]
 
 That's basically it for the options you can pass here... though you can always
 check `MessageSubscriberInterface`: it talks about what's available.
