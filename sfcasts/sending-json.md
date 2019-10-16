@@ -60,6 +60,8 @@ the queue one more time. Move over and open `config/packages/messenger.yaml`.
 One of the keys that you're allowed to have below each transport is called
 `serializer`. Set this to a special string: `messenger.transport.symfony_serializer`.
 
+[[[ code('627715a70b') ]]]
+
 When a message is sent to a transport - whether that's Doctrine, AMQP or something
 else - it uses a "serializer" to *encode* that message into a string format
 that can be sent. Later, when it *reads* a message from a transport, it uses that
