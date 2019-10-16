@@ -5,6 +5,8 @@ remove the `DelayStamp`. This stamp is a way to tell the transport system to
 *wait* at least 500 milliseconds before allowing a worker to receive the message.
 Let's change this to 10 seconds - so `10000` milliseconds.
 
+[[[ code('0eff211920') ]]]
+
 Now, move over to your terminal and make sure that your worker is *not* running.
 
 Ok, let's see what happens! Right now *both* queues are empty. I'll upload
@@ -53,6 +55,9 @@ be delayed, it sends it to *this* exchange *instead* of sending it to the normal
 but that will change when we send a delayed message.
 
 To be able to *really* see what's happening, let's increase the delay to 60 seconds.
+
+[[[ code('465e79bf29') ]]]
+
 Ok, upload 3 more photos: we *now* know that these were just *sent* to the `delays`
 exchange. And... if you refresh that exchange... it has a new binding! This says:
 
