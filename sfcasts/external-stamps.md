@@ -15,6 +15,8 @@ Let's see what that looks like: `dump()` that whole `$messageBus->dispatch()` li
 Now, move over and upload a photo. Once that's done, find that request on the
 web debug toolbar... and open the profiler.
 
+[[[ code('58d6cd358b') ]]]
+
 ## The Envelope & Stamps after Dispatching
 
 Perfect! You can see that the *final* `Envelope` has the original message object
@@ -118,6 +120,8 @@ and because this *one* message is a command, we'll want to put the command bus
 here. Copy the `command.bus` bus name and paste. I'll add a comment that says that
 this is *technically* only needed if you need the message to be sent through a
 non-default bus.
+
+[[[ code('00dceb24cd') ]]]
 
 Next, our serializer is great, but we didn't code very defensively. What would
 happen if the message contained invalid JSON... or was missing the `emoji` field?
