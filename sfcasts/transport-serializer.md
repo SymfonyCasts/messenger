@@ -21,6 +21,8 @@ are *two* `SerializerInterface`: one is from the Serializer component. We want t
 menu - or Command + N on a Mac - and select "Implement Methods" to add the two that
 this interface requires: `decode()` and `encode()`.
 
+[[[ code('dbcb2ac20c') ]]]
+
 ## The encode() Method
 
 The idea is beautifully simple: when we *send* a message through a transport that
@@ -36,6 +38,8 @@ our external transport... so we don't need this method. To prove that it will ne
 be called, throw a new `Exception` with:
 
 > Transport & serializer not meant for sending messages
+
+[[[ code('105fea8568') ]]]
 
 That'll give me a gentle reminder in case I do something silly and route a message
 to a transport that uses this serializer by accident.
@@ -54,19 +58,27 @@ Let's separate the pieces first: `$body = $encodedEnvelope['body']` and
 `$headers = $encodedEnvelope['headers']`. The `$body` will be the raw JSON in
 the message. We'll talk about the headers later: it's empty right now.
 
+[[[ code('edfb7589bd') ]]]
+
 ## Turning JSON into the Envelope
 
 Ok, remember our goal here: to turn this JSON into a `LogEmoji` object and then
 put that into an `Envelope` object. How? Let's keep it simple! Start with
 `$data = json_decode($body, true)` to turn the JSON into an associative array.
 
+[[[ code('f3d4436b47') ]]]
+
 I'm not doing any error-checking yet... like to check that this is *valid* JSON -
 we'll do that a bit later. Now say: `$message = new LogEmoji($data['emoji'])`
 because `emoji` is the key in the JSON that we've decided will hold the `$emojiIndex`.
 
+[[[ code('940d706826') ]]]
+
 Finally, we need to return an `Envelope` object. Remember: an `Envelope` is
 just a small wrapper *around* the message itself... and it might also hold some
 stamps. At the bottom, return `new Envelope()` and put `$message` inside.
+
+[[[ code('7c95c26179') ]]]
 
 ## Configuring the Serializer on the Transport
 
@@ -77,6 +89,8 @@ each transport can have a `serializer` option. Below the external transport, add
 `serializer` and set this to the *id* of our service, which is the same as the
 class name: `App\Messenger\`... and then I'll go copy the class name:
 `ExternalJsonMessengerSerializer`.
+
+[[[ code('5f97551e8f') ]]]
 
 *This* is why we created a separate transport with a separate queue: we *only*
 want the *external* messages to use our `ExternalJsonMessengerSerializer`. The other
