@@ -18,9 +18,13 @@ this method - the stuff related to the `LogEmoji` object - and then go to the
 Refactor -> "Refactor This" menu, which is Ctrl+T on a Mac. Refactor this code
 to a method called `createLogEmojiEnvelope`.
 
+[[[ code('6d7aa90802') ]]]
+
 Cool! That created a private function down here with that code. I'll add an
 `array` type-hint. Back in `decode()`, we're already calling this method. So, no
 big change.
+
+[[[ code('77b1b16602') ]]]
 
 ## Using Headers for the Type
 
@@ -43,9 +47,13 @@ with:
 
 > Missing "type" header
 
+[[[ code('851d7d57c9') ]]]
+
 Then, down here, we'll use a good, old-fashioned switch case statement on
 `$headers['type']`. If this is set to `emoji`, return
 `$this->createLogEmojiEnvelope()`.
+
+[[[ code('8bba5f6b42') ]]]
 
 After this, you would add any other "types" that the external system publishes,
 like `delete_photo`. In those cases you would instantiate a *different* message
@@ -55,6 +63,8 @@ new `MessageDecodingFailedException` with
 > Invalid type "%s"
 
 passing `$headers['type']` as the wildcard.
+
+[[[ code('7e80acceae') ]]]
 
 Kinda cool, right? Let's go stop our worker, then restart it so it sees our new code:
 
