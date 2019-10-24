@@ -14,6 +14,8 @@ haven't been coding very defensively. For example, what if, for some reason,
 the message contains invalid JSON? Let's check for that: if `null === $data`, then
 throw a `new MessageDecodingFailedException('Invalid JSON')`
 
+[[[ code('3e129a0740') ]]]
+
 I'll show you why we're using this *exact* exception class in a minute. But let's
 try this with some invalid JSON and... see what happens. Go restart the worker
 so it sees our new code:
@@ -37,6 +39,8 @@ using something like supervisor that will *restart* the process when it dies.
 Let's add code to check for a *different* possible problem: let's check to
 see if this `emoji` key is missing: if not `isset($data['emoji'])`, this time
 throw a *normal* exception: `throw new \Exception('Missing the emoji key!')`.
+
+[[[ code('4266ab41a8') ]]]
 
 Ok, move over and restart the worker:
 
@@ -78,6 +82,8 @@ worker restarts, it will fail on that *same* message... over-and-over again...
 forever. Any *new* messages will start piling up *behind* it in the queue.
 
 So let's change the `Exception` to `MessageDecodingFailedException`. Try it now:
+
+[[[ code('f339b1ef8b') ]]]
 
 ```terminal-silent
 php bin/console messenger:consume -vv external_messages
