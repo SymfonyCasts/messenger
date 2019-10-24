@@ -31,34 +31,56 @@ or, log an emoji!
 Let's get this set up. Normally, if *we* wanted to dispatch a command to log an
 Emoji, we would start by creating a message class and message handler. In this
 case... we'll do the *exact* same thing. In the `Command/` directory, create a
-new PHP class called `LogEmoji`. Add a `public function __construct()`. In order
-to tell us *which* emoji to log, the outside system will send us an integer *index*
-of the emoji they want - our app will have a list of emojis. So, add an `$emojiIndex`
-argument and then press Alt+Enter and select "Initialize Fields" to create that
-property and set it.
+new PHP class called `LogEmoji`. 
+
+[[[ code('a58117d08f') ]]]
+
+Add a `public function __construct()`. In order to tell us *which* emoji to log, 
+the outside system will send us an integer *index* of the emoji they want - our app 
+will have a list of emojis. So, add an `$emojiIndex` argument and then press Alt+Enter 
+and select "Initialize Fields" to create that property and set it.
+
+[[[ code('7f74b29e94') ]]]
 
 To make this property *readable* by the handler, go to the Code -> Generate menu -
 or Command + N on a Mac - select getters and generate `getEmojiIndex()`.
+
+[[[ code('018a56280b') ]]]
 
 Brilliant! A *perfectly* boring, um, normal, message class. Step two: in the
 `MessageHandler/Command/` directory, create a new `LogEmojiHandler` class.
 Make this implement our normal `MessageHandlerInterface` and add
 `public function __invoke()` with the type-hint for the message: `LogEmoji $logEmoji`.
 
+[[[ code('b8027c7613') ]]]
+
 Now... we get to work! I'll paste an emoji list on top: here are the five that
 the outside system can choose from: cookie, dinosaur, cheese, robot, and of course,
-poop. And then, because we're going to be logging something, add an `__construct()`
+poop. 
+
+[[[ code('d208be46b1') ]]]
+
+And then, because we're going to be logging something, add an `__construct()`
 method with the `LoggerInterface` type hint. Hit Alt + Enter and select
 "Initialize Fields" one more time to create *that* property and set it.
 
+[[[ code('5fc4f8d7fb') ]]]
+
 Inside `__invoke()`, our job is pretty simple. To get the emoji, set an
-`$index` variable to `$logEmoji->getEmojiIndex()`. Then
-`$emoji = self::$emojis` - to reference that static property -
+`$index` variable to `$logEmoji->getEmojiIndex()`. 
+
+[[[ code('cb646db087') ]]]
+
+Then `$emoji = self::$emojis` - to reference that static property -
 `self::$emojis[$index] ?? self::emojis[0]`.
+
+[[[ code('294d01d24f') ]]]
 
 In other words, *if* the index exists, use it. Otherwise, fallback to logging a
 cookie... cause... everyone loves cookies. Log with
 `$this->logger->info('Important message! ')`and then `$emoji`.
+
+[[[ code('9a1987843c') ]]]
 
 The *big* takeaway from this new message and message handler is that it is, well,
 absolutely *no* different from *any* other message and message handler! Messenger
@@ -69,6 +91,8 @@ will get mapped to this class.
 To prove it, go up to `ImagePostController`, find the `create()` method and,
 *just* to see make sure this is working, add:
 `$messageBus->dispatch(new LogEmoji(2))`.
+
+[[[ code('e9560eb72c') ]]]
 
 If this *is* working, we should see a message in our logs each time we upload
 a photo. Find your terminal: let's watch the logs with:
