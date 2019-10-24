@@ -9,6 +9,8 @@ JSON into a `LogEmoji` object and... basically dispatch that through the message
 bus. It's really the same basic flow: in both cases, we create a `LogEmoji`
 object and pass it to Messenger.
 
+[[[ code('c0f66b6018') ]]]
+
 ## Creating a Dedicated Transport
 
 The first step is to create a transport that will read these messages from whatever
@@ -20,12 +22,16 @@ instead of consuming messages from `message_high` or `messages_normal`, we'll
 consume them from whatever queue that outside system is using - let's pretend
 it's called `messages_from_external`. Set that to just `~`.
 
+[[[ code('d277b49b2c') ]]]
+
 By the way, it *is* important that we use a *different* transport that reads from
 a *different* queue for these external messages. Why? Because, as you'll see in
 a few minutes, these external messages will need special logic to decode them
 back into the correct object. We'll attach that special logic to the transport.
 
 Anyways, above this add `auto_setup: false`.
+
+[[[ code('f12cb59a03') ]]]
 
 Ok, there are a few important things happening here. The first is that this
 queue config means that when we *consume* from the `external_messages` transport,
