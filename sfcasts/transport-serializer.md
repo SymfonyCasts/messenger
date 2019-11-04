@@ -44,6 +44,14 @@ be called, throw a new `Exception` with:
 That'll give me a gentle reminder in case I do something silly and route a message
 to a transport that uses this serializer by accident.
 
+***TIP
+> Actually, if you want your messages to be redelivered, you *do* need to
+> implement the `encode()` method. See the code-block on this page
+> for an example, which includes a small update to `decode()`.
+***
+
+[[[ code('bca382fd36') ]]]
+
 ## The decode() Method
 
 The method that *we* need to focus on is `decode()`. When a worker consumes a
@@ -78,7 +86,7 @@ Finally, we need to return an `Envelope` object. Remember: an `Envelope` is
 just a small wrapper *around* the message itself... and it might also hold some
 stamps. At the bottom, return `new Envelope()` and put `$message` inside.
 
-[[[ code('7c95c26179') ]]]
+[[[ code('42d4fefb2d') ]]]
 
 ## Configuring the Serializer on the Transport
 
