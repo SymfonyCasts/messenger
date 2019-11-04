@@ -47,6 +47,12 @@ was on purpose. An exchange is only used when *sending* a message. And because
 we're not planning on *ever* sending a message through this transport, that part
 of the transport just won't ever be used.
 
+***TIP
+Correction: if you want "retries" to work, you *will* need to configure
+routing & binding keys so that if a message is sent to this transport
+(for redelivery) that it will end up in the `messages_from_external` queue.
+***
+
 So with *just* this, we should be able to consume from the new transport. Spin over
 to your terminal and run:
 
