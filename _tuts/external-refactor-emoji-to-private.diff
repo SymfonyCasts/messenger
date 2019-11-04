@@ -1,31 +1,48 @@
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
-index aabf9f4..4fad853 100644
+index 7edf6e7..6cf1eca 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
 +++ b/src/Messenger/ExternalJsonMessageSerializer.php
-@@ -21,6 +21,16 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+@@ -21,21 +21,14 @@ class ExternalJsonMessageSerializer implements SerializerInterface
              throw new MessageDecodingFailedException('Invalid JSON');
          }
  
-+        return $this->createLogEmojiEnvelope($data);
-+    }
-+
-+    public function encode(Envelope $envelope): array
-+    {
-+        throw new \Exception('Transport & serializer not meant for sending messages');
-+    }
-+
-+    private function createLogEmojiEnvelope($data): Envelope
-+    {
-         if (!isset($data['emoji'])) {
-             throw new MessageDecodingFailedException('Missing the emoji key!');
+-        if (!isset($data['emoji'])) {
+-            throw new MessageDecodingFailedException('Missing the emoji key!');
+-        }
+-        $message = new LogEmoji($data['emoji']);
++        $envelope = $this->createLogEmojiEnvelope($data);
+ 
+         // in case of redelivery, unserialize any stamps
+         $stamps = [];
+         if (isset($headers['stamps'])) {
+             $stamps = unserialize($headers['stamps']);
          }
-@@ -33,9 +43,4 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+-
+-        $envelope = new Envelope($message, $stamps);
+-
+-        // needed only if you need this to be sent through the non-default bus
+-        $envelope = $envelope->with(new BusNameStamp('command.bus'));
++        $envelope = $envelope->with(... $stamps);
  
          return $envelope;
      }
--
--    public function encode(Envelope $envelope): array
--    {
--        throw new \Exception('Transport & serializer not meant for sending messages');
--    }
+@@ -67,4 +60,19 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+             ],
+         ];
+     }
++
++    private function createLogEmojiEnvelope($data): Envelope
++    {
++        if (!isset($data['emoji'])) {
++            throw new MessageDecodingFailedException('Missing the emoji key!');
++        }
++        $message = new LogEmoji($data['emoji']);
++
++        $envelope = new Envelope($message);
++
++        // needed only if you need this to be sent through the non-default bus
++        $envelope = $envelope->with(new BusNameStamp('command.bus'));
++
++        return $envelope;
++    }
  }

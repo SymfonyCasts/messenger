@@ -1,5 +1,5 @@
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
-index 101fe87..eb84491 100644
+index 8ac965d..2dd1793 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
 +++ b/src/Messenger/ExternalJsonMessageSerializer.php
 @@ -16,6 +16,14 @@ class ExternalJsonMessageSerializer implements SerializerInterface
@@ -16,4 +16,4 @@ index 101fe87..eb84491 100644
 +        }
          $message = new LogEmoji($data['emoji']);
  
-         $envelope = new Envelope($message);
+         // in case of redelivery, unserialize any stamps

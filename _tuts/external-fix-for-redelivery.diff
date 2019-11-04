@@ -1,0 +1,23 @@
+diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
+index 9c372bf..9843a43 100644
+--- a/config/packages/messenger.yaml
++++ b/config/packages/messenger.yaml
+@@ -51,12 +51,13 @@ framework:
+             external_messages:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                 options:
+-                    # assume some other system will create this
+-                    auto_setup: false
+-                    # exchange config not needed because that's only
+-                    # for *sending* messages
++                    exchange:
++                        name: messages
++                        type: direct
++                        default_publish_routing_key: from_external
+                     queues:
+-                        messages_from_external: ~
++                        messages_from_external:
++                            binding_keys: [from_external]
+ 
+             failed: 'doctrine://default?queue_name=failed'
+             # sync: 'sync://'

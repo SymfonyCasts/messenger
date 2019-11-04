@@ -1,9 +1,9 @@
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
-index 4fad853..81b630e 100644
+index 6cf1eca..5796ceb 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
 +++ b/src/Messenger/ExternalJsonMessageSerializer.php
-@@ -29,7 +29,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface
-         throw new \Exception('Transport & serializer not meant for sending messages');
+@@ -61,7 +61,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+         ];
      }
  
 -    private function createLogEmojiEnvelope($data): Envelope

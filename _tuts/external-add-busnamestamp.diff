@@ -1,5 +1,5 @@
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
-index 8c63478..101fe87 100644
+index c8036d9..8ac965d 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
 +++ b/src/Messenger/ExternalJsonMessageSerializer.php
 @@ -5,6 +5,7 @@ namespace App\Messenger;
@@ -10,12 +10,12 @@ index 8c63478..101fe87 100644
  use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
  
  class ExternalJsonMessageSerializer implements SerializerInterface
-@@ -17,7 +18,12 @@ class ExternalJsonMessageSerializer implements SerializerInterface
-         $data = json_decode($body, true);
-         $message = new LogEmoji($data['emoji']);
+@@ -23,7 +24,12 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+             $stamps = unserialize($headers['stamps']);
+         }
  
--        return new Envelope($message);
-+        $envelope = new Envelope($message);
+-        return new Envelope($message, $stamps);
++        $envelope = new Envelope($message, $stamps);
 +
 +        // needed only if you need this to be sent through the non-default bus
 +        $envelope = $envelope->with(new BusNameStamp('command.bus'));

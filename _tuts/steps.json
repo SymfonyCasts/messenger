@@ -466,6 +466,11 @@
             "description": null
         },
         {
+            "id": "external-fix-for-redelivery",
+            "name": "External: fix for redelivery",
+            "description": null
+        },
+        {
             "id": "external-bootstrap-custom-serializer",
             "name": "External: bootstrap custom serializer",
             "description": null
@@ -473,6 +478,11 @@
         {
             "id": "external-finish-serializer",
             "name": "External: finish serializer",
+            "description": null
+        },
+        {
+            "id": "external-fix-encode",
+            "name": "External: Fix encode()",
             "description": null
         },
         {
@@ -516,5 +526,5 @@
             "description": null
         }
     ],
-    "sha": "8a20cd532a19572f0fe4a8f0d89dd69e0d20a4f9"
+    "sha": "f38fc7ba1b5711d948e6171bb3788f370d0c3271"
 }

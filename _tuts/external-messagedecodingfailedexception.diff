@@ -1,5 +1,5 @@
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
-index eb84491..aabf9f4 100644
+index 2dd1793..7edf6e7 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
 +++ b/src/Messenger/ExternalJsonMessageSerializer.php
 @@ -22,7 +22,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface

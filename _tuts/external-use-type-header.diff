@@ -1,22 +1,42 @@
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
-index 81b630e..f5d9170 100644
+index 5796ceb..231f9a9 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
 +++ b/src/Messenger/ExternalJsonMessageSerializer.php
-@@ -21,7 +21,16 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+@@ -21,7 +21,18 @@ class ExternalJsonMessageSerializer implements SerializerInterface
              throw new MessageDecodingFailedException('Invalid JSON');
          }
  
--        return $this->createLogEmojiEnvelope($data);
+-        $envelope = $this->createLogEmojiEnvelope($data);
 +        if (!isset($headers['type'])) {
 +            throw new MessageDecodingFailedException('Missing "type" header');
 +        }
 +
 +        switch ($headers['type']) {
 +            case 'emoji':
-+                return $this->createLogEmojiEnvelope($data);
++                $envelope = $this->createLogEmojiEnvelope($data);
++                break;
++            default:
++                throw new MessageDecodingFailedException(sprintf('Invalid type "%s"', $headers['type']));
 +        }
 +
-+        throw new MessageDecodingFailedException(sprintf('Invalid type "%s"', $headers['type']));
-     }
  
-     public function encode(Envelope $envelope): array
+         // in case of redelivery, unserialize any stamps
+         $stamps = [];
+@@ -43,6 +54,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+         if ($message instanceof LogEmoji) {
+             // recreate what the data originally looked like
+             $data = ['emoji' => $message->getEmojiIndex()];
++            $type = 'emoji';
+         } else {
+             throw new \Exception('Unsupported message class');
+         }
+@@ -56,7 +68,8 @@ class ExternalJsonMessageSerializer implements SerializerInterface
+             'body' => json_encode($data),
+             'headers' => [
+                 // store stamps as a header - to be read in decode()
+-                'stamps' => serialize($allStamps)
++                'stamps' => serialize($allStamps),
++                'type' => $type,
+             ],
+         ];
+     }

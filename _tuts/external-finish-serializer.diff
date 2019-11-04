@@ -1,5 +1,5 @@
 diff --git a/config/packages/messenger.yaml b/config/packages/messenger.yaml
-index 9c372bf..e77d6bf 100644
+index 9843a43..e907fa8 100644
 --- a/config/packages/messenger.yaml
 +++ b/config/packages/messenger.yaml
 @@ -50,6 +50,7 @@ framework:
@@ -8,8 +8,8 @@ index 9c372bf..e77d6bf 100644
                  dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
 +                serializer: App\Messenger\ExternalJsonMessageSerializer
                  options:
-                     # assume some other system will create this
-                     auto_setup: false
+                     exchange:
+                         name: messages
 diff --git a/src/Messenger/ExternalJsonMessageSerializer.php b/src/Messenger/ExternalJsonMessageSerializer.php
 index 406818b..8c63478 100644
 --- a/src/Messenger/ExternalJsonMessageSerializer.php
