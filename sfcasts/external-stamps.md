@@ -121,7 +121,7 @@ here. Copy the `command.bus` bus name and paste. I'll add a comment that says th
 this is *technically* only needed if you need the message to be sent through a
 non-default bus.
 
-[[[ code('00dceb24cd') ]]]
+[[[ code('cf1f986c58') ]]]
 
 Next, our serializer is great, but we didn't code very defensively. What would
 happen if the message contained invalid JSON... or was missing the `emoji` field?

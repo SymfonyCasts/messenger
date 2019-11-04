@@ -18,6 +18,11 @@ this method - the stuff related to the `LogEmoji` object - and then go to the
 Refactor -> "Refactor This" menu, which is Ctrl+T on a Mac. Refactor this code
 to a method called `createLogEmojiEnvelope`.
 
+***TIP
+To make sure "retries" work correctly, some of the code in this section
+has been tweaked. See the code blocks on this page for the updated examples!
+***
+
 [[[ code('6d7aa90802') ]]]
 
 Cool! That created a private function down here with that code. I'll add an
@@ -53,7 +58,7 @@ Then, down here, we'll use a good, old-fashioned switch case statement on
 `$headers['type']`. If this is set to `emoji`, return
 `$this->createLogEmojiEnvelope()`.
 
-[[[ code('8bba5f6b42') ]]]
+[[[ code('683de1c4b6') ]]]
 
 After this, you would add any other "types" that the external system publishes,
 like `delete_photo`. In those cases you would instantiate a *different* message
@@ -64,7 +69,14 @@ new `MessageDecodingFailedException` with
 
 passing `$headers['type']` as the wildcard.
 
-[[[ code('7e80acceae') ]]]
+[[[ code('e8fa843716') ]]]
+
+***TIP
+To support retries on failure, you also need to re-add the
+"type" header inside `encode()`:
+
+[[[ code('31a5d60cb1') ]]]
+***
 
 Kinda cool, right? Let's go stop our worker, then restart it so it sees our new code:
 
