@@ -85,7 +85,7 @@ And... that's it! Create a new transport for however many different priority
 Oh, and instead of using this interactive way of doing things, you can run:
 
 ```terminal
-php bin/console messenger:consume async_priotity_high async
+php bin/console messenger:consume async_priority_high async
 ```
 
 Perfect. Next, let's talk about *one* option we can use to make it easier to develop
