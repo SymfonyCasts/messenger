@@ -22,7 +22,7 @@ instead of consuming messages from `message_high` or `messages_normal`, we'll
 consume them from whatever queue that outside system is using - let's pretend
 it's called `messages_from_external`. Set that to just `~`.
 
-[[[ code('d277b49b2c') ]]]
+[[[ code('5b68cfa12a') ]]]
 
 By the way, it *is* important that we use a *different* transport that reads from
 a *different* queue for these external messages. Why? Because, as you'll see in
@@ -31,7 +31,10 @@ back into the correct object. We'll attach that special logic to the transport.
 
 Anyways, above this add `auto_setup: false`.
 
-[[[ code('f12cb59a03') ]]]
+***TIP
+To support retry, you *should* use `auto_setup` and configure a few more things.
+See the tip below for more details.
+***
 
 Ok, there are a few important things happening here. The first is that this
 queue config means that when we *consume* from the `external_messages` transport,
