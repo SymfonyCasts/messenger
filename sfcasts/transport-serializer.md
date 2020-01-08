@@ -45,9 +45,9 @@ That'll give me a gentle reminder in case I do something silly and route a messa
 to a transport that uses this serializer by accident.
 
 ***TIP
-> Actually, if you want your messages to be redelivered, you *do* need to
-> implement the `encode()` method. See the code-block on this page
-> for an example, which includes a small update to `decode()`.
+Actually, if you want your messages to be redelivered, you *do* need to
+implement the `encode()` method. See the code-block on this page
+for an example, which includes a small update to `decode()`.
 ***
 
 [[[ code('bca382fd36') ]]]
