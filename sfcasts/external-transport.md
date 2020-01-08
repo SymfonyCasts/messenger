@@ -48,10 +48,11 @@ we're not planning on *ever* sending a message through this transport, that part
 of the transport just won't ever be used.
 
 ***TIP
-Correction: if you want "retries" to work, you *will* need to configure
-routing & binding keys so that if a message is sent to this transport
-(for redelivery) that it will end up in the `messages_from_external` queue.
-See the code block on this page for an updated example!
+Correction: if you're using AMQP and want "retries" to work, you *will* need to
+configure a routing & binding key so that if a message needs to be sent to this
+transport (for redelivery), Messenger can attach the correct binding key so
+that the message will end up in the `messages_from_external` queue. See the
+code block on this page for an updated example.
 ***
 
 So with *just* this, we should be able to consume from the new transport. Spin over
