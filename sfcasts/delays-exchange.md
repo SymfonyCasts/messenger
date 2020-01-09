@@ -28,7 +28,7 @@ craziness just occurred... let's run our worker and consume from both the
 `async_priority_high` and `async` transports:
 
 ```terminal-silent
-php bin/console -vv async_priority_high async
+php bin/console messenger:consume -vv async_priority_high async
 ```
 
 It consumes them and... when we move over, go to the homepage and refresh, yep!
