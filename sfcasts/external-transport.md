@@ -55,7 +55,8 @@ Correction: if you're using AMQP and want "retries" to work, you *will* need to
 configure a routing & binding key so that if a message needs to be sent to this
 transport (for redelivery), Messenger can attach the correct binding key so
 that the message will end up in the `messages_from_external` queue. See the
-code block on this page for an updated example.
+[code block](https://symfonycasts.com/screencast/messenger/external-transport#codeblock-5b68cfa12a) 
+on this page for an updated example.
 ***
 
 So with *just* this, we should be able to consume from the new transport. Spin over
