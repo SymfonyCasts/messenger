@@ -47,6 +47,12 @@ Copy that, go find our `.env` file... and paste over `doctrine://default`. You
 can also put this into a `.env.local` file... which is what I would *normally*
 do so I can avoid committing these credentials.
 
+***TIP
+The URL that you copied will now start with `amqps://` (with an "s"!). That is "secure"
+AMQP. Change it to `amqp://` to get things working. Support for using SSL is being
+added to Symfony, but requires extra configuration.
+***
+
 Anyways, the `amqp://` part activates the AMQP transport in Symfony... and the
 rest of this contains a username, password and other connection details.
 As *soon* as we make this change, both our `async` and `async_priority_high`
