@@ -49,8 +49,8 @@ do so I can avoid committing these credentials.
 
 ***TIP
 The URL that you copied will now start with `amqps://` (with an "s"!). That is "secure"
-AMQP. Change it to `amqp://` to get things working. Support for using SSL is being
-added to Symfony, but requires extra configuration.
+AMQP. Change it to `amqp://` to get things working. Support for SSL was introduced
+in Symfony 5.2, but requires extra configuration.
 ***
 
 Anyways, the `amqp://` part activates the AMQP transport in Symfony... and the
