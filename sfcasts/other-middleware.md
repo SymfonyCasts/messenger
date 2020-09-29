@@ -77,7 +77,7 @@ bus-by-bus basis. It says that the following messages can be dispatched to our
 command bus and... huh... these *same* messages are allowed to be dispatched to
 the event bus.
 
-That's... ok... but it's not *really* want we want. *We* know that certain messages
+That's... ok... but it's not *really* that we want. *We* know that certain messages
 are *commands* and will be sent to the command bus and others are events. But when
 we set up our handlers, we never told Messenger that *this* handler should only
 be used by *this* bus. So, Messenger makes sure that *all* buses are aware of
