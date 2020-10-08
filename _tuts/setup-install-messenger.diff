@@ -26,7 +26,7 @@ index 96793db..9faa0c4 100644
          "symfony/serializer-pack": "^1.0",
          "symfony/validator": "4.3.*",
 diff --git a/composer.lock b/composer.lock
-index 506866a..d5ce773 100644
+index 8782f71..1e9972f 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,7 +4,7 @@
@@ -38,7 +38,7 @@ index 506866a..d5ce773 100644
      "packages": [
          {
              "name": "doctrine/annotations",
-@@ -3325,6 +3325,80 @@
+@@ -3339,6 +3339,80 @@
              ],
              "time": "2019-05-30T09:28:08+00:00"
          },

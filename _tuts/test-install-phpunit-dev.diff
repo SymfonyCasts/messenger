@@ -54,7 +54,7 @@ index 9faa0c4..e00e94b 100644
      }
  }
 diff --git a/composer.lock b/composer.lock
-index d5ce773..22bef91 100644
+index 1e9972f..f5bf71a 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,7 +4,7 @@
@@ -66,7 +66,7 @@ index d5ce773..22bef91 100644
      "packages": [
          {
              "name": "doctrine/annotations",
-@@ -4874,6 +4874,118 @@
+@@ -4890,6 +4890,118 @@
              ],
              "time": "2019-05-25T20:07:01+00:00"
          },
@@ -185,7 +185,7 @@ index d5ce773..22bef91 100644
          {
              "name": "symfony/debug-bundle",
              "version": "v4.3.2",
-@@ -4970,6 +5082,67 @@
+@@ -4986,6 +5098,67 @@
              "description": "A debug pack for Symfony projects",
              "time": "2018-12-10T12:11:11+00:00"
          },
@@ -253,7 +253,7 @@ index d5ce773..22bef91 100644
          {
              "name": "symfony/maker-bundle",
              "version": "v1.12.0",
-@@ -5167,6 +5340,71 @@
+@@ -5183,6 +5356,71 @@
              ],
              "time": "2019-06-20T12:18:19+00:00"
          },
@@ -325,7 +325,7 @@ index d5ce773..22bef91 100644
          {
              "name": "symfony/profiler-pack",
              "version": "v1.0.4",
-@@ -5195,6 +5433,34 @@
+@@ -5211,6 +5449,34 @@
              "description": "A pack for the Symfony web profiler",
              "time": "2018-12-10T12:11:44+00:00"
          },
