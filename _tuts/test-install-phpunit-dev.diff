@@ -41,10 +41,10 @@ index 0000000..4d1ed05
 +
 +require dirname(__DIR__).'/vendor/symfony/phpunit-bridge/bin/simple-phpunit.php';
 diff --git a/composer.json b/composer.json
-index 9faa0c4..e00e94b 100644
+index 5e59f1d..98dd77b 100644
 --- a/composer.json
 +++ b/composer.json
-@@ -69,6 +69,7 @@
+@@ -70,6 +70,7 @@
      },
      "require-dev": {
          "symfony/debug-pack": "^1.0",
@@ -54,19 +54,19 @@ index 9faa0c4..e00e94b 100644
      }
  }
 diff --git a/composer.lock b/composer.lock
-index 1e9972f..f5bf71a 100644
+index f10801b..8076dbd 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,7 +4,7 @@
          "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
          "This file is @generated automatically"
      ],
--    "content-hash": "a13392c827799ae228fbc7d4399fcf8d",
-+    "content-hash": "9f9ab3764dba3993cfdd9bd76715bd2f",
+-    "content-hash": "5efed1fa1dfde5f7989cdae19c029728",
++    "content-hash": "6d650b0982a0acfb51d2e51861242c07",
      "packages": [
          {
-             "name": "doctrine/annotations",
-@@ -4890,6 +4890,118 @@
+             "name": "composer/package-versions-deprecated",
+@@ -4917,6 +4917,118 @@
              ],
              "time": "2019-05-25T20:07:01+00:00"
          },
@@ -185,7 +185,7 @@ index 1e9972f..f5bf71a 100644
          {
              "name": "symfony/debug-bundle",
              "version": "v4.3.2",
-@@ -4986,6 +5098,67 @@
+@@ -5013,6 +5125,67 @@
              "description": "A debug pack for Symfony projects",
              "time": "2018-12-10T12:11:11+00:00"
          },
@@ -253,7 +253,7 @@ index 1e9972f..f5bf71a 100644
          {
              "name": "symfony/maker-bundle",
              "version": "v1.12.0",
-@@ -5183,6 +5356,71 @@
+@@ -5210,6 +5383,71 @@
              ],
              "time": "2019-06-20T12:18:19+00:00"
          },
@@ -325,7 +325,7 @@ index 1e9972f..f5bf71a 100644
          {
              "name": "symfony/profiler-pack",
              "version": "v1.0.4",
-@@ -5211,6 +5449,34 @@
+@@ -5238,6 +5476,34 @@
              "description": "A pack for the Symfony web profiler",
              "time": "2018-12-10T12:11:44+00:00"
          },

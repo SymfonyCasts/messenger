@@ -14,31 +14,31 @@ index e4e6e40..6379354 100644
 +# MESSENGER_TRANSPORT_DSN=redis://localhost:6379/messages
 +###< symfony/messenger ###
 diff --git a/composer.json b/composer.json
-index 96793db..9faa0c4 100644
+index 6d0f58e..5e59f1d 100644
 --- a/composer.json
 +++ b/composer.json
-@@ -12,6 +12,7 @@
+@@ -13,6 +13,7 @@
          "symfony/dotenv": "4.3.*",
-         "symfony/flex": "^1.1",
+         "symfony/flex": "^1.9",
          "symfony/framework-bundle": "4.3.*",
 +        "symfony/messenger": "4.3.*",
          "symfony/orm-pack": "^1.0",
          "symfony/serializer-pack": "^1.0",
          "symfony/validator": "4.3.*",
 diff --git a/composer.lock b/composer.lock
-index 8782f71..1e9972f 100644
+index debf192..f10801b 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,7 +4,7 @@
          "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
          "This file is @generated automatically"
      ],
--    "content-hash": "9f1a0929d38b2bbe7ef5ad40abe4c505",
-+    "content-hash": "a13392c827799ae228fbc7d4399fcf8d",
+-    "content-hash": "78e51eaae57689b60c175fe901cd214c",
++    "content-hash": "5efed1fa1dfde5f7989cdae19c029728",
      "packages": [
          {
-             "name": "doctrine/annotations",
-@@ -3339,6 +3339,80 @@
+             "name": "composer/package-versions-deprecated",
+@@ -3366,6 +3366,80 @@
              ],
              "time": "2019-05-30T09:28:08+00:00"
          },
