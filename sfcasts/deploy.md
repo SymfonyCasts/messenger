@@ -137,6 +137,10 @@ Supervisor by running:
 ps -A | grep messenger:consume
 ```
 
+***TIP
+You can also use `ps aux`, which will work on more operating systems.
+***
+
 There they are: 19915 and 19916. Let's kill one of those:
 
 ```terminal
