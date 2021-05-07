@@ -74,7 +74,7 @@ just switched to. If you don't already have the serializer component installed,
 make sure you install it with:
 
 ```terminal
-composer require serializer
+composer require symfony/serializer
 ```
 
 The Symfony serializer is great because it's *really* good at turning objects
