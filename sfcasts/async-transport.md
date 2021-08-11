@@ -61,11 +61,8 @@ More on that soon.
 
 ***TIP
 Starting in symfony 5.1, the code behind the Doctrine transport was moved to its own package.
-The only difference is that you should now also run this command:
-
-```terminal
-composer require symfony/doctrine-messenger
-```
+The only difference is that you should now also run this command: 
+`composer require symfony/doctrine-messenger`
 ***
 
 Now, back in `messenger.yaml`, uncomment this `async` transport, which *uses* that
