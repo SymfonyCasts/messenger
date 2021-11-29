@@ -90,7 +90,7 @@ Down below, we'll need a way to *read* that property. Add a getter:
 `public function getImagePost()` with an `ImagePost` return type. Inside,
 `return $this->imagePost`.
 
-[[[ code('0cd52ae71b') ]]]
+[[[ code('9f4f0e6e00') ]]]
 
 And really... you can make this class look however you want: we could have made
 this a `public` property with no need for a constructor or getter. Or you
