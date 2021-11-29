@@ -56,6 +56,10 @@ and *then* started processing each like normal. There's not a 5 second delay
 *between* handling each message: it just makes sure that each message is handled
 no *sooner* than 5 seconds after sending it.
 
+***TIP
+Support for delays in Redis WAS added in Symfony 4.4.
+***
+
 Side note: In Symfony 4.3, the Redis transport doesn't support delays - but it
 may be added in the future.
 
