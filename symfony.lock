@@ -1,4 +1,7 @@
 {
+    "composer/package-versions-deprecated": {
+        "version": "1.11.99"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -121,9 +124,6 @@
     "nikic/php-parser": {
         "version": "4.2-dev"
     },
-    "ocramius/package-versions": {
-        "version": "1.4.0"
-    },
     "ocramius/proxy-manager": {
         "version": "2.2.x-dev"
     },
@@ -202,9 +202,6 @@
         "files": [
             "config/packages/dev/debug.yaml"
         ]
-    },
-    "symfony/debug-pack": {
-        "version": "dev-master"
     },
     "symfony/dependency-injection": {
         "version": "4.3-dev"
@@ -299,9 +296,6 @@
     "symfony/options-resolver": {
         "version": "4.3-dev"
     },
-    "symfony/orm-pack": {
-        "version": "dev-master"
-    },
     "symfony/polyfill-intl-idn": {
         "version": "v1.11.0"
     },
@@ -313,9 +307,6 @@
     },
     "symfony/polyfill-php73": {
         "version": "1.11-dev"
-    },
-    "symfony/profiler-pack": {
-        "version": "dev-master"
     },
     "symfony/property-access": {
         "version": "4.3-dev"
@@ -340,9 +331,6 @@
     },
     "symfony/serializer": {
         "version": "4.3-dev"
-    },
-    "symfony/serializer-pack": {
-        "version": "dev-master"
     },
     "symfony/service-contracts": {
         "version": "v1.1.2"
