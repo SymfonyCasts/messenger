@@ -1,0 +1,299 @@
+WEBVTT
+
+00:00:01.016 --> 00:00:04.246 align:middle
+¿Qué pasaría si una cola en
+RabbitMQ se llenara de mensajes
+
+00:00:04.356 --> 00:00:07.886 align:middle
+que se originaran en un sistema externo...
+
+00:00:08.046 --> 00:00:13.126 align:middle
+pero quisiéramos consumirlos y manejarlos
+desde nuestra aplicación Symfony?
+
+00:00:13.126 --> 00:00:18.146 align:middle
+Por ejemplo, tal vez un usuario
+pueda pedir que se elimine una foto
+
+00:00:18.146 --> 00:00:20.276 align:middle
+desde algún sistema totalmente diferente...
+
+00:00:20.476 --> 00:00:27.186 align:middle
+y ese sistema tiene que comunicarse con nuestra
+aplicación para que pueda realizar el borrado?
+
+00:00:27.886 --> 00:00:28.836 align:middle
+¿Cómo funcionaría eso?
+
+00:00:29.596 --> 00:00:35.956 align:middle
+Cada transporte en Messenger tiene realmente dos
+funciones: una, enviar mensajes a un corredor de mensajes
+
+00:00:35.956 --> 00:00:43.296 align:middle
+o sistema de colas y dos, recibir mensajes
+de ese mismo sistema y gestionarlos.
+
+00:00:43.376 --> 00:00:48.466 align:middle
+Y, como hablamos en el último vídeo, no es necesario
+que utilices las dos funciones de un transporte:
+
+00:00:48.966 --> 00:00:54.746 align:middle
+puedes elegir enviar a un transporte, pero
+nunca leer y consumir esos mensajes...
+
+00:00:54.916 --> 00:00:56.636 align:middle
+porque otro sistema lo hará.
+
+00:00:57.196 --> 00:01:02.816 align:middle
+O puedes hacer lo contrario: crear
+un transporte al que nunca enviarás,
+
+00:01:03.196 --> 00:01:06.966 align:middle
+pero que utilizarás para consum ir mensajes...
+
+00:01:07.116 --> 00:01:09.906 align:middle
+que probablemente fueron puestos
+allí por algún sistema externo.
+
+00:01:10.946 --> 00:01:14.266 align:middle
+El truco para hacer esto
+es crear un serializador
+
+00:01:14.396 --> 00:01:17.616 align:middle
+que pueda entender el formato
+de esos mensajes externos.
+
+00:01:17.666 --> 00:01:22.526 align:middle
+En lugar de explicar esto en
+exceso, vamos a verlo en acción.
+
+00:01:22.686 --> 00:01:28.146 align:middle
+En primer lugar, imagina que este
+sistema externo imaginario necesita poder
+
+00:01:28.146 --> 00:01:30.436 align:middle
+decirle a nuestra aplicación que haga algo...
+
+00:01:30.436 --> 00:01:34.146 align:middle
+muy... importante: registrar un Emoji.
+
+00:01:34.756 --> 00:01:38.886 align:middle
+Vale, puede que no sea el tipo
+de mensaje más impresionante...
+
+00:01:39.076 --> 00:01:44.566 align:middle
+pero los detalles de lo que este mensaje externo le
+está diciendo a nuestra app que haga no son importantes:
+
+00:01:45.136 --> 00:01:50.086 align:middle
+puede decirnos que subamos una imagen con
+detalles sobre la ubicación del archivo, que
+
+00:01:50.216 --> 00:01:54.696 align:middle
+eliminemos una imagen, que enviemos un correo electrónico
+a un usuario registrado o que reg istremos un emoji
+
+00:01:54.696 --> 00:01:56.356 align:middle
+Pongamos esto en marcha.
+
+00:01:57.036 --> 00:02:01.196 align:middle
+Normalmente, si quisiéramos enviar
+un comando para registrar un emoji,
+
+00:02:01.546 --> 00:02:04.806 align:middle
+empezaríamos por crear una clase de
+mensaje y un manejador de mensajes.
+
+00:02:04.806 --> 00:02:06.276 align:middle
+En este caso...
+
+00:02:06.546 --> 00:02:08.966 align:middle
+haremos exactamente lo mismo.
+
+00:02:09.576 --> 00:02:13.566 align:middle
+En el directorio Command/, crea una
+nueva clase PHP llamada LogEmoji.
+
+00:02:15.936 --> 00:02:18.646 align:middle
+Añade un public function __construct(). Para
+
+00:02:19.646 --> 00:02:25.926 align:middle
+indicarnos qué emoji debemos registrar, el
+sistema externo nos enviará un índice entero
+
+00:02:25.986 --> 00:02:29.956 align:middle
+del emoji que quieren - nuestra
+aplicación tendrá una lista de emojis.
+
+00:02:30.396 --> 00:02:36.866 align:middle
+Así que añade un argumento $emojiIndex y luego
+pulsa Alt+Enter y selecciona "Inicializar campos"
+
+00:02:36.906 --> 00:02:38.476 align:middle
+para crear esa propiedad y establecerla.
+
+00:02:40.136 --> 00:02:44.296 align:middle
+Para hacer que esta propiedad sea legible por
+el manejador, ve al menú Código -> Generar
+
+00:02:44.486 --> 00:02:50.016 align:middle
+-o Comando + N en un Mac-, selecciona
+getters y genera getEmojiIndex().
+
+00:02:51.116 --> 00:02:51.656 align:middle
+¡Genial!
+
+00:02:52.046 --> 00:02:55.926 align:middle
+Una clase de mensaje
+perfectamente aburrida y normal.
+
+00:02:55.926 --> 00:03:02.936 align:middle
+Segundo paso: en el directorio MessageHandler/Command/,
+crea una nueva clase LogEmojiHandler.
+
+00:03:05.176 --> 00:03:07.916 align:middle
+Haz que ésta implemente nuestro
+MessageHandlerInterface normal
+
+00:03:08.296 --> 00:03:14.946 align:middle
+y añade public function __invoke() con
+el tipo de mensaje: LogEmoji $logEmoji.
+
+00:03:16.406 --> 00:03:18.066 align:middle
+Ahora... ¡nos ponemos a trabajar!
+
+00:03:18.556 --> 00:03:24.806 align:middle
+Pondré una lista de emoji en la parte superior: aquí
+están los cinco que el sistema exterior puede elegir
+
+00:03:25.556 --> 00:03:29.436 align:middle
+galleta, dinosaurio, queso,
+robot y, por supuesto, caca.
+
+00:03:30.186 --> 00:03:34.866 align:middle
+Y luego, como vamos a registrar
+algo, añade un método __construct()
+
+00:03:36.606 --> 00:03:38.626 align:middle
+con la pista de tipo LoggerInterface.
+
+00:03:39.716 --> 00:03:43.156 align:middle
+Pulsa Alt + Intro y selecciona
+"Inicializar campos" una vez más
+
+00:03:43.296 --> 00:03:46.786 align:middle
+para crear esa propiedad y establecerla.
+
+00:03:46.786 --> 00:03:48.816 align:middle
+Dentro de __invoke(), nuestro
+trabajo es bastante sencillo.
+
+00:03:49.356 --> 00:03:54.266 align:middle
+Para obtener el emoji, establece una variable
+$index en $logEmoji->getEmojiIndex().
+
+00:03:55.106 --> 00:04:03.756 align:middle
+Luego $emoji = self::$emojis - para referenciar
+esa propiedad estática - self::$emojis[$index] ??
+
+00:04:04.036 --> 00:04:06.136 align:middle
+self::emojis[0] .
+
+00:04:06.136 --> 00:04:11.266 align:middle
+En otras palabras, si el
+índice existe, úsalo.
+
+00:04:11.806 --> 00:04:14.396 align:middle
+Si no, vuelve a registrar una cookie...
+
+00:04:14.576 --> 00:04:16.456 align:middle
+porque... a todo el mundo le
+gustan las cookies. Registra
+
+00:04:17.356 --> 00:04:22.266 align:middle
+con $this->logger->info('Important
+message!
+
+00:04:23.406 --> 00:04:24.486 align:middle
+') y luego $emoji.
+
+00:04:25.556 --> 00:04:30.786 align:middle
+La gran conclusión de este nuevo gest
+or de mensajes y mensajes es que, bueno,
+
+00:04:31.116 --> 00:04:35.806 align:middle
+¡no se diferencia en absoluto de cualquier
+otro gestor de mensajes y mensajes! A
+
+00:04:36.566 --> 00:04:41.806 align:middle
+Messenger no le importa si el objeto
+LogEmoji se enviará manualmente
+
+00:04:41.806 --> 00:04:47.386 align:middle
+desde nuestra propia aplicación o si un trabajador
+recibirá un mensaje de un sistema externo
+
+00:04:47.556 --> 00:04:49.446 align:middle
+que se asignará a esta clase.
+
+00:04:50.366 --> 00:04:56.216 align:middle
+Para probarlo, sube a ImagePostController,
+busca el método create() y,
+
+00:04:56.216 --> 00:05:03.756 align:middle
+sólo para asegurarte de que esto funciona,
+añade: $messageBus->dispatch(new LogEmoji(2)).
+
+00:05:03.886 --> 00:05:10.736 align:middle
+Si esto funciona, deberíamos ver un mensaje en
+nuestros registros cada vez que subamos una foto.
+
+00:05:10.736 --> 00:05:14.396 align:middle
+Busca tu terminal: veamos los registros con:
+
+00:05:14.566 --> 00:05:20.536 align:middle
+tail -f var/log/dev.log Este es el
+archivo de registro del entorno dev.
+
+00:05:20.976 --> 00:05:28.906 align:middle
+Limpiaré mi pantalla, luego me
+moveré, seleccionaré una foto y...
+
+00:05:29.176 --> 00:05:29.696 align:middle
+retroceder.
+
+00:05:30.446 --> 00:05:32.916 align:middle
+Ahí está: ¡Mensaje importante!
+
+00:05:33.496 --> 00:05:34.076 align:middle
+🧀
+
+00:05:34.226 --> 00:05:35.256 align:middle
+¡Estoy de acuerdo! ¡ Eso es importante
+
+00:05:35.876 --> 00:05:36.486 align:middle
+! Esto es genial...
+
+00:05:36.486 --> 00:05:38.666 align:middle
+pero no es lo que realmente
+
+00:05:38.666 --> 00:05:44.276 align:middle
+queremos. Lo que realmente queremos hacer es utilizar
+un trabajador para consumir un mensaje de una cola
+
+00:05:44.586 --> 00:05:49.056 align:middle
+-probablemente un mensaje JSON- y transformarlo
+
+00:05:49.126 --> 00:05:52.866 align:middle
+de forma inteligente en un objeto LogEmoji
+para que Messenger pueda manejarlo.
+
+00:05:53.276 --> 00:05:53.966 align:middle
+¿Cómo
+
+00:05:54.316 --> 00:05:57.756 align:middle
+lo hacemos? Con un transporte
+dedicado y un serializador de clientes
+
+00:05:58.446 --> 00:05:59.706 align:middle
+. Hagamos eso
