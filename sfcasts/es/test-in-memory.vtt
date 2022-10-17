@@ -1,0 +1,257 @@
+WEBVTT
+
+00:00:01.076 --> 00:00:07.196 align:middle
+Hace unos minutos, sólo en el entorno dev,
+hemos anulado todos nuestros transportes
+
+00:00:07.196 --> 00:00:09.866 align:middle
+para que todos los mensajes se
+manejen de forma sincrónica.
+
+00:00:10.926 --> 00:00:15.326 align:middle
+Lo hemos comentado por ahora, pero esto
+es algo que también podrías elegir hacer
+
+00:00:15.326 --> 00:00:18.136 align:middle
+en tu entorno test, para que
+cuando ejecutes las pruebas,
+
+00:00:18.506 --> 00:00:21.816 align:middle
+los mensajes se manejen dentro de la prueba.
+
+00:00:22.536 --> 00:00:24.096 align:middle
+Esto puede ser o no lo que quieres.
+
+00:00:24.756 --> 00:00:28.276 align:middle
+Por un lado, significa que tu prueba
+funcional está probando más. Por otro lado,
+
+00:00:28.966 --> 00:00:34.056 align:middle
+una prueba funcional probablemente
+debería probar que la ruta funciona
+
+00:00:34.056 --> 00:00:39.446 align:middle
+y que el mensaje se envía al transporte, pero
+la prueba del propio manejador debería hacerse
+
+00:00:39.446 --> 00:00:42.256 align:middle
+en una prueba específica
+para esa clase. Eso es
+
+00:00:42.836 --> 00:00:49.116 align:middle
+lo que vamos a hacer ahora: averiguar una forma de
+no ejecutar los manejadores de forma sincrónica
+
+00:00:49.236 --> 00:00:53.146 align:middle
+, pero probar que el mensaje se
+ha enviado al transporte. Por
+
+00:00:53.786 --> 00:00:58.266 align:middle
+supuesto, si matamos al trabajador, podemos
+consultar la tabla messenger_messages,
+
+00:00:58.266 --> 00:01:02.796 align:middle
+pero eso es un poco complicado y sólo
+funciona si utilizas el transporte Doctrine.
+
+00:01:03.446 --> 00:01:06.366 align:middle
+Afortunadamente, hay una
+opción más interesante.
+
+00:01:07.506 --> 00:01:11.366 align:middle
+Empieza copiando
+config/packages/dev/messenger.yaml
+
+00:01:11.866 --> 00:01:15.996 align:middle
+y pegándolo en config/packages/test/.
+
+00:01:16.936 --> 00:01:22.456 align:middle
+Esto nos da una configuración de Messenger
+que sólo se utilizará en el entorno test.
+
+00:01:23.306 --> 00:01:28.446 align:middle
+Descomenta el código y
+sustituye sync por in-memory.
+
+00:01:29.636 --> 00:01:31.726 align:middle
+Hazlo para los dos transportes.
+
+00:01:32.636 --> 00:01:35.126 align:middle
+El transporte in-memory es realmente genial.
+
+00:01:35.596 --> 00:01:37.286 align:middle
+De hecho, ¡vamos a verlo!
+
+00:01:37.976 --> 00:01:42.836 align:middle
+Voy a pulsar Shift+Shift en PhpStorm y
+buscaré InMemoryTransport para encontrarlo.
+
+00:01:48.096 --> 00:01:51.916 align:middle
+Esto... es básicamente un transporte falso.
+
+00:01:52.746 --> 00:01:55.786 align:middle
+Cuando se le envía un mensaje, no lo maneja
+
+00:01:55.906 --> 00:01:59.256 align:middle
+ni lo envía a ningún sitio,
+lo almacena en una propiedad.
+
+00:02:00.096 --> 00:02:02.536 align:middle
+Si utilizaras esto en un proyecto real,
+
+00:02:02.806 --> 00:02:06.206 align:middle
+los mensajes desaparecerían
+al final de la petición.
+
+00:02:06.666 --> 00:02:09.586 align:middle
+Pero, esto es súper útil para hacer pruebas.
+
+00:02:10.236 --> 00:02:10.826 align:middle
+Vamos a probarlo.
+
+00:02:11.756 --> 00:02:14.106 align:middle
+Hace un segundo, cada vez que
+ejecutamos nuestra prueba,
+
+00:02:14.576 --> 00:02:18.106 align:middle
+nuestro trabajador empezó a
+procesar realmente esos mensajes...
+
+00:02:18.306 --> 00:02:22.816 align:middle
+lo que tiene sentido: realmente los
+estábamos entregando al transporte.
+
+00:02:24.066 --> 00:02:32.576 align:middle
+Ahora, borraré la pantalla y luego ejecutaré:
+php bin/phpunit Sigue funcionando...
+
+00:02:32.876 --> 00:02:39.896 align:middle
+pero ahora el trabajador no hace nada: el
+mensaje ya no se envía realmente al transporte
+
+00:02:40.256 --> 00:02:42.526 align:middle
+y se pierde al final de nuestras pruebas.
+
+00:02:43.056 --> 00:02:48.116 align:middle
+Pero, desde la prueba, ahora
+podemos recuperar ese transporte
+
+00:02:48.586 --> 00:02:51.746 align:middle
+y preguntarle cuántos
+mensajes se le han enviado
+
+00:02:52.336 --> 00:02:56.696 align:middle
+Entre bastidores, cada transporte es
+en realidad un servicio del contenedor.
+
+00:02:57.456 --> 00:03:04.406 align:middle
+Busca tu terminal abierta y ejecuta: php
+bin/console debug:container async Ahí están
+
+00:03:05.066 --> 00:03:11.256 align:middle
+messenger.transport.async y
+messenger.transport.async_priority_high.
+
+00:03:11.876 --> 00:03:13.786 align:middle
+Copia el segundo id de servicio.
+
+00:03:14.246 --> 00:03:18.616 align:middle
+Queremos verificar que el mensaje
+AddPonkaToImage se envía al transporte,
+
+00:03:19.126 --> 00:03:23.656 align:middle
+y sabemos que se dirige a
+async_priority_high . De
+
+00:03:25.696 --> 00:03:31.536 align:middle
+vuelta a la prueba, esto es genial: podemos
+obtener el objeto de transporte exacto
+
+00:03:31.536 --> 00:03:39.076 align:middle
+que se acaba de utilizar desde la prueba
+diciendo $transport = self::$container->get()
+
+00:03:39.356 --> 00:03:41.336 align:middle
+y luego pegando el id del servicio:
+
+00:03:41.766 --> 00:03:49.536 align:middle
+messenger.transport.async_priority_high Esta
+propiedad self::$container contiene el contenedor
+
+00:03:49.666 --> 00:03:54.226 align:middle
+que se utilizó realmente durante la petición
+de la prueba y está diseñada para que
+
+00:03:54.226 --> 00:03:57.276 align:middle
+podamos obtener lo que queramos de él.
+
+00:03:58.126 --> 00:04:01.056 align:middle
+Veamos qué aspecto tiene: dd($transport).
+
+00:04:02.046 --> 00:04:09.236 align:middle
+Ahora vuelve a tu terminal y
+ejecuta: php bin/phpunit ¡Bien!
+
+00:04:09.776 --> 00:04:12.586 align:middle
+Esto vuelca el objeto InMemoryTransport y...
+
+00:04:12.736 --> 00:04:17.746 align:middle
+¡la propiedad sent contiene,
+efectivamente, nuestro objeto de un mensaje!
+
+00:04:18.386 --> 00:04:21.856 align:middle
+Lo único que tenemos que hacer ahora
+es añadir una aserción para esto. De
+
+00:04:23.426 --> 00:04:28.946 align:middle
+vuelta a la prueba, voy a ayudar a mi editor
+añadiendo algunos documentos en línea para anunciar
+
+00:04:29.196 --> 00:04:31.556 align:middle
+que esto es un InMemoryTransport.
+
+00:04:32.246 --> 00:04:38.636 align:middle
+A continuación añado $this->assertCount() para
+afirmar que esperamos que se devuelva un mensaje
+
+00:04:38.636 --> 00:04:42.186 align:middle
+cuando digamos $transport->...
+
+00:04:42.536 --> 00:04:43.456 align:middle
+veamos...
+
+00:04:43.456 --> 00:04:49.696 align:middle
+el método al que puedes llamar en un transporte para
+obtener los mensajes enviados, o "en cola", es get().
+
+00:04:51.556 --> 00:04:53.916 align:middle
+¡Vamos a probarlo!
+
+00:04:53.916 --> 00:04:57.346 align:middle
+Ejecuta: php bin/phpunit ¡Lo tengo!
+
+00:04:57.866 --> 00:05:03.446 align:middle
+Ahora estamos garantizando que el mensaje se ha enviado,
+pero hemos mantenido nuestras pruebas más rápidas
+
+00:05:03.446 --> 00:05:07.086 align:middle
+y dirigidas al no intentar
+manejarlas de forma sincrónica.
+
+00:05:07.856 --> 00:05:12.376 align:middle
+Si estuviéramos utilizando algo como
+RabbitMQ, tampoco necesitaríamos
+
+00:05:12.376 --> 00:05:15.256 align:middle
+tenerlo en marcha cada vez que
+ejecutamos nuestras pruebas.
+
+00:05:16.246 --> 00:05:18.846 align:middle
+A continuación, ¡hablemos del despliegue!
+
+00:05:19.266 --> 00:05:21.686 align:middle
+¿Cómo ejecutamos nuestros
+trabajadores en producción...
+
+00:05:21.916 --> 00:05:24.906 align:middle
+y asegurarnos de que siguen funcionando?
