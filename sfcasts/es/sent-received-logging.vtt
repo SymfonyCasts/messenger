@@ -1,0 +1,355 @@
+WEBVTT
+
+00:00:00.996 --> 00:00:03.866 align:middle
+Nuestro middleware es llamado
+en dos situaciones diferentes.
+
+00:00:03.906 --> 00:00:07.906 align:middle
+En primer lugar, se llama cuando
+se envía inicialmente el mensaje.
+
+00:00:07.936 --> 00:00:14.306 align:middle
+Por ejemplo, en ImagePostController, en el momento
+en que llamamos a $messageBus->dispatch(),
+
+00:00:14.666 --> 00:00:18.256 align:middle
+se llama a todos los middleware,
+independientemente de si
+
+00:00:18.256 --> 00:00:20.396 align:middle
+el mensaje se gestionará
+de forma asíncrona o no.
+
+00:00:20.396 --> 00:00:26.496 align:middle
+Y en segundo lugar, cuando el trabajador -
+bin/console messenger:consume - recibe un mensaje
+
+00:00:26.496 --> 00:00:30.386 align:middle
+del transporte, lo devuelve al bus
+
+00:00:30.516 --> 00:00:32.496 align:middle
+y se llama de nuevo al middleware.
+
+00:00:33.076 --> 00:00:35.246 align:middle
+Esto es lo más complicado del middleware
+
+00:00:35.556 --> 00:00:39.036 align:middle
+tratar de averiguar en qué
+situación se encuentra actualmente.
+
+00:00:39.116 --> 00:00:43.366 align:middle
+Afortunadamente, Messenger añade "sellos"
+al Envelope a lo largo del camino,
+
+00:00:43.676 --> 00:00:47.826 align:middle
+y éstos nos dicen exactamente
+lo que está pasando.
+
+00:00:47.826 --> 00:00:55.166 align:middle
+Por ejemplo, cuando se recibe un mensaje de un
+transporte, Messenger añade un ReceivedStamp.
+
+00:00:55.966 --> 00:01:04.556 align:middle
+Así, si $envelope->last(ReceivedStamp::class),
+entonces este mensaje está siendo procesado
+
+00:01:04.556 --> 00:01:07.836 align:middle
+por el trabajador y acaba de ser
+recibido desde un transporte.
+
+00:01:08.466 --> 00:01:16.876 align:middle
+Vamos a registrarlo: $this->logger->info()
+con una sintaxis especial: [{id}] Recibido
+
+00:01:16.876 --> 00:01:22.756 align:middle
+y gestionado {clase} A continuación,
+pasa $context como segundo argumento.
+
+00:01:23.676 --> 00:01:26.206 align:middle
+La matriz $context es genial por dos razones.
+
+00:01:26.646 --> 00:01:31.836 align:middle
+En primer lugar, cada gestor de registro lo
+recibe y puede hacer lo que quiera con él;
+
+00:01:32.386 --> 00:01:36.046 align:middle
+normalmente el $context se imprime
+al final del mensaje de registro.
+
+00:01:36.806 --> 00:01:40.566 align:middle
+Y en segundo lugar, si utilizas
+estos pequeños comodines de {},
+
+00:01:40.946 --> 00:01:43.856 align:middle
+¡los valores del contexto se
+rellenarán automáticamente!
+
+00:01:44.786 --> 00:01:51.456 align:middle
+Si el mensaje no se acaba de recibir, di
+$this->logger->info() y empieza de la misma manera:
+
+00:01:51.826 --> 00:01:58.446 align:middle
+[{id}] Manejo o envío
+de {clase} En este punto,
+
+00:01:58.606 --> 00:02:01.536 align:middle
+sabemos que el mensaje acaba de ser enviado...
+
+00:02:01.746 --> 00:02:07.866 align:middle
+pero no sabemos si se va a manejar en este
+momento o se va a enviar a un transporte.
+
+00:02:08.446 --> 00:02:10.316 align:middle
+Lo mejoraremos en unos minutos.
+
+00:02:10.696 --> 00:02:12.366 align:middle
+Pero antes, ¡probemos!
+
+00:02:13.476 --> 00:02:20.456 align:middle
+Pon en marcha el trabajador y dile
+que lea del transporte async: Ah,
+
+00:02:20.626 --> 00:02:23.446 align:middle
+¡creo que tenemos algunos mensajes
+de antes todavía en la cola!
+
+00:02:24.746 --> 00:02:26.826 align:middle
+Cuando termine, despejemos la pantalla. Abramos
+
+00:02:27.686 --> 00:02:33.046 align:middle
+también otra pestaña y creemos el nuevo
+archivo de registro - messenger.log -
+
+00:02:33.406 --> 00:02:39.036 align:middle
+si no está ya ahí: touch
+var/log/messenger.log Luego,
+
+00:02:39.036 --> 00:02:46.646 align:middle
+colócalo en la cola para que podamos ver los mensajes:
+tail -f var/log/messenger.log ¡Oh, qué bien!
+
+00:02:47.116 --> 00:02:51.346 align:middle
+Esto ya tiene unas cuantas líneas de esos
+antiguos mensajes que acaba de procesar.
+
+00:02:52.296 --> 00:02:54.936 align:middle
+Borremos eso para tener
+pantallas frescas que mirar.
+
+00:02:56.016 --> 00:02:56.936 align:middle
+¡Hora de probar!
+
+00:02:57.746 --> 00:03:00.076 align:middle
+Muévete y sube una nueva foto.
+
+00:03:03.106 --> 00:03:05.036 align:middle
+Vuelve a tu terminal y...
+
+00:03:05.366 --> 00:03:12.846 align:middle
+¡sí! Los dos mensajes de registro ya están
+ahí: "Manejando o enviando" y luego "Recibido
+
+00:03:12.846 --> 00:03:16.516 align:middle
+y manejando" cuando se recibió
+el mensaje del transporte...
+
+00:03:16.516 --> 00:03:18.306 align:middle
+que fue casi instantáneo.
+
+00:03:19.056 --> 00:03:22.196 align:middle
+Sabemos que estas entradas de registro
+son para el mismo mensaje gracias
+
+00:03:22.196 --> 00:03:23.836 align:middle
+al identificador único del principio.
+
+00:03:24.356 --> 00:03:28.436 align:middle
+Pero... podemos hacer algo mejor
+que decir "manipulación o envío".
+
+00:03:29.096 --> 00:03:36.706 align:middle
+¿Cómo? Esta línea $stack->next()->handle()
+se encarga de llamar al siguiente middleware...
+
+00:03:36.916 --> 00:03:40.016 align:middle
+que a su vez llamará al siguiente
+middleware y así sucesivamente.
+
+00:03:40.746 --> 00:03:43.996 align:middle
+Como nuestro código de registro
+está por encima de esto,
+
+00:03:44.586 --> 00:03:49.976 align:middle
+significa que nuestro código está siendo potencialmente
+llamado antes de que otros middleware hagan
+
+00:03:49.976 --> 00:03:50.656 align:middle
+su trabajo. De
+
+00:03:51.436 --> 00:03:56.906 align:middle
+hecho, nuestro código se está ejecutando antes
+que el middleware principal que es responsable
+
+00:03:56.996 --> 00:03:59.336 align:middle
+de manejar o enviar el mensaje.
+
+00:04:00.106 --> 00:04:06.486 align:middle
+Así que... ¿cómo podemos determinar si el
+mensaje será enviado o manejado inmediatamente...
+
+00:04:06.546 --> 00:04:10.946 align:middle
+antes de que el mensaje sea realmente
+enviado o manejado inmediatamente?
+
+00:04:11.516 --> 00:04:14.866 align:middle
+No podemos Compruébalo : elimina el return
+
+00:04:15.326 --> 00:04:19.166 align:middle
+y en su lugar di $envelope =
+$stack->next()->handle().
+
+00:04:19.916 --> 00:04:27.256 align:middle
+Luego, mueve esa línea por encima de nuestro
+código y, al final, return $envelope.
+
+00:04:28.316 --> 00:04:30.036 align:middle
+Si no hiciéramos nada más...
+
+00:04:30.276 --> 00:04:36.836 align:middle
+el resultado sería prácticamente el mismo:
+registraríamos exactamente los mismos mensajes...
+
+00:04:37.226 --> 00:04:40.376 align:middle
+pero técnicamente, las entradas
+de registro se producirían
+
+00:04:40.376 --> 00:04:45.116 align:middle
+después de que se enviara o gestionara
+el mensaje, en lugar de antes.
+
+00:04:45.586 --> 00:04:51.586 align:middle
+Pero! Fíjate en que cuando llamamos a
+$stack->next()->handle() para ejecutar el resto
+
+00:04:51.586 --> 00:04:54.766 align:middle
+del middleware, obtenemos
+de vuelta un $envelope...
+
+00:04:55.286 --> 00:04:57.766 align:middle
+¡que puede contener nuevos sellos! De
+
+00:04:58.316 --> 00:05:04.016 align:middle
+hecho, si el mensaje fue enviado a un transporte
+en lugar de ser manejado inmediatamente,
+
+00:05:04.306 --> 00:05:06.806 align:middle
+se marcará con un SentStamp.
+
+00:05:08.046 --> 00:05:15.706 align:middle
+Si añadimos elseif
+$envelope->last(SentStamp::class) , sabremos
+
+00:05:15.706 --> 00:05:19.516 align:middle
+que ese mensaje fue enviado, no gestionado.
+
+00:05:20.536 --> 00:05:28.506 align:middle
+Utiliza $this->logger->info()
+con nuestro truco {id} y sent {class}.
+
+00:05:31.076 --> 00:05:35.496 align:middle
+A continuación, ahora sabemos que definitivamente
+estamos "Manejando la sincronización".
+
+00:05:36.516 --> 00:05:41.936 align:middle
+El mensaje superior "Recibido y manipulado" sigue
+siendo cierto, pero lo cambiaré para que sólo diga
+
+00:05:41.966 --> 00:05:48.436 align:middle
+"Recibido": un mensaje siempre se manipula
+cuando se recibe, así que eso era redundante.
+
+00:05:50.176 --> 00:05:58.196 align:middle
+De acuerdo Vamos a borrar nuestra pantalla de
+registro y a reiniciar el trabajador: Sube una foto...
+
+00:06:00.796 --> 00:06:01.726 align:middle
+luego pasa...
+
+00:06:02.136 --> 00:06:03.526 align:middle
+y ve al archivo de registro.
+
+00:06:06.606 --> 00:06:08.926 align:middle
+¡Sí! ¡Enviada, y luego Recibida!
+
+00:06:09.756 --> 00:06:16.156 align:middle
+Si hubiéramos subido 5 fotos, podríamos utilizar el
+identificador único para identificar cada mensaje individualmente.
+
+00:06:16.986 --> 00:06:21.156 align:middle
+Pulsa intro varias veces: Quiero
+ver un ejemplo aún más genial.
+
+00:06:21.686 --> 00:06:23.566 align:middle
+¡Elimina una foto y vuelve a pasar por encima!
+
+00:06:24.326 --> 00:06:27.426 align:middle
+¡Recuerda que esto envía dos mensajes!
+
+00:06:28.016 --> 00:06:33.726 align:middle
+La parte del id. único hace que sea aún más obvio
+lo que está pasando: DeletePhotoFile se envió
+
+00:06:33.726 --> 00:06:37.886 align:middle
+al transporte, luego DeleteImagePost
+se gestionó de forma sincrónica...
+
+00:06:38.276 --> 00:06:41.696 align:middle
+luego se recibió y procesó DeletePhotoFile.
+
+00:06:42.496 --> 00:06:49.726 align:middle
+En realidad, lo que ocurrió fue lo siguiente:
+DeleteImagePost se manejó de forma sincrónica e,
+
+00:06:50.176 --> 00:06:55.736 align:middle
+internamente, envió DeletePhotoFile
+que se envió al transporte.
+
+00:06:56.566 --> 00:07:01.546 align:middle
+Los dos primeros mensajes están un poco desordenados
+porque nuestro código de registro se ejecuta siempre
+
+00:07:01.746 --> 00:07:07.976 align:middle
+después de que se ejecute el resto de la cadena,
+así que después de que se manejara DeleteImagePost.
+
+00:07:08.896 --> 00:07:14.566 align:middle
+Podríamos mejorar esto moviendo la lógica de
+registro de Handling Sync por encima del código
+
+00:07:14.566 --> 00:07:16.046 align:middle
+que llama al resto del middleware.
+
+00:07:16.616 --> 00:07:18.586 align:middle
+Sí, este material es súper potente...
+
+00:07:18.586 --> 00:07:21.266 align:middle
+pero puede ser un poco complejo de navegar.
+
+00:07:21.976 --> 00:07:25.136 align:middle
+Este asunto del registro es probablemente
+lo más confuso que puede haber.
+
+00:07:26.116 --> 00:07:30.316 align:middle
+A continuación: el trabajador gestiona cada
+mensaje en el orden en que lo ha recibido.
+
+00:07:30.816 --> 00:07:38.696 align:middle
+Pero... eso no es lo ideal: es mucho más
+importante que todos los mensajes de AddPonkaToImage
+
+00:07:38.846 --> 00:07:42.746 align:middle
+se gestionen antes que cualquier
+mensaje de DeletePhotoFile.
+
+00:07:43.436 --> 00:07:46.216 align:middle
+Hagamos eso con transportes prioritarios
