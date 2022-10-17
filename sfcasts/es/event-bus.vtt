@@ -1,0 +1,270 @@
+WEBVTT
+
+00:00:02.026 --> 00:00:04.516 align:middle
+Messenger es un "bus de mensajes".
+
+00:00:04.756 --> 00:00:09.826 align:middle
+Y resulta que un "mensaje" es un término
+bastante genérico en informática.
+
+00:00:10.116 --> 00:00:14.686 align:middle
+De hecho, hay tres tipos de mensajes
+de los que oirás hablar habitualmente.
+
+00:00:15.536 --> 00:00:18.046 align:middle
+El primer tipo de mensaje es un "comando".
+
+00:00:18.496 --> 00:00:25.226 align:middle
+Y ese es el tipo que hemos estado creando
+hasta ahora: creamos clases de mensajes que
+
+00:00:25.226 --> 00:00:30.286 align:middle
+suenan como un comando:
+AddPonkaToImage o DeleteImagePost
+
+00:00:31.136 --> 00:00:33.996 align:middle
+y cuyos manejadores realizan alguna acción.
+
+00:00:34.796 --> 00:00:38.076 align:middle
+Cuando creas clases de mensajes y
+manejadores con este aspecto, estás
+
+00:00:38.266 --> 00:00:41.316 align:middle
+utilizando Messenger como un "bus de comandos".
+
+00:00:42.126 --> 00:00:45.696 align:middle
+Y una de las, digamos,
+"reglas" de los comandos es
+
+00:00:45.696 --> 00:00:49.146 align:middle
+que cada comando debe tener
+exactamente un manejador.
+
+00:00:50.006 --> 00:00:52.156 align:middle
+Ese es el patrón de diseño "comando".
+
+00:00:53.066 --> 00:00:55.446 align:middle
+El segundo tipo de mensaje es un "evento".
+
+00:00:55.446 --> 00:00:59.496 align:middle
+Si creas una clase de "evento"
+y la pasas a Messenger,
+
+00:00:59.816 --> 00:01:02.396 align:middle
+entonces estás utilizando Messenger
+como un bus de "eventos". La
+
+00:01:03.066 --> 00:01:08.716 align:middle
+diferencia entre el aspecto de una clase
+"comando" y el de una clase "evento"
+
+00:01:08.716 --> 00:01:12.556 align:middle
+es sutil: se reduce a las
+convenciones de nomenclatura
+
+00:01:12.736 --> 00:01:15.626 align:middle
+y a lo que, en última
+instancia, intentas conseguir.
+
+00:01:16.276 --> 00:01:22.656 align:middle
+Un evento se envía después de que ocurra algo
+y puede tener de cero a muchos manejadores.
+
+00:01:23.176 --> 00:01:25.746 align:middle
+No te preocupes, pronto veremos cómo es esto.
+
+00:01:27.396 --> 00:01:31.266 align:middle
+El tercer tipo de mensaje es una "consulta",
+de la que hablaremos más adelante.
+
+00:01:31.266 --> 00:01:36.416 align:middle
+Por ahora, vamos a centrarnos en entender los
+eventos y en qué se diferencian de los comandos...
+
+00:01:36.586 --> 00:01:37.086 align:middle
+porque...
+
+00:01:37.186 --> 00:01:39.176 align:middle
+puede ser súper confuso.
+
+00:01:39.986 --> 00:01:45.046 align:middle
+Y Messenger, al ser un "bus de mensajes"
+genérico, funciona perfectamente con ambos.
+
+00:01:46.116 --> 00:01:49.266 align:middle
+Antes de crear nuestro primer
+evento, cerraré algunas cosas
+
+00:01:49.356 --> 00:01:52.366 align:middle
+y luego abriré config/packages/messenger.yaml.
+
+00:01:53.066 --> 00:01:56.546 align:middle
+Si nuestra aplicación aprovecha tanto
+los comandos como los eventos, está
+
+00:01:56.956 --> 00:02:01.816 align:middle
+totalmente bien utilizar un
+solo bus para manejar todo eso.
+
+00:02:02.806 --> 00:02:08.086 align:middle
+Pero, en aras de complicarnos un
+poco la vida y aprender más, vamos a
+
+00:02:08.626 --> 00:02:12.906 align:middle
+seguir utilizando nuestro bus
+existente sólo como bus de comandos
+
+00:02:13.426 --> 00:02:17.166 align:middle
+y a crear un nuevo bus para
+utilizarlo sólo con eventos.
+
+00:02:18.336 --> 00:02:24.246 align:middle
+Para ello, bajo la clave buses:, añade
+una nueva llamada, qué tal, event.bus.
+
+00:02:24.766 --> 00:02:27.036 align:middle
+Ponlo en ~ que es nulo...
+
+00:02:27.366 --> 00:02:32.086 align:middle
+porque aún no tenemos ninguna otra
+configuración que debamos poner aquí.
+
+00:02:32.966 --> 00:02:36.856 align:middle
+Esto hará que se añada un nuevo
+servicio MessageBus al contenedor. Hasta
+
+00:02:36.856 --> 00:02:42.056 align:middle
+ahora, siempre que hemos necesitado el bus
+de mensajes -como en ImagePostController -
+
+00:02:42.466 --> 00:02:46.966 align:middle
+lo hemos autocableado utilizando la
+sugerencia de tipo MessageBusInterface.
+
+00:02:47.836 --> 00:02:54.016 align:middle
+La pregunta ahora es: ¿cómo podemos
+acceder al nuevo servicio de bus de mensajes?
+
+00:02:54.016 --> 00:02:58.586 align:middle
+Busca tu terminal y ejecuta: php
+bin/console debug:autowiring ...
+
+00:03:00.056 --> 00:03:02.556 align:middle
+que... ¡explosiona!
+
+00:03:02.556 --> 00:03:06.906 align:middle
+Mi error: Configuración no válida
+para la ruta framework.messenger:
+
+00:03:07.196 --> 00:03:12.376 align:middle
+debes especificar default_bus Copia
+el nombre del bus por defecto.
+
+00:03:13.026 --> 00:03:20.126 align:middle
+Una vez que definas más de un bus, necesitas una
+clave default_bus establecida para tu bus "principal".
+
+00:03:22.956 --> 00:03:26.216 align:middle
+Esto le dice a Symfony qué
+servicio de MessageBus debe pasarnos
+
+00:03:26.426 --> 00:03:29.396 align:middle
+cuando utilicemos la sugerencia
+de tipo MessageBusInterface.
+
+00:03:32.356 --> 00:03:34.246 align:middle
+Prueba de nuevo el comando debug:autowiring...
+
+00:03:34.686 --> 00:03:36.456 align:middle
+y busca "mess".
+
+00:03:38.466 --> 00:03:41.926 align:middle
+Ah, ¡ahora tenemos dos entradas!
+
+00:03:42.596 --> 00:03:46.356 align:middle
+Esto me dice que si utilizamos la
+sugerencia de tipo MessageBusInterface,
+
+00:03:46.966 --> 00:03:50.636 align:middle
+obtendremos el servicio messenger.bus.default.
+
+00:03:51.266 --> 00:03:56.016 align:middle
+Ignora la parte de debug.traced - eso es sólo Symfony
+añadiendo algunas herramientas de depuración.
+
+00:03:56.756 --> 00:04:04.466 align:middle
+Pero ahora, si utilizas el type-hint
+MessageBusInterface y nombras el argumento $eventBus,
+
+00:04:04.746 --> 00:04:07.566 align:middle
+¡te pasará el nuevo
+servicio del bus de eventos!
+
+00:04:07.716 --> 00:04:14.536 align:middle
+Se trata de una nueva característica de Symfony 4.2, en la que
+puedes autoconectar cosas mediante una combinación del tipo-hint
+
+00:04:14.536 --> 00:04:16.896 align:middle
+y el nombre del argumento.
+
+00:04:17.346 --> 00:04:21.796 align:middle
+Symfony tomó el nombre de nuestro
+bus - event.bus - e hizo posible
+
+00:04:21.796 --> 00:04:24.436 align:middle
+utilizar el nombre del argumento $eventBus.
+
+00:04:24.826 --> 00:04:28.216 align:middle
+¡Genial! ¡Ahora sabemos cómo
+obtener el bus de eventos!
+
+00:04:28.606 --> 00:04:32.046 align:middle
+Pero... ¿cuál es la diferencia
+entre estos dos buses?
+
+00:04:32.266 --> 00:04:34.316 align:middle
+¿Se comportan de forma diferente?
+
+00:04:34.766 --> 00:04:35.696 align:middle
+La respuesta es...
+
+00:04:35.956 --> 00:04:39.856 align:middle
+¡no! Un bus no es más que
+un conjunto de middleware.
+
+00:04:39.936 --> 00:04:44.416 align:middle
+Si tienes dos objetos bus que
+tienen el mismo middleware...
+
+00:04:44.796 --> 00:04:45.876 align:middle
+entonces...
+
+00:04:45.916 --> 00:04:49.536 align:middle
+¡esos buses de mensajes son
+efectivamente idénticos!
+
+00:04:49.656 --> 00:04:56.526 align:middle
+Así que, aparte del hecho de que, hasta ahora, sólo
+hemos añadido nuestro AuditMiddleware al primer bus,
+
+00:04:56.866 --> 00:04:59.956 align:middle
+estos buses funcionarán y
+actuarán de forma idéntica.
+
+00:05:00.796 --> 00:05:04.416 align:middle
+Por eso, aunque haya creado un
+servicio para manejar comandos
+
+00:05:04.726 --> 00:05:07.236 align:middle
+y otro para manejar eventos...
+
+00:05:07.456 --> 00:05:12.586 align:middle
+ah... realmente podríamos enviar todos
+nuestros comandos y eventos a un solo servicio.
+
+00:05:12.626 --> 00:05:19.076 align:middle
+A continuación, vamos a crear un evento, a aprender
+qué aspecto tiene, por qué podemos utilizarlos
+
+00:05:19.246 --> 00:05:21.226 align:middle
+y en qué se diferencian de los comandos
