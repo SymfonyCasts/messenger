@@ -1,0 +1,246 @@
+WEBVTT
+
+00:00:01.086 --> 00:00:07.946 align:middle
+Hemos escrito nuestro serializador de transporte para que
+siempre espere que se ponga en la cola un solo tipo de mensaje
+
+00:00:07.946 --> 00:00:13.256 align:middle
+: un mensaje que indique a nuestra
+app que "registre un emoji".
+
+00:00:14.156 --> 00:00:20.956 align:middle
+Puede que tu aplicación sea así de sencilla, pero
+es más probable que este sistema "externo" envíe 5
+
+00:00:20.956 --> 00:00:23.526 align:middle
+o 10 tipos diferentes de mensajes.
+
+00:00:23.646 --> 00:00:29.446 align:middle
+En ese caso, nuestro serializador tiene que
+detectar de qué tipo de mensaje se trata
+
+00:00:29.746 --> 00:00:33.016 align:middle
+y convertirlo en el objeto mensaje correcto.
+
+00:00:33.966 --> 00:00:34.946 align:middle
+¿Cómo podemos hacerlo?
+
+00:00:35.476 --> 00:00:39.896 align:middle
+¿Cómo podemos averiguar de
+qué tipo de mensaje se trata?
+
+00:00:40.486 --> 00:00:44.286 align:middle
+¿Nos limitamos a mirar
+qué campos tiene el JSON?
+
+00:00:44.986 --> 00:00:46.046 align:middle
+Podríamos...
+
+00:00:46.276 --> 00:00:49.146 align:middle
+pero también podemos hacer
+algo más inteligente.
+
+00:00:50.066 --> 00:00:52.976 align:middle
+Empecemos por reorganizar un poco esta clase.
+
+00:00:53.656 --> 00:00:58.566 align:middle
+Selecciona el código de la parte inferior de este
+método -lo relacionado con el objeto LogEmoji -
+
+00:00:59.036 --> 00:01:05.096 align:middle
+y luego ve al menú Refactorizar ->
+"Refactorizar esto", que es Ctrl+T en un Mac.
+
+00:01:06.296 --> 00:01:10.926 align:middle
+Refactoriza este código a un método
+llamado createLogEmojiEnvelope.
+
+00:01:13.996 --> 00:01:17.916 align:middle
+¡Genial! Eso creó una función
+privada aquí abajo con ese código.
+
+00:01:18.886 --> 00:01:20.886 align:middle
+Añadiré una pista de tipo array.
+
+00:01:22.066 --> 00:01:25.636 align:middle
+En decode(), ya estamos
+llamando a este método.
+
+00:01:25.636 --> 00:01:27.286 align:middle
+Así que no hay grandes cambios.
+
+00:01:28.126 --> 00:01:33.526 align:middle
+La pregunta clave es: si se añaden
+varios tipos de mensajes a la cola,
+
+00:01:33.896 --> 00:01:38.486 align:middle
+¿cómo puede el serializador determinar
+de qué tipo de mensaje se trata?
+
+00:01:39.316 --> 00:01:43.696 align:middle
+Bueno, podríamos añadir quizás
+una clave type al propio JSON.
+
+00:01:44.296 --> 00:01:45.386 align:middle
+Eso podría estar bien.
+
+00:01:45.836 --> 00:01:51.446 align:middle
+Pero hay otro punto en el mensaje que
+puede contener datos: las cabeceras.
+
+00:01:52.336 --> 00:01:55.606 align:middle
+Éstas funcionan de forma muy
+parecida a las cabeceras HTTP: son
+
+00:01:55.806 --> 00:01:58.406 align:middle
+información "extra" que puedes
+almacenar sobre el mensaje.
+
+00:01:59.116 --> 00:02:03.486 align:middle
+Cualquier cabecera que pongamos aquí llegará
+a nuestro serializador cuando se consuma.
+
+00:02:04.446 --> 00:02:08.956 align:middle
+Vale, pues añadamos una nueva cabecera
+llamada type configurada como emoji.
+
+00:02:09.736 --> 00:02:11.326 align:middle
+Me lo acabo de inventar.
+
+00:02:11.586 --> 00:02:13.716 align:middle
+No voy a hacer que sea un nombre de clase...
+
+00:02:13.946 --> 00:02:16.696 align:middle
+porque ese sistema externo no sabrá
+
+00:02:16.696 --> 00:02:21.376 align:middle
+ni le importará qué clases de PHP
+usamos internamente para manejar esto.
+
+00:02:21.756 --> 00:02:27.496 align:middle
+Sólo dice: Este es un mensaje de tipo "emoji"
+De vuelta a nuestro serializador, vamos a
+
+00:02:27.776 --> 00:02:34.296 align:middle
+comprobar primero que esa cabecera está
+establecida: si no es isset($headers['type']),
+
+00:02:34.996 --> 00:02:43.216 align:middle
+entonces lanza un nuevo MessageDecodingFailedException
+con: Falta la cabecera "tipo" Luego, aquí abajo,
+
+00:02:43.656 --> 00:02:49.456 align:middle
+utilizaremos una buena sentencia switch
+case a la vieja usanza en $headers['type'].
+
+00:02:50.686 --> 00:02:56.276 align:middle
+Si es emoji, devuelve
+$this->createLogEmojiEnvelope().
+
+00:02:57.676 --> 00:03:00.626 align:middle
+Después de esto, añadirías
+cualquier otro "tipo"
+
+00:03:00.756 --> 00:03:04.876 align:middle
+que el sistema externo
+publique, como delete_photo.
+
+00:03:05.956 --> 00:03:11.066 align:middle
+En esos casos, instanciarías un objeto
+de mensaje diferente y lo devolverías.
+
+00:03:12.696 --> 00:03:18.946 align:middle
+Y, si se pasa algún "tipo" inesperado,
+lanzamos un nuevo MessageDecodingFailedException
+
+00:03:19.126 --> 00:03:24.346 align:middle
+con el tipo inválido "%s" pasando
+$headers['type'] como comodín.
+
+00:03:25.266 --> 00:03:26.196 align:middle
+Es genial, ¿verdad?
+
+00:03:27.036 --> 00:03:34.706 align:middle
+Vamos a detener nuestro trabajador, y luego a reiniciarlo para
+que vea nuestro nuevo código: De vuelta en el gestor de conejos,
+
+00:03:35.316 --> 00:03:39.026 align:middle
+cambiaré la clave emojis de nuevo a emoji y...
+
+00:03:39.326 --> 00:03:42.076 align:middle
+¡publicar! En el terminal...
+
+00:03:42.406 --> 00:03:44.146 align:middle
+¡qué bien! ¡Ha funcionado!
+
+00:03:45.416 --> 00:03:49.696 align:middle
+Ahora cambia la cabecera type por
+algo que no admita, como photo.
+
+00:03:50.916 --> 00:03:53.376 align:middle
+Publica y...
+
+00:03:54.136 --> 00:03:58.766 align:middle
+¡sí! Una excepción mató a nuestro
+trabajador: Tipo inválido "foto".
+
+00:04:00.066 --> 00:04:00.686 align:middle
+Vale amigos...
+
+00:04:00.866 --> 00:04:02.266 align:middle
+sí... ¡ya está!
+
+00:04:02.676 --> 00:04:04.946 align:middle
+¡Enhorabuena por haber llegado hasta el final!
+
+00:04:05.586 --> 00:04:08.256 align:middle
+¡Espero que hayas disfrutado
+del viaje tanto como yo!
+
+00:04:08.796 --> 00:04:11.556 align:middle
+El manejo de mensajes de forma asíncrona...
+
+00:04:11.806 --> 00:04:13.356 align:middle
+es algo muy divertido. Lo
+
+00:04:13.956 --> 00:04:18.806 align:middle
+mejor de Messenger es que funciona
+estupendamente desde el principio
+
+00:04:18.966 --> 00:04:22.076 align:middle
+con un único bus de mensajes
+y el transporte Doctrine.
+
+00:04:22.736 --> 00:04:28.436 align:middle
+O puedes volverte loco: crear múltiples
+transportes, enviar cosas a RabbitMQ,
+
+00:04:28.616 --> 00:04:33.896 align:middle
+crear intercambios personalizados con claves de
+enlace o utilizar tu propio serializador para...
+
+00:04:34.336 --> 00:04:37.136 align:middle
+bueno... básicamente hacer lo que quieras.
+
+00:04:37.686 --> 00:04:38.426 align:middle
+El poder...
+
+00:04:38.546 --> 00:04:40.246 align:middle
+es... ¡intoxicante!
+
+00:04:40.696 --> 00:04:43.826 align:middle
+Así que empieza a escribir un
+código manejador loco y luego...
+
+00:04:44.126 --> 00:04:46.066 align:middle
+¡maneja ese trabajo después!
+
+00:04:46.416 --> 00:04:48.136 align:middle
+Y haznos saber lo que estás construyendo.
+
+00:04:48.896 --> 00:04:52.576 align:middle
+Como siempre, si tienes alguna pregunta,
+estamos a tu disposición en los comentarios.
+
+00:04:53.426 --> 00:04:54.946 align:middle
+Muy bien amigos, ¡hasta la próxima!
