@@ -1,0 +1,384 @@
+WEBVTT
+
+00:00:01.126 --> 00:00:03.336 align:middle
+Abre DeleteImagePostHandler. Lo
+
+00:00:04.616 --> 00:00:08.646 align:middle
+principal que necesita saber un
+bus de mensajes es el vínculo
+
+00:00:08.646 --> 00:00:13.036 align:middle
+entre la clase de mensajes
+DeleteImagePost y su manejador.
+
+00:00:13.716 --> 00:00:17.606 align:middle
+Necesita saber que cuando despachamos
+un objeto DeleteImagePost,
+
+00:00:17.936 --> 00:00:20.796 align:middle
+debe llamar a DeleteImagePostHandler.
+
+00:00:21.456 --> 00:00:24.676 align:middle
+¿Cómo sabe Messenger que estas
+dos clases están conectadas? Lo
+
+00:00:25.306 --> 00:00:29.386 align:middle
+sabe porque nuestro manipulador
+implementa MessageHandlerInterface
+
+00:00:29.816 --> 00:00:31.846 align:middle
+-esto lo "marca" como manipulador de mensajes-
+
+00:00:32.506 --> 00:00:38.556 align:middle
+y porque su método __invoke() está
+indicado por el tipo DeleteImagePost.
+
+00:00:38.556 --> 00:00:44.736 align:middle
+Si sigues estas dos reglas -implementar
+esa interfaz y crear un método __invoke()
+
+00:00:44.736 --> 00:00:47.686 align:middle
+con un argumento que tenga el tipo
+de la clase de mensaje- entonces...
+
+00:00:47.866 --> 00:00:48.506 align:middle
+¡has terminado!
+
+00:00:48.506 --> 00:00:54.766 align:middle
+Busca tu terminal y ejecuta: php
+bin/console debug:messenger ¡Si!
+
+00:00:54.966 --> 00:01:00.116 align:middle
+Esto lo demuestra: DeleteImagePost es
+manejado por DeleteImagePostHandler.
+
+00:01:00.616 --> 00:01:05.826 align:middle
+Entonces... en config/services.yaml,
+nos pusimos un poco más elegantes.
+
+00:01:06.426 --> 00:01:12.096 align:middle
+Al organizar cada tipo de mensaje -comandos,
+eventos y consultas- en diferentes directorios,
+
+00:01:12.416 --> 00:01:15.756 align:middle
+pudimos añadir una etiqueta a cada servicio.
+
+00:01:16.526 --> 00:01:19.106 align:middle
+Esto da un poco más de
+información a Messenger.
+
+00:01:19.846 --> 00:01:21.036 align:middle
+Dice: ¡Oye! Quiero que
+
+00:01:21.476 --> 00:01:23.846 align:middle
+hagas esa conexión normal
+
+00:01:23.846 --> 00:01:28.606 align:middle
+entre la clase de mensaje DeleteImagePost
+y DeleteImagePostHandler...
+
+00:01:28.966 --> 00:01:33.956 align:middle
+pero sólo quiero que le digas al "bus
+de comandos" sobre esa conexión...
+
+00:01:34.046 --> 00:01:38.636 align:middle
+porque ése es el único bus al
+que voy a enviar ese mensaje.
+
+00:01:39.646 --> 00:01:45.866 align:middle
+También lo vemos en debug:messenger: el bus de
+comandos conoce la conexión de DeleteImagePost
+
+00:01:45.866 --> 00:01:50.166 align:middle
+y DeleteImagePostHandler y
+los otros dos buses conocen
+
+00:01:50.196 --> 00:01:53.056 align:middle
+otros enlaces de mensajes
+y manejadores de mensajes.
+
+00:01:54.306 --> 00:01:58.476 align:middle
+Ah, y como recordatorio, si todo esto
+de las "etiquetas" te confunde...
+
+00:01:58.706 --> 00:02:01.676 align:middle
+sáltatelo. Organiza un poco más las cosas,
+
+00:02:01.936 --> 00:02:06.196 align:middle
+pero puedes tener con la misma eficacia
+un solo bus que lo maneje todo.
+
+00:02:07.476 --> 00:02:13.766 align:middle
+En cualquier caso, este sistema es rápido de
+usar, pero hay algunas cosas que no puedes cambiar.
+
+00:02:13.806 --> 00:02:20.176 align:middle
+Por ejemplo, el método de tu
+manejador debe llamarse __invoke()...
+
+00:02:20.616 --> 00:02:23.006 align:middle
+que es lo que busca Symfony.
+
+00:02:23.596 --> 00:02:28.056 align:middle
+Y como una clase sólo puede tener
+un método llamado __invoke(),
+
+00:02:28.446 --> 00:02:35.216 align:middle
+esto significa que no puedes tener un único manejador
+que maneje varias clases de mensajes diferentes.
+
+00:02:35.216 --> 00:02:41.216 align:middle
+De todas formas, no me gusta hacer esto,
+prefiero una clase de mensaje por manejador...
+
+00:02:41.326 --> 00:02:43.976 align:middle
+pero es una limitación técnica.
+
+00:02:45.216 --> 00:02:47.336 align:middle
+Ahora que hemos revisado todo eso...
+
+00:02:47.886 --> 00:02:51.336 align:middle
+resulta que esto es sólo
+una parte de la historia.
+
+00:02:51.336 --> 00:02:57.766 align:middle
+Si queremos, podemos tomar más control de cómo
+se vincula una clase de mensaje con su manejador...
+
+00:02:58.086 --> 00:03:00.026 align:middle
+incluyendo alguna configuración extra.
+
+00:03:00.976 --> 00:03:04.936 align:middle
+¿Cómo? En lugar de implementar
+MessageHandlerInterface,
+
+00:03:05.256 --> 00:03:08.226 align:middle
+implementa MessageSubscriberInterface.
+
+00:03:09.546 --> 00:03:12.466 align:middle
+Esto es un cambio menos
+grande de lo que parece.
+
+00:03:12.466 --> 00:03:19.526 align:middle
+Si abres MessageSubscriberInterface,
+extiende MessageHandlerInterface.
+
+00:03:20.216 --> 00:03:23.906 align:middle
+Así que seguimos implementando
+efectivamente la misma interfaz...
+
+00:03:24.076 --> 00:03:29.566 align:middle
+pero ahora estamos obligados a tener un
+nuevo método: getHandledMessages() . En la
+
+00:03:31.406 --> 00:03:34.266 align:middle
+parte inferior de mi clase,
+iré a Código -> Generar
+
+00:03:34.266 --> 00:03:39.566 align:middle
+-o Comando + N en un Mac- y
+seleccionaré "Implementar métodos". En
+
+00:03:39.566 --> 00:03:46.136 align:middle
+cuanto implementemos esta interfaz, en lugar de
+buscar por arte de magia el método __invoke()
+
+00:03:46.476 --> 00:03:48.726 align:middle
+y comprobar el tipo-indicación del argumento
+
+00:03:48.756 --> 00:03:53.866 align:middle
+para saber qué clase de mensaje debe
+manejar, Symfony llamará a este método.
+
+00:03:55.006 --> 00:03:55.776 align:middle
+¿Nuestro trabajo aquí?
+
+00:03:56.276 --> 00:04:01.786 align:middle
+Decirle exactamente qué clases
+manejamos, qué método debe llamar y...
+
+00:04:02.066 --> 00:04:04.736 align:middle
+¡otras cosas divertidas!
+
+00:04:04.736 --> 00:04:10.786 align:middle
+Lo más fácil que puedes poner aquí
+es yield DeleteImagePost::class.
+
+00:04:11.826 --> 00:04:14.186 align:middle
+No pienses demasiado en ese rendimiento...
+
+00:04:14.186 --> 00:04:16.266 align:middle
+es sólo azúcar sintáctico.
+
+00:04:16.966 --> 00:04:23.386 align:middle
+También podrías devolver un array con
+una cadena DeleteImagePost::class dentro.
+
+00:04:24.786 --> 00:04:26.466 align:middle
+¿Qué diferencia supone eso?
+
+00:04:27.206 --> 00:04:29.596 align:middle
+Vuelve a ejecutar debug:messenger.
+
+00:04:31.116 --> 00:04:35.276 align:middle
+Y... no supuso ninguna diferencia.
+
+00:04:35.846 --> 00:04:39.296 align:middle
+Con esta configuración súper
+sencilla, le hemos dicho a Messenger
+
+00:04:39.296 --> 00:04:42.896 align:middle
+que esta clase maneja los
+objetos DeleteImagePost...
+
+00:04:43.266 --> 00:04:49.356 align:middle
+y entonces Messenger sigue asumiendo que
+debe ejecutar un método llamado __invoke().
+
+00:04:50.066 --> 00:04:54.326 align:middle
+Pero técnicamente, esta sugerencia
+de tipo ya no es necesaria.
+
+00:04:55.476 --> 00:05:03.566 align:middle
+Elimina eso y vuelve a ejecutarlo: php bin/console
+debug:messenger Sigue viendo la conexión entre la clase de
+
+00:05:03.566 --> 00:05:05.526 align:middle
+mensaje y el manejador.
+
+00:05:06.876 --> 00:05:10.276 align:middle
+Vale... pero como probablemente deberíamos
+utilizar las sugerencias de tipo...
+
+00:05:10.276 --> 00:05:12.506 align:middle
+esto no es tan interesante todavía.
+
+00:05:13.126 --> 00:05:14.396 align:middle
+¿Qué más podemos hacer?
+
+00:05:15.556 --> 00:05:20.306 align:middle
+Bueno, asignando esto a un array,
+podemos añadir algo de configuración.
+
+00:05:20.306 --> 00:05:25.356 align:middle
+Por ejemplo, podemos decir
+'method' => '__invoke'.
+
+00:05:26.556 --> 00:05:30.626 align:middle
+Sí, ahora podemos controlar
+qué método llamará Messenger.
+
+00:05:31.476 --> 00:05:35.116 align:middle
+Esto es especialmente útil
+si decides que quieres
+
+00:05:35.116 --> 00:05:38.856 align:middle
+añadir otro rendimiento para
+manejar un segundo mensaje...
+
+00:05:38.936 --> 00:05:42.006 align:middle
+y quieres que Messenger
+llame a un método diferente.
+
+00:05:43.206 --> 00:05:44.286 align:middle
+¿Qué más podemos poner aquí?
+
+00:05:45.416 --> 00:05:49.586 align:middle
+Una opción es priority - pongamos que...
+
+00:05:49.866 --> 00:05:52.826 align:middle
+10. Esta opción es...
+
+00:05:53.136 --> 00:05:56.266 align:middle
+mucho menos interesante de lo que
+puede parecer en un principio.
+
+00:05:57.246 --> 00:06:00.536 align:middle
+Antes hemos hablado de los
+transportes prioritarios:
+
+00:06:01.106 --> 00:06:08.306 align:middle
+en config/packages/messenger.yaml creamos dos
+transportes - async y async_priority_high -
+
+00:06:09.116 --> 00:06:11.376 align:middle
+y dirigimos diferentes mensajes a cada uno.
+
+00:06:12.546 --> 00:06:18.406 align:middle
+Lo hicimos así para que, al ejecutar nuestro
+trabajador, podamos decirle que lea siempre
+
+00:06:18.406 --> 00:06:23.456 align:middle
+primero los mensajes de async_priority_high
+antes de leer los de async.
+
+00:06:24.576 --> 00:06:30.536 align:middle
+Eso hace que async_priority_high sea un lugar
+al que enviamos mensajes de "mayor" prioridad.
+
+00:06:31.936 --> 00:06:33.796 align:middle
+La opción priority es aquí...
+
+00:06:33.946 --> 00:06:35.066 align:middle
+menos potente.
+
+00:06:35.066 --> 00:06:42.456 align:middle
+Si envías un mensaje a un transporte con
+prioridad 0 y luego envías otro mensaje
+
+00:06:42.616 --> 00:06:47.756 align:middle
+a ese mismo transporte con prioridad
+10, ¿qué crees que pasará?
+
+00:06:48.246 --> 00:06:50.256 align:middle
+¿Qué mensaje se tratará primero?
+
+00:06:51.216 --> 00:06:57.116 align:middle
+La respuesta: el primer mensaje
+enviado, el de menor prioridad.
+
+00:06:58.066 --> 00:07:03.826 align:middle
+Básicamente, Messenger siempre leerá los mensajes según
+el principio de "primero en entrar, primero en salir":
+
+00:07:04.436 --> 00:07:08.206 align:middle
+siempre leerá primero los
+mensajes más antiguos.
+
+00:07:09.086 --> 00:07:12.136 align:middle
+El priority no influye en esto.
+
+00:07:12.266 --> 00:07:14.486 align:middle
+Entonces... ¿qué hace?
+
+00:07:15.276 --> 00:07:18.926 align:middle
+Bueno, si DeleteImagePost
+tuviera dos manejadores...
+
+00:07:19.206 --> 00:07:23.766 align:middle
+y uno tuviera la prioridad por
+defecto de cero y otro tuviera 10,
+
+00:07:24.306 --> 00:07:27.896 align:middle
+el manejador con prioridad
+10 sería llamado primero.
+
+00:07:28.816 --> 00:07:34.116 align:middle
+Esto no suele ser importante, pero podría
+serlo si tuvieras dos manejadores de eventos
+
+00:07:34.376 --> 00:07:37.546 align:middle
+y realmente necesitaras que
+ocurrieran en un orden determinado.
+
+00:07:38.676 --> 00:07:44.646 align:middle
+A continuación, vamos a hablar de otra opción
+que puedes pasar aquí, la más potente. Se
+
+00:07:44.646 --> 00:07:52.606 align:middle
+llama from_transport y te permite, más o menos,
+enviar diferentes "manejadores" de un mensaje
+
+00:07:52.646 --> 00:07:57.196 align:middle
+a diferentes transportes para que cada
+uno pueda ser consumido independientemente
