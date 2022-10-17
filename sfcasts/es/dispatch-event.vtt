@@ -1,0 +1,339 @@
+WEBVTT
+
+00:00:01.036 --> 00:00:07.486 align:middle
+De vuelta a DeleteImagePostHandler, tenemos que
+enviar nuestro nuevo mensaje ImagePostDeletedEvent.
+
+00:00:08.696 --> 00:00:11.966 align:middle
+Anteriormente, hemos creado un
+segundo servicio de bus de mensajes.
+
+00:00:12.496 --> 00:00:17.986 align:middle
+Ahora tenemos un bus que utilizamos como bus
+de comandos llamado messenger.bus.default
+
+00:00:18.616 --> 00:00:20.876 align:middle
+y otro llamado event.bus. Gracias
+
+00:00:21.356 --> 00:00:29.576 align:middle
+a esto, cuando ejecutamos: php bin/console debug:autowiring
+mess ahora podemos autoconectar cualquiera de
+
+00:00:29.576 --> 00:00:30.656 align:middle
+estos servicios.
+
+00:00:31.606 --> 00:00:36.036 align:middle
+Si sólo utilizamos la sugerencia de tipo
+MessageBusInterface, obtendremos el bus de comandos principal.
+
+00:00:36.386 --> 00:00:41.766 align:middle
+Pero si utilizamos esa sugerencia de tipo y nombramos
+el argumento $eventBus, obtendremos el otro.
+
+00:00:42.536 --> 00:00:46.796 align:middle
+Dentro de DeleteImagePostHandler,
+cambia el argumento a $eventBus.
+
+00:00:50.776 --> 00:00:55.786 align:middle
+No es necesario, pero también voy a cambiar el nombre
+de la propiedad a $eventBus para mayor claridad.
+
+00:00:58.866 --> 00:01:02.226 align:middle
+Ah, y las variables necesitan un $ en PHP.
+
+00:01:03.696 --> 00:01:12.506 align:middle
+Perfecto Dentro de __invoke(), es realmente lo
+mismo que antes: $this->eventBus->dispatch()
+
+00:01:12.766 --> 00:01:19.426 align:middle
+con new ImagePostDeletedEvent()
+pasando que $filename.
+
+00:01:19.426 --> 00:01:20.376 align:middle
+¡Y ya está!
+
+00:01:20.376 --> 00:01:22.706 align:middle
+El resultado final de todo este trabajo...
+
+00:01:22.706 --> 00:01:29.256 align:middle
+ha sido hacer lo mismo que antes, pero con algún cambio de
+nombre para que coincida con el patrón del "bus de eventos".
+
+00:01:30.006 --> 00:01:34.586 align:middle
+El manejador realiza su tarea principal
+-eliminar el registro de la base de datos-
+
+00:01:35.066 --> 00:01:39.496 align:middle
+y luego envía un evento que dice ¡Se
+acaba de eliminar una entrada de imagen!
+
+00:01:39.616 --> 00:01:40.776 align:middle
+Si a alguien le interesa...
+
+00:01:41.056 --> 00:01:41.756 align:middle
+¡haz algo!
+
+00:01:41.756 --> 00:01:46.206 align:middle
+De hecho, a diferencia de los
+comandos, cuando enviamos un evento...
+
+00:01:46.566 --> 00:01:50.256 align:middle
+no nos importa si hay
+algún controlador para él.
+
+00:01:51.016 --> 00:01:54.356 align:middle
+Puede haber cero, 5, 10... ¡no nos importa!
+
+00:01:54.776 --> 00:01:59.916 align:middle
+No vamos a utilizar ningún valor de retorno de los
+manejadores y, a diferencia de lo que ocurre con los comandos,
+
+00:02:00.166 --> 00:02:03.986 align:middle
+no vamos a esperar que ocurra nada específico.
+
+00:02:04.616 --> 00:02:06.956 align:middle
+Sólo vas a gritar al espacio: ¡Eh!
+
+00:02:07.086 --> 00:02:09.356 align:middle
+¡Se ha borrado un ImagePost! De
+
+00:02:10.046 --> 00:02:15.746 align:middle
+todos modos, la última pieza que tenemos que arreglar
+para que esto sea realmente idéntico a lo de antes es,
+
+00:02:16.226 --> 00:02:19.696 align:middle
+en config/packages/messenger.yaml,
+debajo de routing,
+
+00:02:20.136 --> 00:02:26.626 align:middle
+dirigir App\Message\Event\ImagePostDeletedEvent
+al transporte async.
+
+00:02:27.996 --> 00:02:28.746 align:middle
+¡Vamos a probarlo!
+
+00:02:28.746 --> 00:02:35.966 align:middle
+Busca tu trabajador y reinícialo.
+
+00:02:35.966 --> 00:02:39.146 align:middle
+Toda esta refactorización giraba en torno
+a la eliminación de imágenes, así que...
+
+00:02:39.506 --> 00:02:45.996 align:middle
+borremos un par de cosas, volvamos a pasar y...
+
+00:02:46.486 --> 00:02:48.426 align:middle
+¡sí! ¡Funciona de maravilla!
+
+00:02:48.866 --> 00:02:52.156 align:middle
+ImagePostDeletedEvent se
+está despachando y manejando.
+
+00:02:52.796 --> 00:02:55.086 align:middle
+Ah, y una nota al margen sobre el enrutamiento.
+
+00:02:55.676 --> 00:03:01.836 align:middle
+Cuando enrutas una clase de comando,
+sabes exactamente qué manejador tiene.
+
+00:03:02.126 --> 00:03:05.526 align:middle
+Y así, es superfácil pensar
+en lo que hace ese manejador
+
+00:03:05.806 --> 00:03:09.066 align:middle
+y determinar si puede ser
+manejado de forma asíncrona o no.
+
+00:03:09.836 --> 00:03:16.906 align:middle
+Con los eventos, es un poco más complicado: esta
+clase de evento podría tener múltiples manejadores.
+
+00:03:17.326 --> 00:03:22.686 align:middle
+Y, en teoría, puedes querer que algunos se
+gestionen inmediatamente y otros más tarde.
+
+00:03:23.666 --> 00:03:28.756 align:middle
+Como Messenger está construido en torno al enrutamiento
+de los mensajes a los transportes -no a los manejadores-,
+
+00:03:29.106 --> 00:03:33.556 align:middle
+hacer que algunos manejadores estén
+sincronizados y otros asincrónicos no es natural.
+
+00:03:34.096 --> 00:03:40.846 align:middle
+Sin embargo, si necesitas hacerlo, es posible:
+puedes encaminar un mensaje a varios transport es, y
+
+00:03:41.066 --> 00:03:46.736 align:middle
+luego configurar Messenger para que sólo llame
+a un manejador cuando se reciba del transporte A
+
+00:03:46.736 --> 00:03:52.896 align:middle
+y sólo al otro manejador cuando se reciba
+del transporte B. Es un poco más complejo,
+
+00:03:53.206 --> 00:03:55.626 align:middle
+así que no recomiendo hacerlo
+a menos que lo necesites.
+
+00:03:56.376 --> 00:03:59.906 align:middle
+No hablaremos de cómo en este tutorial,
+pero está en los documentos. De
+
+00:04:00.866 --> 00:04:04.096 align:middle
+todos modos, ya he mencionado
+que, para los eventos, es
+
+00:04:04.376 --> 00:04:08.476 align:middle
+legal a nivel filosófico
+no tener manejadores...
+
+00:04:09.006 --> 00:04:13.146 align:middle
+aunque probablemente no lo harás
+en tu aplicación porque...
+
+00:04:13.436 --> 00:04:16.596 align:middle
+¿qué sentido tiene enviar
+un evento sin controladores?
+
+00:04:17.276 --> 00:04:22.616 align:middle
+Pero... por probar, abre
+RemoveFileWhenImagePostDeleted
+
+00:04:23.016 --> 00:04:26.086 align:middle
+y quita la parte de implements
+MessageHandleInterface.
+
+00:04:27.436 --> 00:04:32.786 align:middle
+Lo hago temporalmente para ver qué pasa si
+Symfony ve cero manejadores para un evento.
+
+00:04:33.706 --> 00:04:34.856 align:middle
+Vamos a... ¡descubrirlo!
+
+00:04:35.736 --> 00:04:38.226 align:middle
+De nuevo en el navegador,
+intenta eliminar una imagen.
+
+00:04:39.896 --> 00:04:42.656 align:middle
+¡Funciona! Espera...
+
+00:04:42.936 --> 00:04:45.496 align:middle
+oh, me he olvidado de parar el trabajador...
+
+00:04:45.946 --> 00:04:47.106 align:middle
+hagámoslo...
+
+00:04:47.296 --> 00:04:48.326 align:middle
+y vuelve a intentarlo.
+
+00:04:51.526 --> 00:04:51.986 align:middle
+Esta vez...
+
+00:04:52.216 --> 00:04:53.216 align:middle
+funciona...
+
+00:04:53.456 --> 00:04:54.766 align:middle
+pero en el registro del trabajador...
+
+00:04:55.866 --> 00:04:57.316 align:middle
+¡Error crítico!
+
+00:04:58.036 --> 00:05:03.206 align:middle
+Se ha producido una excepción al manejar
+ImagePostDeletedEvent: no hay manejador para el mensaje.
+
+00:05:04.116 --> 00:05:09.636 align:middle
+Por defecto, Messenger exige que cada
+mensaje tenga al menos un manejador.
+
+00:05:10.256 --> 00:05:12.516 align:middle
+Eso es para ayudarnos a evitar errores tontos.
+
+00:05:12.866 --> 00:05:14.796 align:middle
+Pero... para un bus de eventos...
+
+00:05:14.976 --> 00:05:17.886 align:middle
+queremos permitir cero manejadores.
+
+00:05:18.706 --> 00:05:24.916 align:middle
+De nuevo... esto es más un problema filosófico
+que real: es poco probable que decidas
+
+00:05:24.916 --> 00:05:27.556 align:middle
+enviar eventos que no tienen manejadores.
+
+00:05:27.966 --> 00:05:30.966 align:middle
+Pero, ¡vamos a ver cómo solucionarlo!
+
+00:05:30.966 --> 00:05:36.336 align:middle
+En messenger.yaml, quita el ~ de event.bus
+y añade una nueva opción a continuación:
+
+00:05:37.346 --> 00:05:41.746 align:middle
+default_middleware: allow_no_handlers.
+
+00:05:42.566 --> 00:05:48.446 align:middle
+La opción default_middleware está por defecto en true
+y su propósito principal es permitirte establecer la
+
+00:05:48.446 --> 00:05:54.436 align:middle
+en false si, por alguna razón, quisieras
+eliminar por completo el middleware por defecto,
+
+00:05:55.106 --> 00:05:58.586 align:middle
+el que maneja y envía los
+mensajes, entre otras cosas.
+
+00:05:59.326 --> 00:06:04.856 align:middle
+Pero también puedes establecerlo en allow_no_handlers
+si quieres mantener el middleware normal,
+
+00:06:05.416 --> 00:06:12.236 align:middle
+pero indicando a HandleMessageMiddleware que no
+debe entrar en pánico si hay cero manejadores.
+
+00:06:13.296 --> 00:06:14.556 align:middle
+Vuelve y reinicia el trabajador.
+
+00:06:18.426 --> 00:06:20.466 align:middle
+Luego, borra otra imagen...
+
+00:06:21.826 --> 00:06:23.186 align:middle
+vuelve aquí y...
+
+00:06:23.786 --> 00:06:28.896 align:middle
+¡guay! Dice "No hay manejador para el
+mensaje" pero no se asusta y provoca un fallo.
+
+00:06:29.716 --> 00:06:33.506 align:middle
+Así que ahora nuestro bus de comandos y nuestro
+bus de eventos tienen una pequeña diferencia...
+
+00:06:33.506 --> 00:06:36.336 align:middle
+aunque siguen siendo casi idénticos...
+
+00:06:36.416 --> 00:06:42.376 align:middle
+y realmente podríamos seguir enviando tanto
+comandos como eventos a través del mismo bus.
+
+00:06:43.216 --> 00:06:45.566 align:middle
+Vuelve a poner el
+MessageHandlerInterface en la clase...
+
+00:06:45.886 --> 00:06:48.346 align:middle
+y reinicia nuestro trabajador una vez más.
+
+00:06:48.346 --> 00:06:52.396 align:middle
+Ahora que nos sentimos bien con los eventos...
+
+00:06:52.586 --> 00:06:58.426 align:middle
+Tengo una pregunta: ¿cuál es la diferencia
+entre enviar un evento a Messenger
+
+00:06:58.646 --> 00:07:02.716 align:middle
+y enviar un evento al
+EventDispatcher de Symfony?
+
+00:07:03.466 --> 00:07:04.736 align:middle
+Vamos a hablar de eso a continuación
