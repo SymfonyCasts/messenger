@@ -1,0 +1,223 @@
+WEBVTT
+
+00:00:01.046 --> 00:00:08.016 align:middle
+Nuestro nuevo y brillante transporte external_messages
+lee los mensajes de esta cola messages_from_external,
+
+00:00:08.206 --> 00:00:12.936 align:middle
+que fingimos que está siendo
+rellenada por una aplicación externa.
+
+00:00:13.666 --> 00:00:19.036 align:middle
+Tomamos este JSON y, en
+ExternalJsonMessengerSerializer, lo descodificamos,
+
+00:00:19.266 --> 00:00:25.706 align:middle
+creamos el objeto LogEmoji, lo introducimos
+en Envelope, incluso le añadimos un sello,
+
+00:00:26.176 --> 00:00:31.246 align:middle
+y finalmente lo devolvemos, para
+que pueda ser enviado de nuevo a
+
+00:00:31.396 --> 00:00:33.086 align:middle
+través del sistema de bus de mensajes.
+
+00:00:34.066 --> 00:00:35.596 align:middle
+¡Esto tiene muy buena pinta!
+
+00:00:36.096 --> 00:00:38.606 align:middle
+Pero hay dos mejoras que quiero hacer.
+
+00:00:38.686 --> 00:00:43.356 align:middle
+En primer lugar, no hemos
+codificado de forma muy defensiva.
+
+00:00:43.356 --> 00:00:49.306 align:middle
+Por ejemplo, ¿qué pasa si, por alguna
+razón, el mensaje contiene JSON no válido?
+
+00:00:49.966 --> 00:00:54.076 align:middle
+Comprobemos eso: si null === $data,
+
+00:00:54.646 --> 00:00:59.666 align:middle
+entonces lanza un new
+MessageDecodingFailedException('Invalid JSON').
+
+00:01:00.956 --> 00:01:06.136 align:middle
+Te mostraré por qué usamos esta clase
+de excepción exactamente en un minuto.
+
+00:01:06.386 --> 00:01:09.936 align:middle
+Pero probemos esto con
+algún JSON no válido y...
+
+00:01:10.206 --> 00:01:11.186 align:middle
+veamos qué ocurre.
+
+00:01:12.026 --> 00:01:20.076 align:middle
+Ve a reiniciar el trabajador para que vea nuestro
+nuevo código: Luego, en el gestor RabbitMQ, vamos a
+
+00:01:20.636 --> 00:01:26.896 align:middle
+cometer un error JSON muy molesto: añadir
+una coma después de la última propiedad.
+
+00:01:27.696 --> 00:01:29.426 align:middle
+¡Publica ese mensaje!
+
+00:01:30.136 --> 00:01:31.706 align:middle
+Bien, muévete y...
+
+00:01:32.566 --> 00:01:33.866 align:middle
+¡explosión!
+
+00:01:34.156 --> 00:01:42.646 align:middle
+MessageDecodingFailedException: JSON inválido Oh, e
+interesante: ¡esto ha matado nuestro proceso de trabajo!
+
+00:01:43.396 --> 00:01:50.256 align:middle
+Sí, si se produce un error durante el proceso de
+descodificación, la excepción mata a tu trabajador.
+
+00:01:51.096 --> 00:01:52.876 align:middle
+No es lo ideal...
+
+00:01:52.876 --> 00:01:54.516 align:middle
+pero en realidad...
+
+00:01:54.546 --> 00:01:55.696 align:middle
+no es un problema.
+
+00:01:56.536 --> 00:02:00.526 align:middle
+En producción, ya estarás
+utilizando algo como el supervisor
+
+00:02:00.736 --> 00:02:03.486 align:middle
+, que reiniciará el proceso cuando muera.
+
+00:02:04.466 --> 00:02:08.846 align:middle
+Añadamos código para comprobar un
+posible problema diferente: comprob emos
+
+00:02:08.846 --> 00:02:14.926 align:middle
+si falta esta clave emoji:
+si no isset($data['emoji']),
+
+00:02:15.496 --> 00:02:22.806 align:middle
+esta vez lanza una excepción normal: throw
+new \Exception('Missing the emoji key!').
+
+00:02:25.296 --> 00:02:30.516 align:middle
+Bien, pasa y reinicia el
+trabajador: De nuevo en Rabbit,
+
+00:02:31.536 --> 00:02:36.006 align:middle
+elimina la coma extra y
+cambia emoji por emojis.
+
+00:02:36.786 --> 00:02:39.906 align:middle
+¡Publica! En el terminal...
+
+00:02:40.596 --> 00:02:42.626 align:middle
+¡genial! ¡Ha explotado!
+
+00:02:42.936 --> 00:02:45.806 align:middle
+Y aparte de la clase de excepción...
+
+00:02:45.946 --> 00:02:52.536 align:middle
+parece idéntico al fallo que vimos
+antes: Excepción: ¡Falta la tecla emoji!
+
+00:02:53.346 --> 00:02:56.546 align:middle
+Pero... acaba de ocurrir algo diferente.
+
+00:02:57.206 --> 00:03:02.706 align:middle
+Intenta volver a ejecutar el trabajador: ¡Woh!
+
+00:03:02.866 --> 00:03:03.686 align:middle
+¡Ha explotado!
+
+00:03:04.106 --> 00:03:05.376 align:middle
+Falta la tecla emoji.
+
+00:03:06.136 --> 00:03:10.086 align:middle
+Ejecútalo de nuevo: ¡El mismo error!
+
+00:03:10.886 --> 00:03:15.296 align:middle
+Ésta es la diferencia entre lanzar
+un Exception normal en el serializador
+
+00:03:15.596 --> 00:03:19.016 align:middle
+y el especial MessageDecodingFailedException.
+
+00:03:19.916 --> 00:03:25.836 align:middle
+Cuando lanzas un MessageDecodingFailedException,
+tu serializador está diciendo básicamente ¡Eh!
+
+00:03:26.056 --> 00:03:27.256 align:middle
+Algo ha salido mal...
+
+00:03:27.336 --> 00:03:30.336 align:middle
+y quiero lanzar una excepción.
+
+00:03:30.656 --> 00:03:34.616 align:middle
+Pero, creo que deberíamos
+descartar este mensaje de la cola:
+
+00:03:35.146 --> 00:03:37.926 align:middle
+no tiene sentido intentarlo una y otra vez.
+
+00:03:38.386 --> 00:03:41.586 align:middle
+¡kthxbai! Y eso es súper importante.
+Si no descartamos este mensaje
+
+00:03:41.986 --> 00:03:46.066 align:middle
+, cada vez que nuestro trabajador se reinicie,
+
+00:03:46.216 --> 00:03:48.926 align:middle
+fallará con ese mismo mensaje...
+
+00:03:49.256 --> 00:03:51.466 align:middle
+una y otra vez...
+
+00:03:51.626 --> 00:03:57.286 align:middle
+para siempre. Cualquier mensaje nuevo empezará
+a acumularse detrás de él en la cola.
+
+00:03:57.286 --> 00:04:01.776 align:middle
+Así que cambiemos el Exception
+por MessageDecodingFailedException.
+
+00:04:02.786 --> 00:04:06.766 align:middle
+Pruébalo ahora: Explotará la primera vez...
+
+00:04:07.556 --> 00:04:11.696 align:middle
+pero el MessageDecodingFailedException
+debería haberlo eliminado de la cola.
+
+00:04:12.836 --> 00:04:15.676 align:middle
+Cuando ejecutemos el trabajador ahora: ¡Sí!
+
+00:04:15.876 --> 00:04:19.046 align:middle
+El mensaje ha desaparecido
+y la cola está vacía.
+
+00:04:20.056 --> 00:04:24.356 align:middle
+A continuación, vamos a añadir un
+superpoder más a este serializador.
+
+00:04:25.196 --> 00:04:31.516 align:middle
+¿Qué pasa si ese sistema externo envía a nuestra
+aplicación muchos tipos diferentes de mensajes:
+
+00:04:32.056 --> 00:04:39.186 align:middle
+no sólo un mensaje para registrar emojis, sino quizá
+también mensajes para borrar fotos o cocinar una pizza?
+
+00:04:39.666 --> 00:04:42.986 align:middle
+¿Cómo puede nuestro serializador
+averiguar qué mensajes son cada uno...
+
+00:04:43.106 --> 00:04:46.126 align:middle
+y qué objeto de mensaje debe crear?
