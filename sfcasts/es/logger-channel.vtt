@@ -1,0 +1,260 @@
+WEBVTT
+
+00:00:01.066 --> 00:00:01.806 align:middle
+Este es nuestro objetivo...
+
+00:00:02.246 --> 00:00:06.156 align:middle
+y el resultado final va a ser bastante
+chulo: aprovechar nuestro middleware
+
+00:00:06.536 --> 00:00:10.386 align:middle
+-y el hecho de que estamos añadiendo
+este identificador único a cada mensaje-
+
+00:00:10.496 --> 00:00:14.156 align:middle
+para registrar todo el ciclo de
+vida de un mensaje en un archivo.
+
+00:00:14.306 --> 00:00:19.956 align:middle
+Quiero ver cuándo se despachó originalmente
+un mensaje, cuándo se envió al transporte,
+
+00:00:20.236 --> 00:00:23.716 align:middle
+cuándo se recibió del
+transporte y cuándo se gestionó.
+
+00:00:23.716 --> 00:00:26.766 align:middle
+Antes de entrar en el tema
+del middleware, vamos a
+
+00:00:26.766 --> 00:00:30.886 align:middle
+configurar un nuevo canal de registro
+que registre en un nuevo archivo.
+
+00:00:32.996 --> 00:00:38.156 align:middle
+Abre config/packages/dev/monolog.yaml
+y añade una nueva clave channels.
+
+00:00:39.086 --> 00:00:41.086 align:middle
+Espera... eso no es correcto.
+
+00:00:41.616 --> 00:00:44.806 align:middle
+Un canal de registro es, en
+cierto modo, una "categoría",
+
+00:00:45.036 --> 00:00:49.496 align:middle
+y puedes controlar cómo se manejan los mensajes
+de registro de cada categoría. No queremos
+
+00:00:50.286 --> 00:00:53.176 align:middle
+añadirlo aquí porque entonces
+
+00:00:53.176 --> 00:00:57.036 align:middle
+ese nuevo canal sólo
+existiría en el entorno dev.
+
+00:00:57.776 --> 00:01:01.696 align:middle
+No, queremos que el canal
+exista en todos los entornos...
+
+00:01:02.096 --> 00:01:06.686 align:middle
+aunque decidamos dar un tratamiento
+especial a esos mensajes sólo en dev.
+
+00:01:07.976 --> 00:01:13.976 align:middle
+Para ello, directamente dentro de config/packages,
+crea un nuevo archivo llamado monolog.yaml...
+
+00:01:14.426 --> 00:01:19.196 align:middle
+aunque... recuerda: los nombres de estos
+archivos de configuración no son importantes.
+
+00:01:20.216 --> 00:01:26.516 align:middle
+Lo que es importante es añadir una clave
+monolog, y luego channels establecer una matriz
+
+00:01:26.516 --> 00:01:30.656 align:middle
+con uno nuevo - ¿qué tal messenger_audit.
+
+00:01:30.656 --> 00:01:36.986 align:middle
+Gracias a esto, ahora tenemos un nuevo servicio
+de registro en el contenedor para este canal.
+
+00:01:37.666 --> 00:01:40.386 align:middle
+Vamos a buscarlo: en tu terminal, ejecuta
+
+00:01:40.596 --> 00:01:47.796 align:middle
+php bin/console debug:container
+messenger_audit Ahí está:
+
+00:01:48.076 --> 00:01:53.946 align:middle
+monolog.logger.messenger_audit
+- lo utilizaremos en un momento.
+
+00:01:54.586 --> 00:01:58.136 align:middle
+Pero antes, quiero hacer que cualquier
+registro de este canal se guarde
+
+00:01:58.136 --> 00:02:00.466 align:middle
+en un nuevo archivo en el
+entorno dev . Retrocede
+
+00:02:01.376 --> 00:02:06.466 align:middle
+en , copia el manejador de ,
+config/packages/dev/monolog.yaml main
+
+00:02:08.356 --> 00:02:11.496 align:middle
+pégalo y cambia la clave a messenger...
+
+00:02:11.886 --> 00:02:13.886 align:middle
+aunque puede ser cualquier cosa.
+
+00:02:14.826 --> 00:02:20.856 align:middle
+Actualiza el archivo para que se llame y -aquí
+está la magia- en lugar de decir messenger.log
+
+00:02:20.926 --> 00:02:28.226 align:middle
+registrar todos los mensajes excepto los del canal ,
+cámbialo para que sólo registre los mensajes event
+
+00:02:28.286 --> 00:02:31.696 align:middle
+que están en ese canal . messenger_audit
+
+00:02:33.136 --> 00:02:37.376 align:middle
+¡Genial! Para utilizar este servicio,
+no podemos simplemente autoconducirlo
+
+00:02:37.376 --> 00:02:40.256 align:middle
+mediante la indicación del
+tipo normal . LoggerInterface..
+
+00:02:40.256 --> 00:02:43.356 align:middle
+porque eso nos dará el logger principal.
+
+00:02:44.386 --> 00:02:48.686 align:middle
+Este es uno de esos casos en los que
+tenemos varios servicios en el contenedor
+
+00:02:48.816 --> 00:02:51.486 align:middle
+que utilizan todos la misma clase o interfaz.
+
+00:02:52.586 --> 00:02:59.676 align:middle
+Para hacerlo deseable, de nuevo en , añade un nuevo
+enlace global services.yaml $messengerAuditLogger
+
+00:03:00.236 --> 00:03:04.186 align:middle
+que apunte al id del servicio:
+cópialo desde el terminal
+
+00:03:05.066 --> 00:03:09.756 align:middle
+y pégalo como .
+@monolog.logger.messenger_audit Gracias
+
+00:03:09.756 --> 00:03:16.016 align:middle
+a esto, si utilizamos un argumento llamado
+en el constructor $messengerAuditLogger
+
+00:03:16.016 --> 00:03:20.196 align:middle
+de un servicio o en un controlador,
+Symfony nos pasará ese servicio. Por
+
+00:03:21.196 --> 00:03:28.156 align:middle
+cierto, a partir de Symfony 4.2, en lugar
+de vincularse sólo al nombre del argumento,
+
+00:03:28.436 --> 00:03:38.406 align:middle
+también puedes vincularte al nombre y al tipo diciendo
+. Psr\Log\LoggerInterface $messengerAuditLogger
+
+00:03:39.096 --> 00:03:44.996 align:middle
+Eso sólo hace las cosas más específicas: Symfony
+nos pasaría este servicio para cualquier argumento
+
+00:03:44.996 --> 00:03:48.866 align:middle
+que tenga este nombre y el
+tipo-indicación . LoggerInterface
+
+00:03:50.206 --> 00:03:54.966 align:middle
+En cualquier caso, tenemos un nuevo canal de registro,
+ese canal registrará en un archivo especial,
+
+00:03:54.966 --> 00:03:58.396 align:middle
+y el servicio de registro
+para ese canal es deseable.
+
+00:03:59.006 --> 00:04:00.656 align:middle
+¡Es hora de ponerse a trabajar!
+
+00:04:01.756 --> 00:04:05.216 align:middle
+Cierra los archivos de configuración
+del monolog y ve a . AuditMiddleware
+
+00:04:05.216 --> 00:04:14.456 align:middle
+Añade un con un argumento - public function
+__construct() LoggerInterface $messengerAuditLogger
+
+00:04:14.956 --> 00:04:17.736 align:middle
+el mismo nombre que usamos
+en la configuración.
+
+00:04:17.736 --> 00:04:19.696 align:middle
+Llamaré a la propiedad en sí $logger,
+
+00:04:20.336 --> 00:04:24.906 align:middle
+y terminaré esto con .
+$this->logger = $messengerAuditLogger
+
+00:04:26.756 --> 00:04:32.356 align:middle
+Abajo, en , elimina el y crea una nueva
+variable llamada handle() dump() $context.
+
+00:04:33.266 --> 00:04:37.566 align:middle
+Además del mensaje de registro propiamente
+dicho, es un hecho poco conocido
+
+00:04:37.566 --> 00:04:40.376 align:middle
+que puedes pasar información
+extra al registrador...
+
+00:04:40.726 --> 00:04:41.946 align:middle
+¡lo cual es muy útil! Vamos a
+
+00:04:42.866 --> 00:04:49.936 align:middle
+crear una clave llamada configurada con el id
+único, y otra llamada configurada id class
+
+00:04:49.936 --> 00:04:52.926 align:middle
+con la clase del mensaje original.
+
+00:04:53.836 --> 00:04:57.906 align:middle
+Podemos conseguirlo con .
+get_class($envelope->getMessage())
+
+00:04:59.246 --> 00:05:00.846 align:middle
+A continuación, ¡hagamos el registro!
+
+00:05:01.026 --> 00:05:04.046 align:middle
+Es un poco más interesante
+de lo que cabría esperar.
+
+00:05:04.586 --> 00:05:08.276 align:middle
+¿Cómo podemos averiguar si el
+mensaje actual acaba de ser enviado
+
+00:05:08.406 --> 00:05:12.406 align:middle
+o acaba de ser recibido de forma
+asíncrona desde un transporte?
+
+00:05:12.906 --> 00:05:16.666 align:middle
+Y si se acaba de enviar,
+¿cómo podemos averiguar si
+
+00:05:16.666 --> 00:05:21.796 align:middle
+el mensaje se gestionará ahora mismo o se
+enviará a un transporte para más tarde?
+
+00:05:22.546 --> 00:05:23.176 align:middle
+La respuesta...
+
+00:05:23.426 --> 00:05:25.366 align:middle
+¡está en los sellos!
