@@ -1,0 +1,371 @@
+WEBVTT
+
+00:00:01.836 --> 00:00:07.046 align:middle
+Abre tu archivo .env y comprueba la
+configuración de MESSENGER_TRANSPORT_DSN.
+
+00:00:08.096 --> 00:00:10.826 align:middle
+Hemos utilizado el tipo de transporte Doctrine.
+
+00:00:11.586 --> 00:00:17.546 align:middle
+La cadena doctrine://default indica que los mensajes deben
+almacenarse utilizando la conexióndefault de Doctrine.
+
+00:00:20.096 --> 00:00:24.746 align:middle
+En config/packages/messenger.yaml, estamos
+haciendo referencia a esta variable de entorno
+
+00:00:24.746 --> 00:00:29.226 align:middle
+para los transportes async
+y async_priority_high.
+
+00:00:29.856 --> 00:00:30.676 align:middle
+Así que... ¡sí!
+
+00:00:30.966 --> 00:00:34.136 align:middle
+Hemos estado almacenando los mensajes
+en una tabla de la base de datos.
+
+00:00:35.036 --> 00:00:40.206 align:middle
+Fue rápido de configurar, fácil de usar
+-porque ya entendemos de bases de datos-
+
+00:00:40.396 --> 00:00:43.496 align:middle
+y lo suficientemente robusto para
+la mayoría de los casos de uso.
+
+00:00:44.126 --> 00:00:49.866 align:middle
+Pero el "sistema de colas" o "broker de mensajes" estándar
+de la industria no es una tabla de base de datos, es
+
+00:00:50.266 --> 00:00:56.896 align:middle
+algo llamado AMQP, o "Advanced
+Message Queuing Protocol".
+
+00:00:57.796 --> 00:00:59.176 align:middle
+AMQP es...
+
+00:00:59.386 --> 00:01:02.096 align:middle
+no es en sí mismo una tecnología...
+
+00:01:02.186 --> 00:01:07.996 align:middle
+es un "estándar" sobre cómo debe funcionar un,
+así llamado, "sistema de corredor de mensajes".
+
+00:01:08.836 --> 00:01:12.436 align:middle
+Luego, diferentes sistemas de colas
+pueden "implementar" este estándar.
+
+00:01:13.096 --> 00:01:16.846 align:middle
+Sinceramente, normalmente
+cuando alguien habla de AMQP, se
+
+00:01:17.106 --> 00:01:21.256 align:middle
+refiere a una herramienta
+concreta: RabbitMQ. La
+
+00:01:21.256 --> 00:01:27.846 align:middle
+idea es la siguiente: de la misma manera que lanzas
+un "servidor de base de datos" y le haces consultas,
+
+00:01:28.166 --> 00:01:34.696 align:middle
+puedes lanzar una "instancia de Rabbit MQ" y
+enviar mensajes a ella y recibir mensajes de ella.
+
+00:01:35.586 --> 00:01:36.686 align:middle
+A alto nivel...
+
+00:01:36.686 --> 00:01:42.626 align:middle
+no funciona de forma muy diferente a nuestra simple
+tabla de base de datos: introduces los mensajes...
+
+00:01:42.786 --> 00:01:44.366 align:middle
+y luego los solicitas.
+
+00:01:45.066 --> 00:01:50.406 align:middle
+Entonces... ¿cuáles son las ventajas de
+utilizar RabbitMQ en lugar de Doctrine?
+
+00:01:51.036 --> 00:01:52.236 align:middle
+Quizás... ¡nada!
+
+00:01:53.066 --> 00:01:57.096 align:middle
+Lo que quiero decir es que, si sólo
+utilizas las funciones estándar de Messenger
+
+00:01:57.196 --> 00:02:00.736 align:middle
+y nunca profundizas en ellas,
+ambas funcionarán bien.
+
+00:02:01.306 --> 00:02:06.376 align:middle
+Pero si tienes un sistema muy escalado o
+quieres utilizar algunas funciones avanzadas y
+
+00:02:06.416 --> 00:02:09.446 align:middle
+específicas de RabbitMQ, bueno...
+
+00:02:09.526 --> 00:02:12.146 align:middle
+entonces... ¡RabbitMQ es la respuesta!
+
+00:02:13.006 --> 00:02:15.036 align:middle
+¿Cuáles son esas
+características más avanzadas?
+
+00:02:15.566 --> 00:02:20.446 align:middle
+Bueno, quédate conmigo en los próximos
+capítulos y empezarás a descubrirlas.
+
+00:02:21.466 --> 00:02:27.636 align:middle
+La forma más fácil de poner en marcha una
+instancia de RabbitMQ es a través de cloudamqp.com:
+
+00:02:28.216 --> 00:02:31.506 align:middle
+un impresionante servicio para
+RabbitMQ basado en la nube...
+
+00:02:31.836 --> 00:02:34.266 align:middle
+¡con un nivel gratuito para que podamos jugar!
+
+00:02:35.576 --> 00:02:47.026 align:middle
+Después de iniciar sesión, crea una nueva instancia,
+dale un nombre, selecciona cualquier región...
+
+00:02:48.596 --> 00:02:51.496 align:middle
+sí, queremos el nivel gratuito y...
+
+00:02:51.706 --> 00:02:52.946 align:middle
+"Crear instancia".
+
+00:02:53.866 --> 00:02:56.506 align:middle
+¡Genial! Haz clic en la nueva
+instancia para encontrar...
+
+00:02:57.026 --> 00:03:00.646 align:middle
+¡una bonita cadena de conexión AMQP!
+
+00:03:01.836 --> 00:03:04.726 align:middle
+Cópiala, ve a buscar nuestro archivo .env...
+
+00:03:05.016 --> 00:03:08.016 align:middle
+y pega sobre doctrine://default.
+
+00:03:09.056 --> 00:03:12.186 align:middle
+También puedes poner esto
+en un archivo .env.local...
+
+00:03:12.246 --> 00:03:17.366 align:middle
+que es lo que yo haría normalmente para
+evitar comprometer estas credenciales.
+
+00:03:18.226 --> 00:03:25.036 align:middle
+De todos modos, la parte amqp://
+activa el transporte AMQP en Symfony...
+
+00:03:25.036 --> 00:03:29.756 align:middle
+y el resto contiene el nombre de usuario, la
+contraseña y otros detalles de conexión.
+
+00:03:30.596 --> 00:03:36.486 align:middle
+En cuanto hagamos este cambio, tanto nuestro
+transporte async como async_priority_high...
+
+00:03:36.656 --> 00:03:38.846 align:middle
+¡están ahora usando RabbitMQ!
+
+00:03:39.556 --> 00:03:40.196 align:middle
+¡Ha sido fácil!
+
+00:03:40.856 --> 00:03:45.406 align:middle
+Ah, pero fíjate en que todavía estoy usando
+doctrine para mi transporte de fallos...
+
+00:03:45.786 --> 00:03:47.386 align:middle
+y voy a mantenerlo.
+
+00:03:48.026 --> 00:03:50.616 align:middle
+El transporte de fallos es un
+tipo especial de transporte...
+
+00:03:50.796 --> 00:03:57.086 align:middle
+y resulta que el tipo de transporte
+doctrine es el que más funciones tiene
+
+00:03:57.186 --> 00:03:59.056 align:middle
+para revisar los mensajes fallidos.
+
+00:03:59.676 --> 00:04:03.186 align:middle
+Puedes utilizar AMQP para esto,
+pero yo recomiendo Doctrine.
+
+00:04:04.336 --> 00:04:07.286 align:middle
+Antes de probar esto, quiero hacer otro cambio.
+
+00:04:08.206 --> 00:04:13.346 align:middle
+Abre src/Controller/ImagePostController.php
+y busca el método create().
+
+00:04:14.386 --> 00:04:17.806 align:middle
+Este es el controlador que se ejecuta
+cada vez que subimos una foto...
+
+00:04:18.126 --> 00:04:22.436 align:middle
+y es el responsable de enviar
+el comando AddPonkaToImage.
+
+00:04:23.376 --> 00:04:28.776 align:middle
+También añade un retraso de 500
+milisegundos a través de este sello.
+
+00:04:29.816 --> 00:04:31.386 align:middle
+Comenta esto por ahora...
+
+00:04:31.386 --> 00:04:34.396 align:middle
+Te mostraré por qué lo
+hacemos un poco más tarde.
+
+00:04:35.356 --> 00:04:37.496 align:middle
+De acuerdo Aparte de eliminar ese retraso,
+
+00:04:37.836 --> 00:04:42.646 align:middle
+todo lo que hemos hecho es cambiar nuestra
+configuración de transporte de Doctrine a AMQP.
+
+00:04:43.606 --> 00:04:45.266 align:middle
+Veamos... ¡si las cosas siguen funcionando!
+
+00:04:46.046 --> 00:04:48.896 align:middle
+En primer lugar, asegúrate de que
+tu trabajador no está ejecutando...
+
+00:04:48.896 --> 00:04:49.596 align:middle
+para empezar.
+
+00:04:50.566 --> 00:04:57.676 align:middle
+Luego, busca tu navegador,
+selecciona una foto y...
+
+00:04:58.666 --> 00:04:59.646 align:middle
+¡funciona!
+
+00:05:00.026 --> 00:05:01.256 align:middle
+Bueno, espera...
+
+00:05:01.426 --> 00:05:05.106 align:middle
+porque es posible que hayas
+obtenido un gran error AJAX.
+
+00:05:05.886 --> 00:05:09.036 align:middle
+Si es así, abre el
+perfilador de esa petición.
+
+00:05:10.006 --> 00:05:12.496 align:middle
+Estoy bastante seguro de
+que sé qué error verás
+
+00:05:12.866 --> 00:05:17.566 align:middle
+Se ha intentado cargar la clase "AMQPConnection"
+desde el espacio de nombres global.
+
+00:05:18.106 --> 00:05:19.846 align:middle
+¿Olvidaste una declaración "use"?
+
+00:05:20.356 --> 00:05:22.006 align:middle
+Pues... ¡no!
+
+00:05:22.796 --> 00:05:28.706 align:middle
+Bajo el capó, el tipo de transporte AMQP de
+Symfony utiliza una extensión de PHP llamada...
+
+00:05:29.176 --> 00:05:30.946 align:middle
+bueno... ¡amqp!
+
+00:05:31.746 --> 00:05:39.566 align:middle
+Es un complemento de PHP -como xdebug o pdo_mysql-
+que probablemente tendrás que instalar.
+
+00:05:40.326 --> 00:05:45.976 align:middle
+Lo malo de las extensiones de PHP es que su
+instalación puede variar en función de tu sistema.
+
+00:05:46.786 --> 00:05:54.876 align:middle
+En el caso de Ubuntu, puedes ejecutar sudo
+apt-get install php-amqp O puedes utilizar pecl,
+
+00:05:54.946 --> 00:06:01.156 align:middle
+como hice yo con mi instalación Homebrew para
+Mac: pecl install amqp Una vez que consigas
+
+00:06:01.156 --> 00:06:06.946 align:middle
+instalarlo, asegúrate de reiniciar el
+servidor web Symfony para que vea el cambio.
+
+00:06:08.156 --> 00:06:10.056 align:middle
+Si tienes problemas para configurarlo,
+
+00:06:10.346 --> 00:06:13.456 align:middle
+háznoslo saber en los comentarios
+y haremos lo posible por ayudarte
+
+00:06:14.456 --> 00:06:19.616 align:middle
+Cuando esté todo configurado, deberías
+poder subir una foto sin errores.
+
+00:06:20.026 --> 00:06:22.596 align:middle
+Y... como esto no tenía errores...
+
+00:06:22.716 --> 00:06:25.906 align:middle
+es probable que... ¿se
+haya enviado a RabbitMQ?
+
+00:06:26.786 --> 00:06:29.966 align:middle
+Cuando actualizo, dice "Ponka
+está durmiendo la siesta"...
+
+00:06:30.296 --> 00:06:33.376 align:middle
+porque todavía no se ha
+consumido nuestro mensaje.
+
+00:06:34.136 --> 00:06:35.776 align:middle
+Bueno, vamos a ver qué pasa.
+
+00:06:36.606 --> 00:06:40.296 align:middle
+Busca tu terminal y consume los
+mensajes de nuestros dos transportes:
+
+00:06:40.296 --> 00:06:47.556 align:middle
+php bin/console messenger:consume
+-vv async_priority_high async Y...
+
+00:06:47.796 --> 00:06:48.756 align:middle
+¡ahí está!
+
+00:06:49.016 --> 00:06:51.406 align:middle
+Ha recibido el mensaje, lo ha gestionado...
+
+00:06:51.406 --> 00:06:52.836 align:middle
+¡y ya está!
+
+00:06:54.106 --> 00:06:55.356 align:middle
+Cuando refrescamos la página...
+
+00:06:56.196 --> 00:06:57.306 align:middle
+¡ahí está Ponka!
+
+00:06:57.946 --> 00:06:58.556 align:middle
+¡Ha funcionado!
+
+00:06:59.276 --> 00:07:04.146 align:middle
+Pasar de Doctrine a RabbitMQ fue tan sencillo
+como cambiar nuestra cadena de conexión.
+
+00:07:05.086 --> 00:07:09.526 align:middle
+A continuación, vamos a profundizar en
+lo que acaba de ocurrir entre bastidores:
+
+00:07:10.016 --> 00:07:15.306 align:middle
+¿qué significa "enviar" un mensaje a
+RabbitMQ o "obtener" un mensaje de él?
+
+00:07:16.226 --> 00:07:20.656 align:middle
+Ah, y te van a encantar las
+herramientas de depuración de RabbitMQ
