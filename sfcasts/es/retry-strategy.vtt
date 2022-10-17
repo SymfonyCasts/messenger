@@ -1,0 +1,240 @@
+WEBVTT
+
+00:00:01.036 --> 00:00:05.806 align:middle
+Por defecto, un mensaje se reintentará
+tres veces y luego se perderá para siempre.
+
+00:00:06.456 --> 00:00:08.036 align:middle
+Pues bien, en unos minutos...
+
+00:00:08.336 --> 00:00:13.086 align:middle
+Te mostraré cómo puedes evitar que
+incluso esos mensajes se pierdan.
+
+00:00:14.086 --> 00:00:14.556 align:middle
+De todos modos...
+
+00:00:14.666 --> 00:00:15.526 align:middle
+el proceso...
+
+00:00:15.636 --> 00:00:16.626 align:middle
+¡simplemente funciona!
+
+00:00:16.836 --> 00:00:18.716 align:middle
+Y es aún más genial de lo
+que parece al principio. Es
+
+00:00:19.266 --> 00:00:23.646 align:middle
+un poco difícil de ver -sobre todo porque
+hay una suspensión en nuestro manipulador-
+
+00:00:24.176 --> 00:00:29.116 align:middle
+pero este mensaje se envió para el reintento
+nº 3 en la marca de tiempo de 13 segundos
+
+00:00:29.346 --> 00:00:35.156 align:middle
+y finalmente se gestionó de nuevo en la marca de
+tiempo de 17 segundos -un retraso de 4 segundos-.
+
+00:00:36.006 --> 00:00:43.826 align:middle
+Ese retraso no se debió a que nuestro trabajador
+estuviera ocupado hasta entonces: fue 100% intencionado.
+
+00:00:44.696 --> 00:00:48.766 align:middle
+Compruébalo: Pulsaré Ctrl+C para detener
+el trabajador y luego lo ejecutaré:
+
+00:00:49.246 --> 00:00:56.526 align:middle
+php bin/console config:dump framework
+messenger Esto debería darnos un gran árbol
+
+00:00:56.616 --> 00:01:01.606 align:middle
+de configuración "de ejemplo" que puedes
+poner bajo la tecla framework messenger config.
+
+00:01:02.186 --> 00:01:08.176 align:middle
+Me encanta este comando: es una forma estupenda de
+encontrar opciones que quizá no sabías que existían.
+
+00:01:09.526 --> 00:01:15.226 align:middle
+¡Genial! Fíjate bien en la clave transports:
+debajo aparece un transporte de "ejemplo"
+
+00:01:15.406 --> 00:01:17.786 align:middle
+con todas las opciones de
+configuración posibles.
+
+00:01:18.876 --> 00:01:25.006 align:middle
+Una de ellas es retry_strategy, donde
+podemos controlar el número máximo de
+
+00:01:25.326 --> 00:01:28.676 align:middle
+reintentos y el retardo que debe
+haber entre esos reintentos.
+
+00:01:29.566 --> 00:01:34.516 align:middle
+Este número de delay es más inteligente de lo
+que parece: funciona junto con el "multiplicador"
+
+00:01:34.606 --> 00:01:37.486 align:middle
+para crear un retardo que
+crece exponencialmente.
+
+00:01:38.326 --> 00:01:41.296 align:middle
+Con esta configuración, el primer
+reintento se retrasará un segundo,
+
+00:01:41.496 --> 00:01:44.646 align:middle
+el segundo 2 segundos y el tercero 4 segundos.
+
+00:01:45.556 --> 00:01:50.096 align:middle
+Esto es importante porque, si un mensaje
+falla debido a algún problema temporal
+
+00:01:50.446 --> 00:01:55.916 align:middle
+-como la conexión a un servidor de terceros- puede
+que no quieras volver a intentarlo inmediatamente. De
+
+00:01:56.596 --> 00:02:00.546 align:middle
+hecho, puedes optar por establecer
+estos valores mucho más altos para
+
+00:02:00.866 --> 00:02:04.946 align:middle
+que vuelva a intentarlo quizás 1
+minuto o incluso un día después.
+
+00:02:06.106 --> 00:02:07.866 align:middle
+Probemos también un comando similar:
+
+00:02:07.866 --> 00:02:16.116 align:middle
+php bin/console debug:config framework messenger
+En lugar de mostrar una configuración de ejemplo,
+
+00:02:16.436 --> 00:02:21.646 align:middle
+esto nos dice cuál es nuestra configuración
+actual, incluyendo cualquier valor por defecto:
+
+00:02:22.966 --> 00:02:28.696 align:middle
+nuestro transporte async tiene un retry_strategy,
+que por defecto tiene 3 reintentos máximos
+
+00:02:28.966 --> 00:02:32.266 align:middle
+con un retraso de 1000 milisegundos
+y un multiplicador de 2.
+
+00:02:33.626 --> 00:02:35.806 align:middle
+Hagamos esto un poco más interesante.
+
+00:02:36.636 --> 00:02:41.636 align:middle
+En el manejador, hagamos que
+siempre falle añadiendo || true.
+
+00:02:44.296 --> 00:02:47.316 align:middle
+Ahora, en messenger, juguemos con
+la configuración de reintento.
+
+00:02:48.466 --> 00:02:52.296 align:middle
+Espera... pero el transporte async
+está configurado como una cadena...
+
+00:02:52.526 --> 00:02:55.826 align:middle
+¿podemos incluir opciones
+de configuración bajo eso?
+
+00:02:56.666 --> 00:02:58.846 align:middle
+No! Bueno, sí, más o menos. En cuanto
+
+00:02:59.746 --> 00:03:03.936 align:middle
+necesites configurar un transporte más allá de
+los detalles de la conexión, tendrás que colocar
+
+00:03:04.426 --> 00:03:08.996 align:middle
+esta cadena en la siguiente línea
+y asignarla a una clave dsn.
+
+00:03:10.326 --> 00:03:16.116 align:middle
+Ahora podemos añadir retry_strategy, y vamos a
+establecer el retraso en 2 segundos en lugar de 1.
+
+00:03:17.596 --> 00:03:20.066 align:middle
+Ah, y también quiero mencionar
+esta tecla service. Si quieres
+
+00:03:21.016 --> 00:03:24.096 align:middle
+controlar completamente la
+configuración del reintento
+
+00:03:24.346 --> 00:03:29.066 align:middle
+-incluso tener una lógica de reintento
+diferente por mensaje- puedes crear un servicio
+
+00:03:29.066 --> 00:03:33.446 align:middle
+que implemente RetryStrategyInterface
+y poner su id de servicio
+
+00:03:33.796 --> 00:03:35.546 align:middle
+-normalmente su nombre de clase- aquí mismo.
+
+00:03:36.626 --> 00:03:43.326 align:middle
+En cualquier caso, veamos qué ocurre con el retraso
+más largo: reinicia el proceso del trabajador: Esta vez,
+
+00:03:43.636 --> 00:03:47.536 align:middle
+sube sólo una foto para que podamos
+ver cómo falla una y otra vez.
+
+00:03:48.866 --> 00:03:50.006 align:middle
+Y... ¡sí!
+
+00:03:50.376 --> 00:03:52.596 align:middle
+Falla y envía para reintento nº 1...
+
+00:03:52.926 --> 00:03:56.146 align:middle
+luego vuelve a fallar y envía
+para el reintento nº 2.
+
+00:03:56.586 --> 00:03:57.636 align:middle
+¡Pero fíjate en el retraso!
+
+00:03:58.006 --> 00:04:03.676 align:middle
+del 09 al 11 - 2 segundos - luego del
+11 al 15 - un retraso de 4 segundos.
+
+00:04:04.226 --> 00:04:05.086 align:middle
+Y... si...
+
+00:04:05.086 --> 00:04:05.716 align:middle
+somos...
+
+00:04:05.716 --> 00:04:06.896 align:middle
+súper... pacientes...
+
+00:04:07.186 --> 00:04:11.276 align:middle
+¡sí! El reintento nº 3
+comienza 8 segundos después.
+
+00:04:11.706 --> 00:04:15.766 align:middle
+Entonces es "rechazado" - eliminado
+de la cola - y perdido para siempre.
+
+00:04:16.186 --> 00:04:19.066 align:middle
+¡Trágico! Los reintentos son geniales...
+
+00:04:19.386 --> 00:04:24.306 align:middle
+pero no me gusta la última parte: cuando el
+mensaje se pierde finalmente para siempre.
+
+00:04:25.536 --> 00:04:29.146 align:middle
+Cambia el reintento a 500: así
+será más fácil de probar.
+
+00:04:30.356 --> 00:04:36.366 align:middle
+A continuación, vamos a hablar de un concepto especial
+llamado "transporte de fallos": una alternativa mejor
+
+00:04:36.366 --> 00:04:38.556 align:middle
+que permitir que los mensajes
+fallidos simplemente...
+
+00:04:38.906 --> 00:04:39.406 align:middle
+desaparezcan
