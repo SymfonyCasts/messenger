@@ -1,0 +1,343 @@
+WEBVTT
+
+00:00:01.036 --> 00:00:04.906 align:middle
+Si un sistema externo envía
+mensajes a una cola que vamos a leer,
+
+00:00:05.196 --> 00:00:08.386 align:middle
+esos mensajes probablemente
+se enviarán como JSON o XML.
+
+00:00:09.266 --> 00:00:11.866 align:middle
+Añadimos un mensaje formateado como JSON.
+
+00:00:12.736 --> 00:00:17.856 align:middle
+Para leerlos, configuramos un
+transporte llamado external_messages.
+
+00:00:18.266 --> 00:00:20.686 align:middle
+Pero cuando consumimos ese mensaje JSON...
+
+00:00:20.996 --> 00:00:22.366 align:middle
+¡explotó!
+
+00:00:22.876 --> 00:00:29.176 align:middle
+¿Por qué? Porque el serializador por defecto
+de todos los transportes es el PhpSerializer.
+
+00:00:29.736 --> 00:00:33.506 align:middle
+Básicamente, está intentando llamar
+a unserialize() en nuestro JSON.
+
+00:00:34.076 --> 00:00:34.866 align:middle
+Eso... eh...
+
+00:00:35.166 --> 00:00:36.046 align:middle
+no va a funcionar.
+
+00:00:36.736 --> 00:00:40.246 align:middle
+No, si estás consumiendo mensajes que
+provienen de un sistema externo, vas a
+
+00:00:40.566 --> 00:00:43.496 align:middle
+necesitar un serializador
+personalizado para tu transporte.
+
+00:00:44.256 --> 00:00:46.266 align:middle
+Crear un serializador personalizado es...
+
+00:00:46.436 --> 00:00:49.526 align:middle
+en realidad una experiencia muy agradable.
+
+00:00:50.246 --> 00:00:52.336 align:middle
+Dentro de nuestro directorio src/Messenger/...
+
+00:00:52.596 --> 00:00:54.436 align:middle
+aunque esta clase podría
+vivir en cualquier lugar..
+
+00:00:54.876 --> 00:01:00.156 align:middle
+vamos a crear una nueva clase PHP
+llamada ExternalJsonMessengerSerializer.
+
+00:01:01.996 --> 00:01:06.036 align:middle
+La única regla es que ésta necesita
+implementar SerializerInterface.
+
+00:01:06.176 --> 00:01:07.346 align:middle
+Pero, ¡cuidado!
+
+00:01:07.516 --> 00:01:12.626 align:middle
+Hay dos SerializerInterface: uno
+es del componente Serializador.
+
+00:01:13.036 --> 00:01:16.966 align:middle
+Queremos el otro: el del componente Messenger.
+
+00:01:17.766 --> 00:01:22.636 align:middle
+Iré al menú "Generar código" -o Comando + N
+en un Mac- y seleccionaré "Implementar métodos"
+
+00:01:22.926 --> 00:01:27.696 align:middle
+para añadir los dos que requiere
+esta interfaz: decode() y encode(). La
+
+00:01:28.426 --> 00:01:33.796 align:middle
+idea es muy sencilla: cuando enviemos
+un mensaje a través de un transporte
+
+00:01:33.796 --> 00:01:38.106 align:middle
+que utilice este serializador, el
+transporte llamará al método encode()
+
+00:01:38.156 --> 00:01:41.626 align:middle
+y nos pasará el objeto Envelope
+que contiene el mensaje.
+
+00:01:42.306 --> 00:01:46.366 align:middle
+Nuestro trabajo consiste en convertirlo en un
+formato de cadena que pueda enviarse al transporte.
+
+00:01:46.986 --> 00:01:50.336 align:middle
+Fíjate en que esto devuelve un array.
+
+00:01:50.436 --> 00:01:56.376 align:middle
+Pero si miras el SerializerInterface, este
+método debería devolver un array con dos claves
+
+00:01:56.816 --> 00:02:01.536 align:middle
+body - el cuerpo del mensaje - y headers
+- las cabeceras que deban enviarse.
+
+00:02:02.256 --> 00:02:02.846 align:middle
+Bonito, ¿verdad?
+
+00:02:03.426 --> 00:02:09.606 align:middle
+Pero... en realidad nunca vamos a enviar ningún
+mensaje a través de nuestro transporte externo...
+
+00:02:09.766 --> 00:02:12.136 align:middle
+por lo que no necesitamos este método.
+
+00:02:13.026 --> 00:02:16.346 align:middle
+Para demostrar que nunca será
+llamado, lanza un nuevo Exception con:
+
+00:02:17.496 --> 00:02:25.236 align:middle
+Transport & serializer not meant for sending
+messages Eso me dará un suave recordatorio
+
+00:02:25.316 --> 00:02:28.996 align:middle
+en caso de que haga alguna tontería
+y dirija un mensaje a un transporte
+
+00:02:29.026 --> 00:02:31.776 align:middle
+que utilice este serializador por accidente.
+
+00:02:32.596 --> 00:02:35.436 align:middle
+El método en el que debemos
+centrarnos es decode().
+
+00:02:36.386 --> 00:02:39.076 align:middle
+Cuando un trabajador consume
+un mensaje de un transporte,
+
+00:02:39.336 --> 00:02:42.556 align:middle
+éste llama a decode() en su serializador.
+
+00:02:43.316 --> 00:02:46.876 align:middle
+Nuestro trabajo consiste en
+leer el mensaje de la cola y
+
+00:02:46.876 --> 00:02:51.706 align:middle
+convertirlo en un objeto Envelope
+con el objeto mensaje dentro.
+
+00:02:52.516 --> 00:02:55.376 align:middle
+Si compruebas una vez más
+el SerializerInterface,
+
+00:02:56.006 --> 00:03:01.226 align:middle
+verás que el argumento que se nos pasa -
+$encodedEnvelope - es en realidad una matriz
+
+00:03:01.356 --> 00:03:05.636 align:middle
+con las mismas dos claves que vimos
+hace un momento: body y headers.
+
+00:03:06.446 --> 00:03:11.476 align:middle
+Separemos primero las piezas
+$body = $encodedEnvelope['body']
+
+00:03:11.476 --> 00:03:15.286 align:middle
+y $headers = $encodedEnvelope['headers'].
+
+00:03:15.336 --> 00:03:19.576 align:middle
+El $body será el JSON en bruto del mensaje.
+
+00:03:19.986 --> 00:03:22.166 align:middle
+Hablaremos de las cabeceras más
+tarde: ahora mismo está vacío.
+
+00:03:23.196 --> 00:03:28.606 align:middle
+Bien, recuerda nuestro objetivo aquí:
+convertir este JSON en un objeto LogEmoji
+
+00:03:28.806 --> 00:03:32.006 align:middle
+y luego ponerlo en un objeto Envelope.
+
+00:03:32.866 --> 00:03:34.536 align:middle
+¿Cómo? ¡Hagámoslo sencillo!
+
+00:03:35.026 --> 00:03:43.146 align:middle
+Empieza con $data = json_decode($body, true)
+para convertir el JSON en una matriz asociativa.
+
+00:03:44.066 --> 00:03:46.066 align:middle
+Todavía no voy a hacer ninguna
+comprobación de errores...
+
+00:03:46.416 --> 00:03:50.976 align:middle
+como para comprobar que se trata de un JSON
+válido - lo haremos un poco más tarde.
+
+00:03:52.016 --> 00:04:00.836 align:middle
+Ahora decimos: $message = new LogEmoji($data['emoji'])
+porque emoji es la clave del J SON
+
+00:04:00.986 --> 00:04:04.106 align:middle
+que hemos decidido que contenga el $emojiIndex.
+
+00:04:05.316 --> 00:04:08.566 align:middle
+Por último, tenemos que
+devolver un objeto Envelope.
+
+00:04:09.426 --> 00:04:13.966 align:middle
+Recuerda: un Envelope no es más que una pequeña
+envoltura alrededor del propio mensaje...
+
+00:04:14.226 --> 00:04:16.566 align:middle
+y puede contener también algunos sellos.
+
+00:04:17.646 --> 00:04:21.156 align:middle
+Al final, devuelve new
+Envelope() y pon dentro $message.
+
+00:04:24.026 --> 00:04:25.726 align:middle
+¡Ya está! ¡Ya estamos en marcha!
+
+00:04:26.076 --> 00:04:31.916 align:middle
+Esto ya es un serializador totalmente
+funcional que puede leer mensajes de una cola.
+
+00:04:32.256 --> 00:04:37.706 align:middle
+Pero nuestro transporte no empezará a utilizarlo
+"mágicamente": tenemos que configurarlo.
+
+00:04:37.936 --> 00:04:39.776 align:middle
+Y... ¡ya sabemos cómo!
+
+00:04:40.296 --> 00:04:44.386 align:middle
+Ya hemos aprendido que cada transporte
+puede tener una opción serializer.
+
+00:04:45.276 --> 00:04:51.206 align:middle
+Debajo del transporte externo, añade serializer
+y establece esto como el id de nuestro servicio,
+
+00:04:51.486 --> 00:04:54.686 align:middle
+que es el mismo que el nombre
+de la clase: App\Messenger\...
+
+00:04:55.746 --> 00:05:00.336 align:middle
+y luego voy a copiar el nombre de la
+clase: ExternalJsonMessengerSerializer.
+
+00:05:01.286 --> 00:05:05.686 align:middle
+Por eso creamos un transporte
+separado con una cola separada:
+
+00:05:06.206 --> 00:05:11.746 align:middle
+sólo queremos que los mensajes externos
+utilicen nuestro ExternalJsonMessengerSerializer.
+
+00:05:12.566 --> 00:05:16.266 align:middle
+Los otros dos transportes -
+async y async_priority_high -
+
+00:05:16.366 --> 00:05:19.936 align:middle
+seguirán utilizando el
+PhpSerializer más sencillo...
+
+00:05:20.206 --> 00:05:21.666 align:middle
+lo cual es perfecto.
+
+00:05:22.766 --> 00:05:24.006 align:middle
+Bien, ¡probemos esto!
+
+00:05:24.656 --> 00:05:27.666 align:middle
+En primer lugar, busca un terminal
+abierto y sigue los registros:
+
+00:05:28.166 --> 00:05:33.106 align:middle
+tail -f var/log/dev.log
+Y despejaré la pantalla.
+
+00:05:33.836 --> 00:05:37.036 align:middle
+Luego, en mi otro terminal,
+consumiré los mensajes
+
+00:05:37.186 --> 00:05:41.786 align:middle
+del transporte external_messages: ¡Perfecto!
+
+00:05:42.156 --> 00:05:43.766 align:middle
+Todavía no hay mensajes...
+
+00:05:43.766 --> 00:05:45.206 align:middle
+así que sólo queda esperar.
+
+00:05:45.796 --> 00:05:51.296 align:middle
+Pero esperamos que cuando publiquemos
+este mensaje en la cola, sea consumido
+
+00:05:51.296 --> 00:05:56.396 align:middle
+por nuestro trabajador, descodificado
+correctamente, ¡y que se registre un emoji!
+
+00:05:56.396 --> 00:05:58.536 align:middle
+Ah, vale - vamos a probarlo.
+
+00:05:59.316 --> 00:06:02.766 align:middle
+¡Publica! Ah, entonces
+vuelve a la terminal....
+
+00:06:03.366 --> 00:06:04.126 align:middle
+¡ahí está!
+
+00:06:04.436 --> 00:06:10.096 align:middle
+Tenemos un mensaje importante: queso: ha recibido
+el mensaje y lo ha gestionado aquí abajo.
+
+00:06:10.796 --> 00:06:12.076 align:middle
+Así que... ¡lo hemos conseguido!
+
+00:06:12.366 --> 00:06:14.656 align:middle
+¡Somos lo máximo! Pero...
+
+00:06:14.766 --> 00:06:19.766 align:middle
+cuando creamos el Envelope, no
+pusimos ningún sello en él.
+
+00:06:20.066 --> 00:06:21.346 align:middle
+¿Deberíamos haberlo hecho?
+
+00:06:21.956 --> 00:06:25.886 align:middle
+¿Un mensaje que pasa por el flujo
+"normal" tiene algunos sellos
+
+00:06:25.886 --> 00:06:27.496 align:middle
+que deberíamos añadir manualmente aquí?
+
+00:06:28.156 --> 00:06:32.396 align:middle
+Vamos a sumergirnos en el flujo de trabajo
+de un mensaje y sus sellos, a continuación
