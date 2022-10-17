@@ -1,0 +1,297 @@
+WEBVTT
+
+00:00:01.016 --> 00:00:05.086 align:middle
+Acabamos de recibir una
+petición de la propia Ponka...
+
+00:00:05.396 --> 00:00:09.076 align:middle
+y cuando se trata de este
+sitio, Ponka es la jefa.
+
+00:00:09.626 --> 00:00:12.056 align:middle
+Ella cree que, cuando un usuario sube una foto,
+
+00:00:12.356 --> 00:00:16.646 align:middle
+su imagen se añade demasiado rápido.
+
+00:00:17.166 --> 00:00:20.256 align:middle
+Quiere que tarde más tiempo:
+quiere que parezca que está
+
+00:00:20.256 --> 00:00:25.276 align:middle
+haciendo un trabajo realmente épico
+entre bastidores para entrar en tu foto.
+
+00:00:26.056 --> 00:00:31.046 align:middle
+Lo sé, es un ejemplo un poco tonto:
+Ponka es muy rara cuando hablas
+
+00:00:31.046 --> 00:00:33.936 align:middle
+con ella antes de su desayuno
+de gambas y su siesta matutina.
+
+00:00:34.376 --> 00:00:41.296 align:middle
+Pero... es un reto interesante: ¿podríamos de alguna
+manera no sólo decir "ocúpate de esto más tarde"...
+
+00:00:41.746 --> 00:00:45.646 align:middle
+sino también "espera al menos 5
+segundos antes de manipularlo".
+
+00:00:45.646 --> 00:00:52.266 align:middle
+¡Sí! Y toca algunas partes súper chulas
+del sistema llamadas sellos y sobres.
+
+00:00:52.306 --> 00:00:59.366 align:middle
+En primer lugar, abre ImagePostController y ve
+hasta donde creamos el objeto AddPonkaToImage.
+
+00:01:00.236 --> 00:01:03.536 align:middle
+AddPonkaToImage se llama
+"mensaje", eso ya lo sabemos.
+
+00:01:04.076 --> 00:01:09.466 align:middle
+Lo que no sabemos es que, cuando
+pasas tu mensaje al bus, internamente,
+
+00:01:09.826 --> 00:01:13.316 align:middle
+se envuelve dentro de algo llamado Envelope.
+
+00:01:14.116 --> 00:01:20.396 align:middle
+Ahora bien, esto no es un detalle especialmente
+importante, salvo que, si tienes un Envelope,
+
+00:01:20.806 --> 00:01:25.396 align:middle
+puedes adjuntarle una configuración
+adicional mediante sellos.
+
+00:01:26.026 --> 00:01:32.176 align:middle
+Así que sí, literalmente metes un mensaje
+en un sobre y luego le adjuntas sellos.
+
+00:01:32.796 --> 00:01:34.896 align:middle
+¿Es este tu componente favorito o qué?
+
+00:01:35.706 --> 00:01:39.036 align:middle
+De todos modos, esos sellos pueden
+llevar todo tipo de información. Por
+
+00:01:39.036 --> 00:01:44.706 align:middle
+ejemplo, si usas RabbitMQ,
+puedes configurar algunas cosas
+
+00:01:44.706 --> 00:01:49.646 align:middle
+sobre cómo se entrega el mensaje, como
+algo llamado "clave de enrutamiento".
+
+00:01:50.116 --> 00:01:52.666 align:middle
+O puedes configurar un retraso.
+
+00:01:52.666 --> 00:02:00.916 align:middle
+Comprueba esto: di $envelope = new
+Envelope() y pásale nuestro $message.
+
+00:02:02.246 --> 00:02:06.826 align:middle
+Luego, pásale un segundo argumento
+opcional: una matriz de sellos.
+
+00:02:07.466 --> 00:02:11.516 align:middle
+Incluye sólo uno: new DelayStamp(5000).
+
+00:02:12.946 --> 00:02:14.996 align:middle
+Esto indica al transporte...
+
+00:02:15.416 --> 00:02:17.946 align:middle
+que es algo así como el cartero...
+
+00:02:18.246 --> 00:02:22.416 align:middle
+que quieres que este mensaje se retrase
+5 segundos antes de ser entregado.
+
+00:02:22.416 --> 00:02:29.346 align:middle
+Por último, pasa el $envelope -no el
+mensaje- a $messageBus->dispatch().
+
+00:02:30.156 --> 00:02:36.456 align:middle
+Sí, el método dispatch() acepta objetos
+de mensaje sin procesar u objetos Envelope.
+
+00:02:36.596 --> 00:02:41.236 align:middle
+Si pasas un mensaje sin procesar,
+lo envuelve en un Envelope.
+
+00:02:41.976 --> 00:02:44.966 align:middle
+Si pasas un Envelope, ¡lo utiliza!
+
+00:02:45.806 --> 00:02:47.616 align:middle
+El resultado final es el mismo que antes...
+
+00:02:47.946 --> 00:02:50.966 align:middle
+salvo que ahora aplicamos un DelayStamp.
+
+00:02:52.016 --> 00:02:52.736 align:middle
+¡Vamos a probarlo!
+
+00:02:53.376 --> 00:02:59.166 align:middle
+Esta vez no necesitamos reiniciar nuestro trabajador porque
+no hemos cambiado ningún código que vaya a utilizar:
+
+00:02:59.776 --> 00:03:03.596 align:middle
+sólo hemos cambiado el código que
+controla cómo se entregará el mensaje.
+
+00:03:03.936 --> 00:03:07.206 align:middle
+Pero... si alguna vez no
+estás seguro, reinícialo.
+
+00:03:07.206 --> 00:03:09.916 align:middle
+Borraré la consola para que
+podamos ver lo que ocurre.
+
+00:03:11.186 --> 00:03:17.466 align:middle
+Entonces... vamos a subir tres fotos y...
+
+00:03:18.846 --> 00:03:23.166 align:middle
+uno, dos, tres, cuatro ¡ahí está!
+
+00:03:23.956 --> 00:03:28.186 align:middle
+Se retrasó 5 segundos y luego empezó a
+procesar cada una de ellas con normalidad.
+
+00:03:29.106 --> 00:03:34.436 align:middle
+No hay un retraso de 5 segundos entre la
+gestión de cada mensaje: simplemente se asegura
+
+00:03:34.436 --> 00:03:39.626 align:middle
+de que cada mensaje se gestione no antes
+de 5 segundos después de enviarlo.
+
+00:03:40.516 --> 00:03:45.766 align:middle
+Nota al margen: En Symfony 4.3, el
+transporte Redis no admite retrasos,
+
+00:03:45.986 --> 00:03:47.726 align:middle
+pero es posible que se añada en el futuro.
+
+00:03:49.016 --> 00:03:54.216 align:middle
+En cualquier caso, puede que no utilices mucho los
+sellos, pero los necesitarás de vez en cuando.
+
+00:03:54.786 --> 00:03:59.196 align:middle
+Probablemente busques en Google "¿Cómo
+configuro los grupos de validación en Messenger?
+
+00:03:59.546 --> 00:04:01.876 align:middle
+y aprenderás qué sello controla esto.
+
+00:04:02.516 --> 00:04:06.836 align:middle
+No te preocupes, ya hablaré de la validación
+más adelante, no es algo que ocurra ahora mismo.
+
+00:04:07.706 --> 00:04:13.386 align:middle
+Otra cosa interesante es que, internamente, el
+propio Messenger utiliza sellos para rastrear
+
+00:04:13.386 --> 00:04:15.346 align:middle
+y ayudar a entregar los mensajes correctamente.
+
+00:04:16.116 --> 00:04:20.676 align:middle
+Comprueba esto: envuelve
+$messageBus->dispatch() en una llamada a dump().
+
+00:04:20.676 --> 00:04:24.716 align:middle
+Vamos a subir una nueva imagen.
+
+00:04:28.876 --> 00:04:33.546 align:middle
+A continuación, en la barra de herramientas de depuración
+de la web, busca la petición AJAX que acaba de terminar
+
+00:04:33.966 --> 00:04:39.976 align:middle
+-será la de abajo-, haz clic para abrir su perfil
+y luego haz clic en "Depurar" a la izquierda.
+
+00:04:39.976 --> 00:04:40.766 align:middle
+¡Ahí lo tienes!
+
+00:04:41.186 --> 00:04:44.176 align:middle
+El método dispatch() devuelve un Envelope...
+
+00:04:44.636 --> 00:04:46.206 align:middle
+que contiene el mensaje, por supuesto...
+
+00:04:46.636 --> 00:04:49.556 align:middle
+¡y ahora tiene cuatro sellos!
+
+00:04:50.176 --> 00:04:54.776 align:middle
+Tiene el DelayStamp como esperábamos,
+pero también un BusNameStamp,
+
+00:04:55.096 --> 00:04:58.056 align:middle
+que registra el nombre
+del bus al que se envió.
+
+00:04:58.786 --> 00:05:04.196 align:middle
+Esto es genial: ahora sólo tenemos
+un bus, pero puedes tener varios,
+
+00:05:04.556 --> 00:05:07.016 align:middle
+y hablaremos de por qué
+podrías hacerlo más adelante.
+
+00:05:07.806 --> 00:05:13.456 align:middle
+El BusNameStamp ayuda al comando trabajador
+a saber a qué bus debe enviar el Envelope
+
+00:05:13.456 --> 00:05:16.086 align:middle
+una vez leído del transporte.
+
+00:05:17.106 --> 00:05:22.916 align:middle
+Ese SentStamp es básicamente un marcador que
+dice "este mensaje fue enviado a un transporte en
+
+00:05:22.916 --> 00:05:27.166 align:middle
+lugar de ser manejado inmediatamente"
+y este TransportMessageIdStamp,
+
+00:05:27.496 --> 00:05:32.486 align:middle
+contiene literalmente el id de la nueva
+fila en la tabla messenger_messages...
+
+00:05:32.716 --> 00:05:33.876 align:middle
+por si te resulta útil.
+
+00:05:34.606 --> 00:05:40.256 align:middle
+En realidad, no necesitas preocuparte por nada
+de esto, pero observar qué sellos se añaden
+
+00:05:40.256 --> 00:05:45.596 align:middle
+a tu Envelope puede ayudarte a depurar un
+problema o a hacer cosas más avanzadas.
+
+00:05:46.156 --> 00:05:50.476 align:middle
+De hecho, algunos de ellos serán útiles
+pronto cuando hablemos del middleware.
+
+00:05:51.976 --> 00:05:58.146 align:middle
+Por ahora, elimina el dump() y luego, para
+no volverme loco con lo lento que es esto,
+
+00:05:58.676 --> 00:06:01.516 align:middle
+cambia el DelayStamp a 500 milisegundos.
+
+00:06:02.066 --> 00:06:06.466 align:middle
+Shh, no se lo digas a Ponka.
+
+00:06:06.466 --> 00:06:07.696 align:middle
+Después de este cambio...
+
+00:06:07.696 --> 00:06:13.156 align:middle
+¡sí! El mensaje se
+gestiona casi inmediatamente.
+
+00:06:14.216 --> 00:06:18.806 align:middle
+A continuación, hablemos de los reintentos
+y de lo que ocurre cuando las cosas van mal
+
+00:06:19.306 --> 00:06:21.886 align:middle
+No es una broma: estas cosas son superchulas
