@@ -1,0 +1,283 @@
+WEBVTT
+
+00:00:02.386 --> 00:00:10.326 align:middle
+Ejecuta: php bin/console messenger:consume --help
+Ya hemos visto que tiene una opción llamada
+
+00:00:10.556 --> 00:00:17.046 align:middle
+--time-limit , que puedes utilizar para decirle al
+comando que se ejecute durante 60 minutos y luego salga.
+
+00:00:18.096 --> 00:00:20.456 align:middle
+El comando también tiene otras dos opciones -
+
+00:00:21.236 --> 00:00:27.576 align:middle
+--memory-limit - para decirle al comando que salga
+cuando su uso de memoria supere un determinado nivel -
+
+00:00:28.136 --> 00:00:34.006 align:middle
+o --limit - para decirle que ejecute un
+número específico de mensajes y luego salga.
+
+00:00:34.996 --> 00:00:41.656 align:middle
+Todas estas opciones son estupendas porque realmente
+no queremos que nuestro comando messenger:consume
+
+00:00:41.656 --> 00:00:46.806 align:middle
+se ejecute demasiado tiempo: en realidad sólo queremos
+que gestione unos pocos mensajes y luego salga.
+
+00:00:47.806 --> 00:00:52.806 align:middle
+El reinicio del trabajador es gestionado por el
+Supervisor y no requiere una gran cantidad de recursos.
+
+00:00:53.776 --> 00:00:57.976 align:middle
+Todas estas opciones hacen que el trabajador
+salga con elegancia, es decir, que
+
+00:00:58.286 --> 00:01:04.586 align:middle
+sólo salga después de que se haya gestionado
+completamente un mensaje, nunca en medio de él.
+
+00:01:05.456 --> 00:01:09.946 align:middle
+Pero, si dejas que tu trabajador se ejecute
+demasiado tiempo y se queda sin memoria...
+
+00:01:10.266 --> 00:01:14.996 align:middle
+eso haría que saliera en medio
+de la gestión de un mensaje y...
+
+00:01:15.046 --> 00:01:16.756 align:middle
+bueno... eso no es bueno.
+
+00:01:17.346 --> 00:01:18.856 align:middle
+Utiliza estas opciones.
+
+00:01:19.346 --> 00:01:21.456 align:middle
+Incluso puedes utilizarlas todas a la vez.
+
+00:01:22.506 --> 00:01:26.746 align:middle
+También hay una situación completamente
+diferente en la que quieres que todos
+
+00:01:26.746 --> 00:01:30.416 align:middle
+tus trabajadores se reinicien:
+siempre que te despliegues.
+
+00:01:31.266 --> 00:01:36.126 align:middle
+Ya hemos visto muchas veces por qué: cada
+vez que hacemos un cambio en nuestro código,
+
+00:01:36.546 --> 00:01:40.726 align:middle
+reiniciamos manualmente el
+comando messenger:consume
+
+00:01:41.086 --> 00:01:43.686 align:middle
+para que el trabajador vea el nuevo código. Lo
+
+00:01:44.756 --> 00:01:50.826 align:middle
+mismo ocurrirá en producción: cuando despliegues,
+tus trabajadores no verán el nuevo código
+
+00:01:51.116 --> 00:01:53.696 align:middle
+hasta que salgan y se reinicien.
+
+00:01:54.606 --> 00:01:58.626 align:middle
+Ahora mismo, ¡eso puede tardar
+hasta seis minutos en ocurrir!
+
+00:01:59.086 --> 00:02:00.846 align:middle
+Eso no está bien.
+
+00:02:01.526 --> 00:02:06.666 align:middle
+No, en el momento en que desplegamos,
+necesitamos que todos o procesos worker salgan,
+
+00:02:06.966 --> 00:02:10.116 align:middle
+y necesitamos que eso ocurra con gracia.
+
+00:02:10.866 --> 00:02:12.916 align:middle
+Afortunadamente, Symfony nos cubre la espalda.
+
+00:02:13.736 --> 00:02:17.546 align:middle
+Una vez más, ejecuta ps -A para
+ver los procesos trabajadores.
+
+00:02:18.976 --> 00:02:21.746 align:middle
+Ahora, imagina que acabamos de desplegar.
+
+00:02:22.906 --> 00:02:32.236 align:middle
+Para detener todos los trabajadores, ejecuta php bin/console
+messenger:stop-workers Vuelve a comprobar los procesos
+
+00:02:32.236 --> 00:02:34.416 align:middle
+: ¡Ja!
+
+00:02:34.956 --> 00:02:40.526 align:middle
+¡Perfecto! ¡Los dos nuevos identificadores de proceso
+demuestran que los trabajadores se han reiniciado!
+
+00:02:41.216 --> 00:02:42.126 align:middle
+¿Cómo funciona esto?
+
+00:02:42.616 --> 00:02:45.366 align:middle
+¡Por arte de magia! Es decir, la caché.
+
+00:02:45.836 --> 00:02:46.336 align:middle
+En serio.
+
+00:02:46.746 --> 00:02:51.566 align:middle
+Entre bastidores, este comando envía una
+señal a cada trabajador para que salga.
+
+00:02:52.026 --> 00:02:56.006 align:middle
+Pero los trabajadores son inteligentes:
+no salen inmediatamente, sino
+
+00:02:56.646 --> 00:03:02.346 align:middle
+que terminan el mensaje que están manejando
+y luego salen: una salida elegante.
+
+00:03:03.186 --> 00:03:07.846 align:middle
+Para enviar esta señal, Symfony establece
+una bandera en el sistema de caché,
+
+00:03:08.136 --> 00:03:10.166 align:middle
+y cada trabajador comprueba esta bandera.
+
+00:03:10.166 --> 00:03:14.956 align:middle
+Si tienes una configuración multiservidor, tendrás que
+asegurarte de que la "caché de la aplicación " de Sym fony
+
+00:03:14.956 --> 00:03:19.886 align:middle
+se almacena en algo como Redis o Memcache
+en lugar de en el sistema de archivos,
+
+00:03:20.066 --> 00:03:22.136 align:middle
+para que todos puedan leer esas claves.
+
+00:03:23.476 --> 00:03:27.366 align:middle
+Hay un detalle más en el
+que debes pensar y se debe
+
+00:03:27.366 --> 00:03:30.526 align:middle
+a la naturaleza asíncrona
+del manejo de los mensajes.
+
+00:03:31.816 --> 00:03:33.746 align:middle
+Abre AddPonkaToImage.
+
+00:03:34.916 --> 00:03:40.596 align:middle
+Imagina que nuestro sitio está actualmente desplegado
+y la clase AddPonkaToImage tiene el siguiente aspecto.
+
+00:03:41.606 --> 00:03:46.476 align:middle
+Cuando alguien sube una imagen, serializamos
+esta clase y la enviamos al transporte. Imagina
+
+00:03:47.156 --> 00:03:50.956 align:middle
+ahora que tenemos un montón de estos mensajes
+en la cola en el momento en que desplegamos
+
+00:03:51.216 --> 00:03:54.836 align:middle
+una nueva versión de nuestro sitio.
+
+00:03:54.836 --> 00:03:59.886 align:middle
+En esta nueva versión, hemos
+refactorizado la clase AddPonkaToImage:
+
+00:04:00.276 --> 00:04:03.856 align:middle
+hemos cambiado el nombre de
+$imagePostId por $imagePost.
+
+00:04:03.856 --> 00:04:09.876 align:middle
+¿Qué ocurrirá cuando se carguen esas versiones
+antiguas de AddPonkaToImage desde la cola?
+
+00:04:10.736 --> 00:04:11.476 align:middle
+La respuesta...
+
+00:04:11.896 --> 00:04:15.056 align:middle
+la nueva propiedad $imagePost será nula...
+
+00:04:15.556 --> 00:04:20.476 align:middle
+y en su lugar se establecerá una
+propiedad $imagePostId inexistente.
+
+00:04:20.476 --> 00:04:24.246 align:middle
+Y eso probablemente causaría a
+tu manipulador serios problemas.
+
+00:04:24.886 --> 00:04:30.426 align:middle
+Así que, si necesitas modificar algunas propiedades
+de una clase de mensaje existente, tienes dos opciones.
+
+00:04:31.316 --> 00:04:35.186 align:middle
+Primero, no lo hagas: crea
+una nueva clase de mensaje.
+
+00:04:35.846 --> 00:04:39.826 align:middle
+Luego, después de desplegarla,
+elimina la antigua clase de mensaje.
+
+00:04:40.666 --> 00:04:47.706 align:middle
+O, en segundo lugar, actualizar la clase de mensaje pero,
+temporalmente, mantener tanto las propiedades antiguas
+
+00:04:47.946 --> 00:04:52.906 align:middle
+como las nuevas y hacer que tu manejador sea lo
+suficientemente inteligente como para buscar ambas.
+
+00:04:53.666 --> 00:05:00.136 align:middle
+De nuevo, después de un despliegue, o realmente, una vez que estés
+seguro de que todos los mensajes antiguos han sido procesados,
+
+00:05:00.446 --> 00:05:02.216 align:middle
+puedes eliminar lo antiguo.
+
+00:05:03.046 --> 00:05:04.246 align:middle
+Y... ¡eso es todo!
+
+00:05:04.796 --> 00:05:07.246 align:middle
+Utiliza el Supervisor para
+mantener tus procesos en marcha
+
+00:05:07.566 --> 00:05:11.226 align:middle
+y el comando messenger:stop-workers
+para reiniciar el despliegue.
+
+00:05:12.046 --> 00:05:14.636 align:middle
+Ya estás listo para poner esto en producción.
+
+00:05:15.726 --> 00:05:18.416 align:middle
+Antes de continuar, voy a
+buscar mi terminal y ejecutar
+
+00:05:18.886 --> 00:05:26.166 align:middle
+supervisorctl -c /usr/local/etc/supervisord.ini
+stop messenger-consume:*
+
+00:05:26.246 --> 00:05:29.846 align:middle
+Eso detiene los dos procesos.
+
+00:05:30.886 --> 00:05:36.456 align:middle
+Ahora ejecutaré mi trabajador manualmente: Esto
+facilita la vida y la hace más evidente a nivel local:
+
+00:05:36.956 --> 00:05:39.316 align:middle
+Puedo ver la salida de mi trabajador.
+
+00:05:40.456 --> 00:05:43.496 align:middle
+Siguiente: hemos hablado de
+comandos y manejadores de comandos.
+
+00:05:43.946 --> 00:05:47.906 align:middle
+Ahora es el momento de hablar de los
+eventos y los manejadores de eventos, de
+
+00:05:48.146 --> 00:05:52.016 align:middle
+cómo podemos utilizar Messenger
+como un bus de eventos y...
+
+00:05:52.226 --> 00:05:53.746 align:middle
+qué diablos significa eso
