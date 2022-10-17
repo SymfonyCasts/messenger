@@ -1,0 +1,347 @@
+WEBVTT
+
+00:00:01.066 --> 00:00:05.856 align:middle
+Una vez que empiezas a utilizar RabbitMQ, se hace
+posible un flujo de trabajo totalmente diferente...
+
+00:00:06.396 --> 00:00:09.406 align:middle
+un flujo de trabajo que es especialmente
+común en los sistemas más grandes. La
+
+00:00:09.946 --> 00:00:15.246 align:middle
+idea es que el código que envía un
+mensaje puede no ser el mismo código
+
+00:00:15.246 --> 00:00:17.706 align:middle
+que consume y maneja ese mensaje.
+
+00:00:18.376 --> 00:00:22.676 align:middle
+Nuestra aplicación es responsable tanto
+de enviar los mensajes a RabbitMQ como,
+
+00:00:22.916 --> 00:00:27.916 align:middle
+aquí en el terminal, de consumir
+los mensajes de la cola y manejarlos.
+
+00:00:28.386 --> 00:00:33.526 align:middle
+¿Pero qué pasa si queremos enviar uno o
+más mensajes a RabbitMQ con la expectativa de
+
+00:00:33.676 --> 00:00:38.506 align:middle
+que algún otro sistema -quizás algún código
+escrito en un lenguaje diferente y desplegado
+
+00:00:38.506 --> 00:00:41.506 align:middle
+en un servidor diferente-
+lo consuma y lo maneje?
+
+00:00:42.276 --> 00:00:43.066 align:middle
+¿Cómo podemos hacerlo?
+
+00:00:43.786 --> 00:00:45.536 align:middle
+Bueno... a alto nivel...
+
+00:00:45.756 --> 00:00:46.486 align:middle
+¡es fácil!
+
+00:00:47.136 --> 00:00:50.556 align:middle
+Si quisiéramos enviar cosas
+a este transporte async...
+
+00:00:50.556 --> 00:00:56.456 align:middle
+pero no tuviéramos previsto consumir esos mensajes,
+¡no tendríamos que cambiar nada en nuestro código!
+
+00:00:57.166 --> 00:00:58.426 align:middle
+No, simplemente...
+
+00:00:58.676 --> 00:01:03.786 align:middle
+no consumiríamos mensajes de ese transporte
+al utilizar el comando messenger:consume.
+
+00:01:04.556 --> 00:01:09.636 align:middle
+Podríamos seguir consumiendo mensajes de otros
+transportes, sólo que no leeríamos éstos...
+
+00:01:09.876 --> 00:01:12.146 align:middle
+porque sabemos que otro lo hará.
+
+00:01:13.206 --> 00:01:14.766 align:middle
+¡Ya está! ¡Victoria!
+
+00:01:14.996 --> 00:01:16.886 align:middle
+¡Café! Pero...
+
+00:01:16.946 --> 00:01:22.216 align:middle
+si fueras a enviar datos a otro sistema,
+¿cómo formatearías normalmente esos datos?
+
+00:01:23.146 --> 00:01:28.356 align:middle
+Bueno, para usar un ejemplo más familiar,
+cuando envías datos a una ruta de la API,
+
+00:01:28.776 --> 00:01:31.536 align:middle
+normalmente los formateas como JSON...
+
+00:01:31.736 --> 00:01:33.046 align:middle
+o quizás XML.
+
+00:01:33.736 --> 00:01:35.746 align:middle
+Lo mismo ocurre en el mundo de las colas.
+
+00:01:36.186 --> 00:01:39.046 align:middle
+Puedes enviar un mensaje a
+RabbitMQ en cualquier formato...
+
+00:01:39.346 --> 00:01:43.826 align:middle
+siempre que quien consuma ese
+mensaje entienda el formato.
+
+00:01:44.546 --> 00:01:46.636 align:middle
+Así que... ¿qué formato
+estamos utilizando ahora?
+
+00:01:47.256 --> 00:01:47.956 align:middle
+¡Vamos a averiguarlo!
+
+00:01:48.856 --> 00:01:50.636 align:middle
+Voy a entrar en la cola messages_normal...
+
+00:01:50.796 --> 00:01:53.536 align:middle
+y para estar seguros, vamos a vaciarla.
+
+00:01:56.906 --> 00:02:01.276 align:middle
+Los mensajes enviados al transporte
+async acabarán en esta cola...
+
+00:02:01.436 --> 00:02:04.806 align:middle
+y las clases de ImagePostDeleteEvent
+se dirigen allí.
+
+00:02:06.636 --> 00:02:13.546 align:middle
+Bien, volvemos a nuestra aplicación, borramos
+una foto y, mirando nuestra cola, en un momento...
+
+00:02:15.736 --> 00:02:16.446 align:middle
+¡ahí está!
+
+00:02:16.726 --> 00:02:19.056 align:middle
+Nuestra cola contiene el único mensaje nuevo.
+
+00:02:19.746 --> 00:02:23.126 align:middle
+Veamos cómo es exactamente este mensaje.
+
+00:02:24.026 --> 00:02:26.966 align:middle
+Abajo, hay un punto para sacar un mensaje.
+
+00:02:27.276 --> 00:02:28.416 align:middle
+Pero... por alguna razón...
+
+00:02:28.416 --> 00:02:30.276 align:middle
+esto no me ha funcionado.
+
+00:02:31.326 --> 00:02:39.166 align:middle
+Para evitarlo, abriré mis herramientas de red,
+haré clic de nuevo en "Obtener mensaje(s)"...
+
+00:02:39.436 --> 00:02:42.526 align:middle
+y mira la petición AJAX que acaba de hacer.
+
+00:02:43.516 --> 00:02:47.126 align:middle
+Abre los datos devueltos y pasa el ratón
+por encima de la propiedad payload.
+
+00:02:47.996 --> 00:02:54.476 align:middle
+Sí, este es el aspecto de nuestro mensaje
+en la cola: este es el cuerpo del mensaje.
+
+00:02:55.016 --> 00:02:56.986 align:middle
+¿Qué es ese feo formato?
+
+00:02:57.546 --> 00:03:00.256 align:middle
+¡Es un objeto PHP serializado!
+
+00:03:01.176 --> 00:03:03.706 align:middle
+Cuando Messenger consume esto, sabe
+
+00:03:03.706 --> 00:03:07.456 align:middle
+que debe utilizar la función unserialize
+para volver a convertirlo en un objeto...
+
+00:03:07.816 --> 00:03:10.656 align:middle
+y así, ¡este formato funciona de maravilla!
+
+00:03:11.386 --> 00:03:15.056 align:middle
+Pero si esperamos que una aplicación
+PHP diferente consuma esto...
+
+00:03:15.636 --> 00:03:20.876 align:middle
+la deserialización no funcionará porque
+estas clases probablemente no existirán.
+
+00:03:21.326 --> 00:03:25.556 align:middle
+Y si el código que manejará esto está
+escrito en un lenguaje diferente, pfff, ni
+
+00:03:25.796 --> 00:03:31.726 align:middle
+siquiera tendrán la oportunidad de leer y entender
+este formato específico de PHP. La cuestión
+
+00:03:32.696 --> 00:03:37.266 align:middle
+es: usar la serialización de PHP
+funciona muy bien cuando la aplicación
+
+00:03:37.266 --> 00:03:39.656 align:middle
+que envía el mensaje también lo maneja.
+
+00:03:39.896 --> 00:03:43.076 align:middle
+Pero funciona horriblemente
+cuando ese no es el caso.
+
+00:03:43.856 --> 00:03:46.856 align:middle
+En su lugar, probablemente
+querrás utilizar JSON o XML.
+
+00:03:47.816 --> 00:03:50.426 align:middle
+Afortunadamente, utilizar un
+formato diferente es fácil.
+
+00:03:50.896 --> 00:03:53.456 align:middle
+Voy a purgar ese mensaje
+de la cola una vez más.
+
+00:03:56.106 --> 00:04:00.396 align:middle
+Muévete y abre config/packages/messenger.yaml.
+
+00:04:01.396 --> 00:04:05.656 align:middle
+Una de las claves que puedes tener debajo
+de cada transporte se llama serializer.
+
+00:04:06.686 --> 00:04:12.756 align:middle
+Ponlo en una cadena especial:
+messenger.transport.symfony_serializer.
+
+00:04:13.696 --> 00:04:18.656 align:middle
+Cuando se envía un mensaje a un transporte
+-ya sea Doctrine , AMQP o cualquier otro-,
+
+00:04:19.046 --> 00:04:25.336 align:middle
+éste utiliza un "serializador" para codificar ese
+mensaje en un formato de cadena que pueda ser enviado.
+
+00:04:26.206 --> 00:04:31.406 align:middle
+Más tarde, cuando lee un mensaje de un
+transporte, utiliza ese mismo serial izador
+
+00:04:31.566 --> 00:04:35.096 align:middle
+para descodificar los datos
+de nuevo en el objeto mensaje.
+
+00:04:35.996 --> 00:04:38.806 align:middle
+Messenger viene con dos
+"serializadores" de fábrica.
+
+00:04:39.376 --> 00:04:41.896 align:middle
+El primero es el serializador de PHP...
+
+00:04:42.066 --> 00:04:43.206 align:middle
+que es el predeterminado.
+
+00:04:43.936 --> 00:04:49.766 align:middle
+El segundo es el "Serializador Symfony", que
+utiliza el componente Serializador de Symfony.
+
+00:04:50.276 --> 00:04:54.436 align:middle
+Ese es el servicio de serializador
+al que acabamos de cambiar.
+
+00:04:55.426 --> 00:04:57.856 align:middle
+Si no tienes ya instalado el
+componente serializador, asegúrate de
+
+00:04:57.856 --> 00:05:03.996 align:middle
+instalarlo con: composer require "serializer:^1.0"
+El serializador de Symfony es genial
+
+00:05:03.996 --> 00:05:10.046 align:middle
+porque es realmente bueno convirtiendo objetos
+en JSON o XML, y utiliza JSON por defecto.
+
+00:05:10.766 --> 00:05:12.556 align:middle
+Así que... ¡vamos a ver qué pasa!
+
+00:05:13.206 --> 00:05:14.846 align:middle
+Retrocede y elimina otra foto. De
+
+00:05:17.506 --> 00:05:21.536 align:middle
+vuelta en el gestor de Rabbit,
+utilizaré el mismo truco que antes
+
+00:05:21.786 --> 00:05:23.576 align:middle
+para ver cómo es ese mensaje.
+
+00:05:26.176 --> 00:05:29.616 align:middle
+Woh. ¡Esto es fascinante!
+
+00:05:30.146 --> 00:05:31.256 align:middle
+El payload es ahora...
+
+00:05:31.496 --> 00:05:35.386 align:middle
+súper sencillo: sólo una clave filename
+establecida en el nombre del archivo.
+
+00:05:36.186 --> 00:05:42.626 align:middle
+Esta es la representación JSON de la clase
+de mensaje, que es ImagePostDeletedEvent.
+
+00:05:43.426 --> 00:05:48.126 align:middle
+Abre eso:
+src/Message/Event/ImagePostDeletedEvent.php.
+
+00:05:48.126 --> 00:05:54.086 align:middle
+¡Sí! El serializador de Symfony ha convertido
+la única propiedad de este objeto en JSON.
+
+00:05:54.856 --> 00:05:58.066 align:middle
+No vamos a profundizar demasiado en
+el componente serializador de Symfony,
+
+00:05:58.226 --> 00:06:02.826 align:middle
+pero si quieres saber más, profundizamos mucho
+más en nuestro Tutorial de la Plataforma API.
+
+00:06:03.866 --> 00:06:09.146 align:middle
+En cualquier caso, esta sencilla estructura JSON es
+algo que cualquier otro sistema podría entender.
+
+00:06:09.646 --> 00:06:11.526 align:middle
+Así que... ¡somos lo máximo!
+
+00:06:12.196 --> 00:06:14.326 align:middle
+Pero... sólo como reto...
+
+00:06:14.506 --> 00:06:18.756 align:middle
+si intentáramos consumir este mensaje
+desde nuestra aplicación Symfony...
+
+00:06:19.106 --> 00:06:20.196 align:middle
+¿funcionaría?
+
+00:06:20.836 --> 00:06:21.526 align:middle
+No estoy seguro. Si se consume este mensaje
+
+00:06:22.096 --> 00:06:25.996 align:middle
+, ¿cómo sabría el serializador
+
+00:06:26.126 --> 00:06:33.296 align:middle
+que esta simple cadena JSON debe decodificarse
+en un objeto ImagePostDeletedEvent?
+
+00:06:33.926 --> 00:06:34.546 align:middle
+La respuesta...
+
+00:06:34.746 --> 00:06:38.116 align:middle
+está en otra parte del mensaje: las cabeceras.
+
+00:06:38.696 --> 00:06:39.616 align:middle
+Eso a continuación
