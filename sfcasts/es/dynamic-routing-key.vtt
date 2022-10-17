@@ -1,0 +1,386 @@
+WEBVTT
+
+00:00:01.056 --> 00:00:05.186 align:middle
+Repitamos la configuración del nuevo intercambio
+para el transporte async_priority_high:
+
+00:00:06.016 --> 00:00:11.846 align:middle
+queremos que éste entregue al mismo intercambio directo,
+pero que utilice una clave de enrutamiento diferente
+
+00:00:11.846 --> 00:00:14.036 align:middle
+para dirigir los mensajes a una cola diferente.
+
+00:00:15.096 --> 00:00:22.836 align:middle
+Cambia el intercambio a messages, establece el tipo
+a direct, y luego utiliza default_publish_routing_key
+
+00:00:22.836 --> 00:00:27.476 align:middle
+para adjuntar automáticamente una clave de enrutamiento
+llamada high a cada mensaje. A continuación
+
+00:00:28.606 --> 00:00:34.156 align:middle
+, para la cola messages_high, esto le dice
+a Messenger que queremos que esta cola
+
+00:00:34.156 --> 00:00:37.566 align:middle
+se cree y se vincule al intercambio.
+
+00:00:38.306 --> 00:00:43.036 align:middle
+Eso está bien, pero ahora necesitamos que esa
+vinculación tenga una clave de enrutamiento.
+
+00:00:44.216 --> 00:00:46.216 align:middle
+Establece binding_keys como [high].
+
+00:00:47.056 --> 00:00:52.086 align:middle
+¿Cómo podemos hacer que Messenger cree
+esa nueva cola y añada el nuevo enlace?
+
+00:00:53.096 --> 00:00:56.836 align:middle
+Basta con realizar cualquier operación
+que utilice este transporte...
+
+00:00:57.206 --> 00:00:58.546 align:middle
+¡como subir una foto!
+
+00:01:01.896 --> 00:01:07.456 align:middle
+Bien, ve a comprobar el gestor de
+RabbitMQ: empieza por Intercambios.
+
+00:01:09.056 --> 00:01:12.326 align:middle
+Sí, todavía tenemos un
+solo intercambio messages...
+
+00:01:12.766 --> 00:01:15.816 align:middle
+¡pero ahora tiene dos enlaces!
+
+00:01:16.876 --> 00:01:19.026 align:middle
+Si envías un mensaje a este intercambio
+
+00:01:19.246 --> 00:01:23.146 align:middle
+con una clave de enrutamiento
+high, se enviará a message_high.
+
+00:01:23.146 --> 00:01:27.166 align:middle
+Haz clic en "Colas" para ver...
+
+00:01:27.636 --> 00:01:33.356 align:middle
+bonito: una nueva cola messages_high
+con un mensaje esperando dentro.
+
+00:01:33.996 --> 00:01:35.216 align:middle
+Y... ¡hemos terminado!
+
+00:01:35.796 --> 00:01:38.866 align:middle
+Esta nueva configuración
+tiene el mismo resultado final:
+
+00:01:39.506 --> 00:01:43.216 align:middle
+cada transporte entrega finalmente
+los mensajes a una cola diferente.
+
+00:01:43.906 --> 00:01:49.646 align:middle
+Vamos a consumir los mensajes en espera:
+consume async_priority_high y luego async.
+
+00:01:49.646 --> 00:01:58.556 align:middle
+Y los consume en el orden correcto: gestionando
+primero AddPonkaToImage porque está
+
+00:01:58.556 --> 00:02:03.476 align:middle
+en la cola de alta prioridad y pasando
+después a los mensajes de la otra cola. Por
+
+00:02:04.556 --> 00:02:09.576 align:middle
+cierto, cuando consumimos desde el transporte
+async, por ejemplo, entre bastidores,
+
+00:02:09.816 --> 00:02:16.256 align:middle
+significa que Messenger está leyendo mensajes de
+cualquier cola que esté configurada para ese transporte.
+
+00:02:17.266 --> 00:02:21.246 align:middle
+En nuestra aplicación, cada transporte
+tiene configurada sólo una cola,
+
+00:02:21.626 --> 00:02:25.526 align:middle
+pero podrías configurar
+varias colas bajo un transporte
+
+00:02:25.766 --> 00:02:28.936 align:middle
+e incluso establecer diferentes
+claves de enlace para cada una.
+
+00:02:28.936 --> 00:02:34.446 align:middle
+Pero cuando consumas ese transporte,
+estarás consumiendo mensajes
+
+00:02:34.446 --> 00:02:36.906 align:middle
+de todas las colas que hayas configurado.
+
+00:02:37.956 --> 00:02:40.906 align:middle
+Así que retrocedamos y veamos todo el flujo.
+
+00:02:41.586 --> 00:02:47.786 align:middle
+Cuando enviamos un objeto AddPonkaToImage, nuestra
+configuración de enrutamiento de Messenger siempre lo dirige
+
+00:02:47.786 --> 00:02:49.926 align:middle
+al transporte async_priority_high.
+
+00:02:50.706 --> 00:02:54.206 align:middle
+Esto hace que el mensaje se
+envíe al intercambio messages
+
+00:02:54.366 --> 00:02:56.686 align:middle
+con una clave de enrutamiento
+establecida en high...
+
+00:02:57.366 --> 00:03:01.206 align:middle
+y la lógica de enlace hace
+que finalmente se entregue
+
+00:03:01.206 --> 00:03:03.106 align:middle
+a la cola de messages_high.
+Debido a la forma en que
+
+00:03:04.466 --> 00:03:10.456 align:middle
+funciona el enrutamiento de Messenger -el
+hecho de enrutar una clase a un transporte-
+
+00:03:10.946 --> 00:03:15.446 align:middle
+cada clase de mensaje se
+entregará siempre a la misma cola.
+
+00:03:15.936 --> 00:03:19.276 align:middle
+¿Pero qué pasaría si quisieras
+controlar esto dinámicamente?
+
+00:03:19.936 --> 00:03:25.136 align:middle
+¿Y si, en el momento de enviar un
+mensaje, necesitaras enviar ese mensaje
+
+00:03:25.136 --> 00:03:27.876 align:middle
+a un transporte diferente al normal?
+
+00:03:28.496 --> 00:03:34.086 align:middle
+Tal vez decidas que ese mensaje concreto
+de AddPonkaToImage no es importante
+
+00:03:34.396 --> 00:03:36.086 align:middle
+y que debe ser enviado a async.
+
+00:03:36.936 --> 00:03:39.746 align:middle
+Pues... eso no es posible con Messenger:
+
+00:03:40.366 --> 00:03:44.166 align:middle
+cada clase se enruta siempre
+a un transporte específico.
+
+00:03:44.656 --> 00:03:47.076 align:middle
+Pero este resultado final es posible...
+
+00:03:47.276 --> 00:03:49.896 align:middle
+si sabes cómo aprovechar
+las claves de enrutamiento.
+
+00:03:50.826 --> 00:03:54.986 align:middle
+Este es el truco: ¿y si pudiéramos
+publicar un objeto AddPonkaToImage...
+
+00:03:55.166 --> 00:03:58.966 align:middle
+pero decirle a Messenger que,
+cuando lo envíe al intercambio,
+
+00:03:59.316 --> 00:04:03.356 align:middle
+utilice la clave de enrutamiento
+normal en lugar de high?
+
+00:04:04.226 --> 00:04:09.486 align:middle
+Sí, el mensaje seguiría siendo técnicamente
+dirigido al transporte async_priority_high...
+
+00:04:09.866 --> 00:04:13.896 align:middle
+pero al final acabaría en
+la cola de messages_normal.
+
+00:04:14.636 --> 00:04:15.426 align:middle
+¡Eso sería todo!
+
+00:04:16.306 --> 00:04:17.576 align:middle
+¿Es posible?
+
+00:04:18.276 --> 00:04:23.076 align:middle
+¡Totalmente! Abre ImagePostController
+y busca dónde enviamos el mensaje.
+
+00:04:23.126 --> 00:04:29.216 align:middle
+Después de DelayStamp, añade un nuevo
+AmqpStamp - pero ten cuidado de no
+
+00:04:29.216 --> 00:04:33.986 align:middle
+elegir AmqpReceivedStamp
+- eso es algo diferente...
+
+00:04:33.986 --> 00:04:35.776 align:middle
+y no es útil para nosotros.
+
+00:04:36.536 --> 00:04:40.496 align:middle
+Este sello acepta unos cuantos
+argumentos y el primero -¡juego!
+
+00:04:40.836 --> 00:04:42.816 align:middle
+- ¡es la clave de enrutamiento a utilizar!
+
+00:04:43.496 --> 00:04:44.996 align:middle
+Pasa este normal.
+
+00:04:47.326 --> 00:04:48.026 align:middle
+¡Vamos a probarlo!
+
+00:04:48.736 --> 00:04:51.736 align:middle
+Detén el trabajador para que podamos
+ver lo que ocurre internamente.
+
+00:04:52.336 --> 00:05:01.346 align:middle
+Luego, sube una foto, ve al gestor
+de RabbitMQ, haz clic en colas...
+
+00:05:02.676 --> 00:05:05.346 align:middle
+actualiza hasta que veas el
+mensaje en la cola correcta...
+
+00:05:06.636 --> 00:05:07.906 align:middle
+tenemos que esperar el retraso...
+
+00:05:09.926 --> 00:05:11.426 align:middle
+¡y ahí está!
+
+00:05:11.716 --> 00:05:14.086 align:middle
+Acabó en messages_normal. Por
+
+00:05:15.056 --> 00:05:20.406 align:middle
+cierto, si miras dentro de esta clase
+AmqpStamp, el segundo y tercer argumento son
+
+00:05:20.406 --> 00:05:23.096 align:middle
+para algo llamado $flags y $attributes.
+
+00:05:23.766 --> 00:05:27.806 align:middle
+Son un poco más avanzados,
+pero pueden resultar útiles.
+
+00:05:28.776 --> 00:05:37.576 align:middle
+Pulsa Shift+Shift para abrir un archivo
+llamado Connection.php - asegúrate
+
+00:05:37.576 --> 00:05:41.766 align:middle
+de abrir el que está en el directorio AmqpExt.
+
+00:05:43.226 --> 00:05:46.706 align:middle
+Ahora busca un método
+llamado publishOnExchange().
+
+00:05:48.666 --> 00:05:52.966 align:middle
+Cuando se envía un mensaje a RabbitMQ,
+éste es el método de bajo nivel
+
+00:05:52.966 --> 00:05:55.706 align:middle
+que realmente hace ese envío.
+
+00:05:56.336 --> 00:05:59.926 align:middle
+Aquí se utilizan los $flags
+y $attributes del sello
+
+00:06:00.336 --> 00:06:05.256 align:middle
+Se pasan como tercer y cuarto argumento a
+algún método d e $exchange->publish().
+
+00:06:06.226 --> 00:06:09.116 align:middle
+Mantén pulsado Cmd o Ctrl y haz
+clic para saltar a ese método.
+
+00:06:10.406 --> 00:06:15.876 align:middle
+Esto nos hace saltar a un "stub" -
+un método y declaración "falsos"...
+
+00:06:16.136 --> 00:06:23.126 align:middle
+porque esta clase -llamada AMQPExchange - no es
+algo que vayas a encontrar en tu directorio vendor/.
+
+00:06:23.906 --> 00:06:30.046 align:middle
+No, esta clase proviene de la extensión
+AMQP PHP que hemos instalado antes.
+
+00:06:31.136 --> 00:06:36.376 align:middle
+Así que, si encuentras que realmente necesitas
+controlar algo sobre cómo se publica un mensaje
+
+00:06:36.376 --> 00:06:40.516 align:middle
+a través de esta extensión, puedes
+hacerlo con las clases $flags y $attributes.
+
+00:06:40.866 --> 00:06:43.966 align:middle
+Los documentos de arriba hacen un buen
+trabajo mostrándote las opciones.
+
+00:06:44.936 --> 00:06:48.356 align:middle
+Y... ¡eso es todo para AMQP y RabbitMQ!
+
+00:06:48.826 --> 00:06:53.476 align:middle
+Seguro que hay más cosas que aprender sobre
+RabbitMQ -es un tema enorme por sí mismo-,
+
+00:06:53.726 --> 00:06:58.146 align:middle
+pero ahora tienes un firme conocimiento de sus
+conceptos más importantes y de cómo funcionan.
+
+00:06:58.546 --> 00:07:01.256 align:middle
+Y, a menos que necesites
+hacer cosas muy avanzadas,
+
+00:07:01.496 --> 00:07:04.336 align:middle
+entiendes bastante para trabajar con
+Messenger. A continuación, hasta ahora hemos
+
+00:07:05.126 --> 00:07:08.886 align:middle
+estado enviando mensajes desde
+nuestra aplicación Symfony
+
+00:07:09.226 --> 00:07:12.476 align:middle
+y consumiéndolos desde esa misma aplicación.
+
+00:07:12.866 --> 00:07:15.076 align:middle
+Pero no siempre es así.
+
+00:07:15.776 --> 00:07:21.496 align:middle
+Uno de los poderes de un "broker de mensajes"
+como RabbitMQ es la capacidad de enviar mensajes
+
+00:07:21.496 --> 00:07:26.036 align:middle
+desde un sistema y manejarlos en
+un sistema totalmente diferente...
+
+00:07:26.556 --> 00:07:31.606 align:middle
+quizás en un servidor totalmente diferente o
+escrito en un lenguaje totalmente diferente.
+
+00:07:32.036 --> 00:07:32.876 align:middle
+¡Una locura!
+
+00:07:33.336 --> 00:07:37.026 align:middle
+Pero si vamos a utilizar Messenger
+para enviar mensajes a una cola
+
+00:07:37.226 --> 00:07:40.126 align:middle
+que luego será manejada por una
+aplicación totalmente diferente...
+
+00:07:40.666 --> 00:07:44.416 align:middle
+probablemente necesitemos codificar
+esos mensajes como JSON...
+
+00:07:44.796 --> 00:07:48.856 align:middle
+en lugar del formato serializado
+de PHP que estamos utilizando ahora
