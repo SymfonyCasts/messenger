@@ -1,0 +1,404 @@
+WEBVTT
+
+00:00:00.036 --> 00:00:06.616 align:middle
+Olvídate de los mensajes asíncronos y de los
+transportes externos y de todas esas cosas.
+
+00:00:06.616 --> 00:00:08.226 align:middle
+Abre ImagePostController. Como
+
+00:00:09.216 --> 00:00:15.366 align:middle
+recordatorio, cuando despachas un mensaje,
+en realidad despachas un objeto Envelope,
+
+00:00:15.496 --> 00:00:18.536 align:middle
+que es una simple "envoltura"
+que contiene el propio mensaje
+
+00:00:18.776 --> 00:00:21.406 align:middle
+y puede contener también algunos sellos...
+
+00:00:21.566 --> 00:00:22.976 align:middle
+que añaden información adicional.
+
+00:00:22.976 --> 00:00:29.436 align:middle
+Si despachas el objeto mensaje directamente,
+el bus de mensajes crea un Envelope
+
+00:00:29.436 --> 00:00:31.886 align:middle
+para ti y pone tu mensaje dentro.
+
+00:00:33.046 --> 00:00:38.036 align:middle
+La cuestión es que, internamente,
+Messenger siempre trabaja con un Envelope.
+
+00:00:38.236 --> 00:00:45.026 align:middle
+Y cuando llamas a $messageBus->dispatch(),
+también devuelve un Envelope: el Envelope final
+
+00:00:45.256 --> 00:00:47.086 align:middle
+después de que Messenger
+haya hecho todo su trabajo.
+
+00:00:47.956 --> 00:00:52.786 align:middle
+Veamos qué aspecto tiene: dump() toda
+esa línea $messageBus->dispatch().
+
+00:00:53.876 --> 00:00:55.936 align:middle
+Ahora, muévete y sube una foto.
+
+00:00:59.176 --> 00:01:03.066 align:middle
+Una vez hecho esto, busca esa petición en la
+barra de herramientas de depuración de la web...
+
+00:01:03.386 --> 00:01:04.936 align:middle
+y abre el perfilador.
+
+00:01:09.136 --> 00:01:14.926 align:middle
+¡Perfecto! Puedes ver que el Envelope final
+tiene el objeto mensaje original dentro:
+
+00:01:15.376 --> 00:01:16.616 align:middle
+AddPonkaToImage.
+
+00:01:16.916 --> 00:01:20.666 align:middle
+Pero este Envelope tiene ahora más sellos.
+
+00:01:21.546 --> 00:01:22.416 align:middle
+¡Hora de repasar rápidamente!
+
+00:01:22.926 --> 00:01:28.356 align:middle
+Cuando enviamos un mensaje al bus de mensajes,
+pasa por una colección de middleware...
+
+00:01:28.576 --> 00:01:32.506 align:middle
+y cada middleware puede añadir
+sellos adicionales al sobre.
+
+00:01:32.506 --> 00:01:36.766 align:middle
+Si amplías stamps en el volcado, ¡vaya!
+
+00:01:36.926 --> 00:01:38.706 align:middle
+¡Ahora hay 5 sellos!
+
+00:01:39.486 --> 00:01:43.916 align:middle
+Los dos primeros - DelayStamp y
+AmqpStamp - no son un misterio.
+
+00:01:44.436 --> 00:01:48.676 align:middle
+Los añadimos manualmente cuando
+enviamos el mensaje originalmente.
+
+00:01:49.386 --> 00:01:54.986 align:middle
+El último - SentStamp - es un sello
+añadido por el SendMessageMiddleware.
+
+00:01:55.916 --> 00:02:01.016 align:middle
+Como hemos configurado este mensaje para que
+se dirija al transporte async_priority_high,
+
+00:02:01.346 --> 00:02:07.276 align:middle
+el SendMessageMiddleware envía el mensaje
+a RabbitMQ y luego añade este SentStamp.
+
+00:02:08.006 --> 00:02:12.696 align:middle
+Esto es una señal -para cualquiera que
+se preocupe, nosotros u otro middleware-
+
+00:02:12.976 --> 00:02:16.856 align:middle
+de que este mensaje fue de
+hecho "enviado" a un transporte.
+
+00:02:17.706 --> 00:02:22.796 align:middle
+En realidad, es gracias a este sello que
+el siguiente middleware que se ejecuta -
+
+00:02:23.086 --> 00:02:27.996 align:middle
+HandleMessageMiddleware - sabe que no
+debe manejar este mensaje en este momento.
+
+00:02:28.616 --> 00:02:34.496 align:middle
+Ve que SentStamp, se da cuenta de que el mensaje fue
+enviado a un transporte y, por tanto, no hace nada.
+
+00:02:34.496 --> 00:02:36.296 align:middle
+Lo manejará más tarde.
+
+00:02:37.316 --> 00:02:39.706 align:middle
+¿Pero qué pasa con este BusNameStamp?
+
+00:02:40.286 --> 00:02:41.936 align:middle
+Abramos esa clase.
+
+00:02:42.666 --> 00:02:45.626 align:middle
+Huh, BusNameStamp contiene literalmente...
+
+00:02:45.726 --> 00:02:49.376 align:middle
+el nombre del bus al que se envió el mensaje.
+
+00:02:49.376 --> 00:02:55.046 align:middle
+Si miras en messenger.yaml, en la
+parte superior, tenemos tres buses:
+
+00:02:55.326 --> 00:02:58.286 align:middle
+command.bus, event.bus y query.bus.
+
+00:02:58.836 --> 00:03:02.636 align:middle
+Vale, pero ¿qué sentido tiene BusNameStamp?
+
+00:03:03.086 --> 00:03:06.766 align:middle
+Es decir, enviamos el mensaje a
+través del bus de comandos...
+
+00:03:06.866 --> 00:03:11.706 align:middle
+entonces, ¿por qué es importante que
+el mensaje tenga un sello que diga esto?
+
+00:03:12.306 --> 00:03:17.356 align:middle
+La respuesta tiene que ver con lo que ocurre
+cuando un trabajador consume este mensaje.
+
+00:03:18.276 --> 00:03:20.156 align:middle
+El proceso es así.
+
+00:03:20.156 --> 00:03:26.836 align:middle
+En primer lugar, el comando messenger:consume -que es el
+"trabajador"- lee un mensaje de una cola. En segundo lugar
+
+00:03:26.836 --> 00:03:32.776 align:middle
+, el serializador de ese transporte
+lo convierte en un objeto Envelope
+
+00:03:33.006 --> 00:03:37.116 align:middle
+con un objeto mensaje en su interior,
+como nuestro objeto LogEmoji.
+
+00:03:37.116 --> 00:03:43.556 align:middle
+Por último, el trabajador envía ese
+sobre de vuelta al bus de mensajes
+
+00:03:44.336 --> 00:03:49.336 align:middle
+¡Sí, internamente, algo llama a
+$messageBus->dispatch($envelope)!
+
+00:03:50.186 --> 00:03:53.826 align:middle
+Espera... pero si tenemos
+varios buses de mensajes...
+
+00:03:54.016 --> 00:03:59.076 align:middle
+¿cómo sabe el trabajador a qué
+bus de mensajes debe enviar el Sobre?
+
+00:03:59.806 --> 00:04:03.756 align:middle
+¡Pues sí! Ese es el propósito
+de este BusNameStamp. Messenger
+
+00:04:04.556 --> 00:04:08.766 align:middle
+añade este sello para que, cuando
+el trabajador reciba el mensaje,
+
+00:04:09.026 --> 00:04:13.136 align:middle
+pueda utilizarlo para enviarlo al bus correcto.
+
+00:04:14.076 --> 00:04:18.246 align:middle
+Ahora mismo, en nuestro serializador, no
+estamos añadiendo ningún sello a Envelope.
+
+00:04:19.176 --> 00:04:25.096 align:middle
+Como el sello no existe, el trabajador
+utiliza el default_bus, que es el command.bus.
+
+00:04:25.586 --> 00:04:26.556 align:middle
+Así que, en este caso...
+
+00:04:26.696 --> 00:04:27.946 align:middle
+¡adivinó correctamente!
+
+00:04:28.306 --> 00:04:30.036 align:middle
+Este mensaje es un comando.
+
+00:04:31.576 --> 00:04:34.846 align:middle
+El último sello que se
+añadió fue este UniqueIdStamp.
+
+00:04:35.776 --> 00:04:38.386 align:middle
+Esto es algo que hemos creado...
+
+00:04:38.386 --> 00:04:41.546 align:middle
+y se añade a través de un middleware
+personalizado: AuditMiddleware.
+
+00:04:42.746 --> 00:04:46.216 align:middle
+Cada vez que se envía un mensaje,
+este middleware se asegura
+
+00:04:46.216 --> 00:04:50.606 align:middle
+de que cada Envelope tenga
+exactamente un UniqueIdStamp.
+
+00:04:51.246 --> 00:04:55.136 align:middle
+Entonces, cualquiera puede utilizar la
+cadena de identificación única de ese sello
+
+00:04:55.376 --> 00:04:59.396 align:middle
+para rastrear este mensaje exacto
+a lo largo de todo el proceso.
+
+00:05:00.286 --> 00:05:06.786 align:middle
+Espera... así que si esto se añade normalmente
+cuando enviamos originalmente un mensaje...
+
+00:05:06.946 --> 00:05:12.786 align:middle
+¿debemos añadir manualmente el sello dentro de nuestro
+serializador para que el Envelope tenga uno? Míralo de
+
+00:05:13.626 --> 00:05:20.406 align:middle
+esta manera: un mensaje normal que se envía desde nuestra
+aplicación ya tendría este sello en el momento en que se
+
+00:05:20.606 --> 00:05:23.076 align:middle
+publica en RabbitMQ.
+
+00:05:23.076 --> 00:05:26.226 align:middle
+Cuando un trabajador lo reciba, estará ahí.
+
+00:05:27.056 --> 00:05:30.436 align:middle
+Pero... en este caso, como
+puedes ver claramente,
+
+00:05:30.436 --> 00:05:35.256 align:middle
+después de recibir el mensaje externo,
+no estamos añadiendo ese sello.
+
+00:05:35.336 --> 00:05:40.536 align:middle
+Entonces, ¿es algo que deberíamos añadir
+aquí para que esto "actúe" como otros mensajes?
+
+00:05:41.176 --> 00:05:41.986 align:middle
+¡Gran pregunta!
+
+00:05:42.576 --> 00:05:43.366 align:middle
+La respuesta es...
+
+00:05:43.816 --> 00:05:52.076 align:middle
+¡no! Comprueba los mensajes del registro: ya
+puedes ver algunos mensajes con esta cadena 5d7bc.
+
+00:05:52.676 --> 00:05:55.556 align:middle
+Ese es el identificador único.
+
+00:05:55.556 --> 00:05:58.426 align:middle
+¡Nuestro mensaje sí tiene un UniqueIdStamp!
+
+00:05:59.306 --> 00:06:03.786 align:middle
+¿Cómo? Recuerda que después de que
+nuestro serializador devuelva el Envelope,
+
+00:06:04.136 --> 00:06:07.356 align:middle
+el trabajador lo envía de
+vuelta a través del bus.
+
+00:06:08.146 --> 00:06:13.966 align:middle
+Y así, nuestro AuditMiddleware es llamado, añade
+ese sello y luego registra algunos mensajes sobre él.
+
+00:06:14.846 --> 00:06:18.926 align:middle
+Para retroceder un poco, hay dos grandes
+puntos que estoy tratando de señalar.
+
+00:06:18.926 --> 00:06:26.776 align:middle
+En primer lugar, cuando un mensaje se lee y se gestiona a
+través de un trabajador, se envía a través del bus de mensajes
+
+00:06:26.956 --> 00:06:29.636 align:middle
+y se ejecutan todos los middleware normales.
+
+00:06:29.636 --> 00:06:34.586 align:middle
+En el caso de un mensaje que se envía desde
+nuestra aplicación y que es manejado por ella,
+
+00:06:34.886 --> 00:06:37.656 align:middle
+pasará dos veces por el middleware.
+
+00:06:38.726 --> 00:06:42.866 align:middle
+El segundo punto importante es que cuando
+consumes un mensaje que fue puesto allí
+
+00:06:42.866 --> 00:06:47.426 align:middle
+desde un sistema externo, a ese
+mensaje le pueden faltar algunos sellos
+
+00:06:47.566 --> 00:06:49.206 align:middle
+que tendría un mensaje normal.
+
+00:06:49.486 --> 00:06:52.856 align:middle
+Y, en la mayoría de los
+casos, ¡eso está bien! El
+
+00:06:52.856 --> 00:06:56.466 align:middle
+DelayStamp y el AmqpStamp son irrelevantes
+
+00:06:56.686 --> 00:07:00.606 align:middle
+porque ambos indican al transporte
+cómo enviar el mensaje.
+
+00:07:01.216 --> 00:07:05.256 align:middle
+Pero... el BusNameStamp es uno de
+los que quizás quieras añadir.
+
+00:07:06.076 --> 00:07:12.276 align:middle
+Seguro que Messenger utilizó el bus correcto en este
+caso por accidente, ¡pero podemos ser más explícitos!
+
+00:07:13.606 --> 00:07:16.296 align:middle
+Entra en ExternalJsonMessengerSerializer.
+
+00:07:18.436 --> 00:07:23.976 align:middle
+Cámbialo por $envelope = new Envelope()
+y, al final, devuelve $envelope.
+
+00:07:24.996 --> 00:07:28.366 align:middle
+Añade el sello con $envelope =
+$envelope->with() - así es
+
+00:07:29.346 --> 00:07:32.676 align:middle
+como se añade un sello - new BusNameStamp().
+
+00:07:33.716 --> 00:07:35.216 align:middle
+Entonces... hmm...
+
+00:07:35.306 --> 00:07:39.656 align:middle
+porque nuestro transporte y serializador
+sólo manejan este único mensaje...
+
+00:07:39.726 --> 00:07:44.936 align:middle
+y como este único mensaje es un comando,
+querremos poner el bus del comando aquí.
+
+00:07:45.956 --> 00:07:48.536 align:middle
+Copia el nombre del bus command.bus y pégalo.
+
+00:07:49.866 --> 00:07:55.326 align:middle
+Añadiré un comentario que diga que esto es
+técnicamente sólo necesario si necesitas que el mensaje
+
+00:07:55.326 --> 00:07:58.276 align:middle
+se envíe a través de
+un bus no predeterminado.
+
+00:07:59.806 --> 00:08:05.016 align:middle
+A continuación, nuestro serializador es genial,
+pero no hemos codificado de forma muy defensiva.
+
+00:08:05.016 --> 00:08:09.126 align:middle
+¿Qué pasaría si el mensaje
+contuviera un JSON no válido...
+
+00:08:09.126 --> 00:08:11.346 align:middle
+o le faltara el campo emoji?
+
+00:08:11.816 --> 00:08:13.396 align:middle
+¿Fallaría nuestra aplicación con gracia...
+
+00:08:13.796 --> 00:08:15.016 align:middle
+o explotaría?
