@@ -1,0 +1,309 @@
+WEBVTT
+
+00:00:01.116 --> 00:00:04.996 align:middle
+Internamente, cuando envías
+un mensaje al autobús...
+
+00:00:05.066 --> 00:00:06.566 align:middle
+¿qué ocurre?
+
+00:00:06.936 --> 00:00:09.246 align:middle
+¿Qué aspecto tiene el código dentro del bus?
+
+00:00:09.846 --> 00:00:10.776 align:middle
+La respuesta es...
+
+00:00:10.926 --> 00:00:13.746 align:middle
+¡básicamente no hay código dentro del bus!
+
+00:00:14.246 --> 00:00:16.776 align:middle
+Todo se hace a través del middleware.
+
+00:00:17.386 --> 00:00:20.366 align:middle
+El bus no es más que una
+colección de "middleware".
+
+00:00:20.626 --> 00:00:23.506 align:middle
+Y cada middleware es sólo una función
+
+00:00:23.506 --> 00:00:26.566 align:middle
+que recibe el mensaje y
+puede hacer algo con él.
+
+00:00:27.426 --> 00:00:28.806 align:middle
+El proceso es así.
+
+00:00:29.356 --> 00:00:36.156 align:middle
+Pasamos un mensaje al método dispatch(),
+luego el bus lo pasa al primer middleware.
+
+00:00:36.836 --> 00:00:42.576 align:middle
+El middleware ejecuta entonces algún código
+y finalmente llama al segundo middleware.
+
+00:00:43.496 --> 00:00:47.186 align:middle
+Ejecuta algo de código y finalmente
+llama al tercer middleware...
+
+00:00:47.456 --> 00:00:49.746 align:middle
+hasta que finalmente el último middleware
+
+00:00:50.056 --> 00:00:53.786 align:middle
+-digamos que es el cuarto
+middleware- no tiene a quién llamar.
+
+00:00:54.756 --> 00:00:58.166 align:middle
+En ese momento, la función
+del cuarto middleware termina,
+
+00:00:58.436 --> 00:01:02.566 align:middle
+luego la del tercero, luego la del
+segundo y luego la del primero.
+
+00:01:03.026 --> 00:01:08.686 align:middle
+Gracias a este diseño, cada middleware puede ejecutar
+código antes de llamar al siguiente middle ware
+
+00:01:08.906 --> 00:01:09.876 align:middle
+o después.
+
+00:01:10.706 --> 00:01:15.836 align:middle
+Este concepto de "middleware" no es exclusivo
+de Messenger ni siquiera de PHP: es un patrón.
+
+00:01:16.576 --> 00:01:18.626 align:middle
+Puede ser a la vez súper útil...
+
+00:01:18.736 --> 00:01:20.456 align:middle
+y un poco confuso...
+
+00:01:20.486 --> 00:01:22.356 align:middle
+ya que es un gran círculo. La
+
+00:01:23.146 --> 00:01:28.556 align:middle
+cuestión es la siguiente: con Messenger,
+si quieres engancharte al proceso de envío
+
+00:01:28.816 --> 00:01:33.146 align:middle
+-como registrar lo que está
+ocurriendo- lo harás con un middleware.
+
+00:01:33.736 --> 00:01:39.396 align:middle
+Incluso la funcionalidad principal de Messenger
+-ejecutar manejadores y enviar mensajes
+
+00:01:39.396 --> 00:01:42.286 align:middle
+a los transportes- se hace con un middleware
+
+00:01:43.146 --> 00:01:48.366 align:middle
+Estos se llaman HandleMessageMiddleware
+y SendMessageMiddleware, por si quieres
+
+00:01:48.366 --> 00:01:50.106 align:middle
+ponerte friki y ver cómo funcionan.
+
+00:01:50.816 --> 00:01:54.286 align:middle
+Así que éste es nuestro objetivo:
+cada vez que enviemos un mensaje...
+
+00:01:54.466 --> 00:02:00.616 align:middle
+desde cualquier lugar, quiero adjuntar un
+identificador único a ese mensaje y luego utilizarlo
+
+00:02:00.616 --> 00:02:05.816 align:middle
+para registrar lo que ocurre en el tiempo con
+el mensaje: cuándo se envía inicialmente,
+
+00:02:06.006 --> 00:02:10.826 align:middle
+cuándo se envía al transporte y cuándo
+se recibe del transporte y se gestiona.
+
+00:02:11.546 --> 00:02:17.346 align:middle
+Incluso podrías utilizarlo para registrar el
+tiempo que tarda un mensaje individual en ser
+
+00:02:17.346 --> 00:02:20.436 align:middle
+procesado o cuántas veces se reintenta.
+
+00:02:21.516 --> 00:02:24.176 align:middle
+Crear un middleware es en
+realidad bastante sencillo.
+
+00:02:25.396 --> 00:02:28.116 align:middle
+Crea un nuevo directorio dentro
+de src/ llamado Messenger/...
+
+00:02:28.486 --> 00:02:31.436 align:middle
+aunque... como con casi todo en Symfony,
+
+00:02:31.846 --> 00:02:33.826 align:middle
+este directorio podría llamarse como sea.
+
+00:02:35.066 --> 00:02:39.066 align:middle
+Dentro, añade una clase llamada,
+qué tal, AuditMiddleware.
+
+00:02:41.136 --> 00:02:45.116 align:middle
+La única regla para los middleware
+es que deben implementar -¡sorpresa!
+
+00:02:45.326 --> 00:02:46.976 align:middle
+- MiddlewareInterface.
+
+00:02:47.976 --> 00:02:53.146 align:middle
+Iré a "Código -> Generar" -o Comando+N en
+un Mac- y seleccionaré "Implementar métodos".
+
+00:02:54.356 --> 00:02:57.466 align:middle
+Esta interfaz sólo requiere uno: handle().
+
+00:02:58.166 --> 00:03:00.706 align:middle
+Hablaremos de lo de la "pila" en un segundo...
+
+00:03:01.106 --> 00:03:02.256 align:middle
+pero sobre todo...
+
+00:03:02.436 --> 00:03:08.966 align:middle
+la firma de este método tiene sentido:
+recibimos el Envelope y devolvemos un Envelope.
+
+00:03:09.936 --> 00:03:14.336 align:middle
+La única línea que tu middleware
+necesitará casi seguro es esta
+
+00:03:15.096 --> 00:03:21.406 align:middle
+return $stack->next()->handle($envelope,
+$stack).
+
+00:03:22.686 --> 00:03:24.946 align:middle
+Esta es la línea que básicamente dice
+
+00:03:25.316 --> 00:03:29.576 align:middle
+Quiero ejecutar el siguiente
+middleware y luego devolver su valor.
+
+00:03:30.616 --> 00:03:34.976 align:middle
+Sin esta línea, ningún middleware
+posterior a nosotros sería llamado nunca...
+
+00:03:35.106 --> 00:03:37.526 align:middle
+que no suele ser lo que quieres.
+
+00:03:38.376 --> 00:03:39.436 align:middle
+Y... para empezar...
+
+00:03:39.776 --> 00:03:43.676 align:middle
+es suficiente: ¡esta clase
+ya es un middleware funcional!
+
+00:03:44.436 --> 00:03:48.446 align:middle
+Pero, a diferencia de muchas cosas
+en Symfony, Messenger no encontrará
+
+00:03:48.446 --> 00:03:50.966 align:middle
+y empezará a utilizar este
+middleware automáticamente.
+
+00:03:50.996 --> 00:03:54.366 align:middle
+Busca tu terminal abierto
+y, una vez más, ejecuta:
+
+00:03:54.366 --> 00:03:59.906 align:middle
+php bin/console debug:config
+framework messenger Veamos...
+
+00:03:59.906 --> 00:04:02.326 align:middle
+en algún lugar de aquí hay
+una clave llamada . buses
+
+00:04:03.326 --> 00:04:07.426 align:middle
+En ella se definen todos los servicios del
+bus de mensajes que tienes en tu sistema.
+
+00:04:08.176 --> 00:04:14.076 align:middle
+Ahora mismo, tenemos uno: el bus por
+defecto llamado messenger.bus.default.
+
+00:04:15.076 --> 00:04:18.356 align:middle
+Ese nombre puede ser cualquier cosa y se
+convierte en el identificador del servicio.
+
+00:04:19.566 --> 00:04:25.526 align:middle
+Debajo de esto, podemos utilizar la clave para definir cualquier nuevo
+middleware que queramos añadir, middleware además de los básicos que
+
+00:04:25.696 --> 00:04:28.236 align:middle
+se añaden por defecto.
+
+00:04:29.486 --> 00:04:31.416 align:middle
+Vamos a copiar esa configuración.
+
+00:04:31.416 --> 00:04:36.306 align:middle
+Luego, abre y, bajo ,
+config/packages/messenger.yaml framework:
+
+00:04:36.306 --> 00:04:38.606 align:middle
+messenger: , pega esto justo encima...
+
+00:04:39.106 --> 00:04:41.406 align:middle
+y asegúrate de que tiene la sangría correcta.
+
+00:04:42.686 --> 00:04:47.986 align:middle
+Debajo, añade a una nueva línea, y luego
+nuestro nuevo servicio middleware: de middleware:
+
+00:04:48.736 --> 00:04:51.476 align:middle
+App\Messenger\AuditMiddleware.
+
+00:04:54.086 --> 00:04:58.036 align:middle
+Y así, nuestro middleware debería llamarse...
+
+00:04:58.446 --> 00:05:00.576 align:middle
+junto con todo el middleware principal.
+
+00:05:01.326 --> 00:05:02.406 align:middle
+¿Qué... um...
+
+00:05:02.536 --> 00:05:04.296 align:middle
+son los middleware centrales?
+
+00:05:04.656 --> 00:05:06.796 align:middle
+¿Y en qué orden se llama todo?
+
+00:05:07.426 --> 00:05:12.716 align:middle
+Bueno, todavía no hay una buena forma de verlo,
+pero puedes encontrar esta información ejecutando
+
+00:05:12.716 --> 00:05:19.796 align:middle
+php bin/console debug:container
+--show-arguments messenger.bus.default.inner...
+
+00:05:20.086 --> 00:05:25.146 align:middle
+que es una forma de muy bajo nivel de obtener
+información sobre el bus de mensajes. De
+
+00:05:26.056 --> 00:05:30.756 align:middle
+todos modos, hay unos cuantos middleware centrales al
+principio que consiguen configurar algunas cosas básicas,
+
+00:05:31.066 --> 00:05:35.236 align:middle
+luego nuestro middleware y , finalmente,
+se llama a SendMessageMiddleware
+
+00:05:35.366 --> 00:05:37.896 align:middle
+y al final. HandleMessageMiddleware
+
+00:05:38.916 --> 00:05:41.966 align:middle
+Saber el orden exacto de estas
+cosas no es tan importante,
+
+00:05:42.416 --> 00:05:45.906 align:middle
+pero espero que ayude a desmitificar
+las cosas a medida que avancemos.
+
+00:05:47.206 --> 00:05:53.416 align:middle
+A continuación, vamos a ponernos a trabajar utilizando nuestro
+middleware para adjuntar un identificador único a cada mensaje.
+
+00:05:54.216 --> 00:05:57.516 align:middle
+¿Cómo? A través de nuestro propio sello
