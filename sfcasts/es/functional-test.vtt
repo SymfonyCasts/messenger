@@ -1,0 +1,443 @@
+WEBVTT
+
+00:00:01.036 --> 00:00:03.876 align:middle
+¿Cómo podemos escribir pruebas
+automatizadas para todo esto?
+
+00:00:04.586 --> 00:00:07.506 align:middle
+Bueno... Tengo muchas respuestas para eso.
+
+00:00:07.566 --> 00:00:11.556 align:middle
+En primer lugar, podrías hacer pruebas
+unitarias de tus clases de mensajes.
+
+00:00:12.306 --> 00:00:13.916 align:middle
+Normalmente no hago esto...
+
+00:00:13.956 --> 00:00:17.056 align:middle
+porque esas clases suelen ser muy simples...
+
+00:00:17.416 --> 00:00:20.616 align:middle
+pero si tu clase es un poco
+más compleja o quieres ir a lo
+
+00:00:20.616 --> 00:00:23.566 align:middle
+seguro, puedes hacer una prueba unitaria.
+
+00:00:24.246 --> 00:00:30.626 align:middle
+Más importantes son los manejadores de mensajes:
+definitivamente es una buena idea probarlos.
+
+00:00:31.376 --> 00:00:36.716 align:middle
+Puedes escribir pruebas unitarias y simular las
+dependencias o escribir una prueba de integración...
+
+00:00:37.076 --> 00:00:41.236 align:middle
+dependiendo de lo que sea más útil
+para lo que hace cada manejador.
+
+00:00:42.246 --> 00:00:45.716 align:middle
+La cuestión es: para las clases de
+mensajes y manejadores de mensajes...
+
+00:00:46.086 --> 00:00:54.036 align:middle
+probarlas no tiene absolutamente nada que ver
+con Messenger o transportes o async o workers:
+
+00:00:54.546 --> 00:00:59.726 align:middle
+simplemente son clases PHP bien escritas
+que podemos probar como cualquier otra cosa.
+
+00:01:00.446 --> 00:01:03.086 align:middle
+Esa es realmente una de las
+cosas bonitas de Messenger:
+
+00:01:03.616 --> 00:01:07.306 align:middle
+por encima de todo, sólo estás
+escribiendo código bonito.
+
+00:01:07.786 --> 00:01:10.636 align:middle
+Pero las pruebas funcionales
+son más interesantes.
+
+00:01:10.636 --> 00:01:15.036 align:middle
+Por ejemplo, abre
+src/Controller/ImagePostController.php.
+
+00:01:17.516 --> 00:01:21.536 align:middle
+El método create() es la ruta
+de subida y hace un par de cosas
+
+00:01:22.106 --> 00:01:26.576 align:middle
+como guardar el ImagePost en la base de
+datos y, lo más importante para nosotros,
+
+00:01:26.866 --> 00:01:29.936 align:middle
+despachar el objeto AddPonkaToImage.
+
+00:01:31.086 --> 00:01:35.596 align:middle
+Escribir una prueba funcional para
+esta ruta es bastante sencillo.
+
+00:01:36.006 --> 00:01:41.336 align:middle
+Pero, ¿y si quisiéramos poder
+comprobar no sólo que esta ruta "parece"
+
+00:01:41.336 --> 00:01:43.056 align:middle
+ha funcionado, sino también
+
+00:01:43.056 --> 00:01:48.666 align:middle
+que el objeto AddPonkaToImage se ha enviado,
+de hecho, al transporte? Al fin y al
+
+00:01:49.256 --> 00:01:54.576 align:middle
+cabo, no podemos probar que Ponka se ha
+añadido realmente a la imagen porque,
+
+00:01:54.956 --> 00:01:58.466 align:middle
+cuando se devuelve la respuesta,
+¡todavía no ha ocurrido!
+
+00:01:59.506 --> 00:02:03.266 align:middle
+Hagamos que la prueba funcional funcione
+primero, antes de ponernos elegantes.
+
+00:02:04.056 --> 00:02:09.176 align:middle
+Empieza por encontrar un terminal abierto
+y ejecutar: composer require phpunit
+
+00:02:09.176 --> 00:02:16.466 align:middle
+--dev Eso instala el test-pack de
+Symfony, que incluye el puente de PHPUnit,
+
+00:02:16.746 --> 00:02:20.566 align:middle
+una especie de "envoltorio" alrededor
+de PHPUnit que nos facilita la vida.
+
+00:02:21.736 --> 00:02:27.466 align:middle
+Cuando termina, nos dice que escribamos nuestras pruebas
+dentro del directorio tests/ -una idea brillante-
+
+00:02:27.936 --> 00:02:31.116 align:middle
+y que las ejecutemos
+ejecutando php bin/phpunit.
+
+00:02:31.116 --> 00:02:34.936 align:middle
+Ese pequeño archivo acaba
+de ser añadido por la receta
+
+00:02:35.256 --> 00:02:38.586 align:middle
+y se encarga de todos los detalles
+de la ejecución de PHPUnit.
+
+00:02:39.946 --> 00:02:42.906 align:middle
+Bien, primer paso: crear la clase de prueba.
+
+00:02:43.446 --> 00:02:46.506 align:middle
+Dentro de tests, crea un
+nuevo directorio Controller/
+
+00:02:49.646 --> 00:02:54.206 align:middle
+y luego una nueva clase PHP:
+ImagePostControllerTest.
+
+00:02:55.476 --> 00:03:01.966 align:middle
+En lugar de hacer que ésta extienda la normal
+TestCase de PHPUnit, extiende WebTestCase,
+
+00:03:02.586 --> 00:03:07.706 align:middle
+lo que nos dará los superpoderes de
+pruebas funcionales que merecemos...
+
+00:03:07.706 --> 00:03:11.646 align:middle
+y necesitamos. La clase vive
+en FrameworkBundle pero...
+
+00:03:11.886 --> 00:03:17.326 align:middle
+ten cuidado porque hay (gasp)
+¡dos clases con este nombre!
+
+00:03:18.246 --> 00:03:21.716 align:middle
+La que quieres vive en el
+espacio de nombres Test.
+
+00:03:22.546 --> 00:03:26.626 align:middle
+La que no quieres vive en el
+espacio de nombres Tests...
+
+00:03:26.726 --> 00:03:28.316 align:middle
+así que es súper confuso.
+
+00:03:29.606 --> 00:03:31.226 align:middle
+Debería quedar así.
+
+00:03:32.306 --> 00:03:35.786 align:middle
+Si eliges el equivocado, borra la
+declaración use e inténtalo de nuevo.
+
+00:03:36.506 --> 00:03:41.246 align:middle
+Pero .... mientras escribía este tutorial
+y me enfadaba por esta parte confusa,
+
+00:03:41.586 --> 00:03:44.116 align:middle
+creé una incidencia en
+el repositorio de Symfony.
+
+00:03:44.506 --> 00:03:51.156 align:middle
+Y estoy encantado de que cuando grabé el audio,
+¡la otra clase ya había sido renombrada!
+
+00:03:51.296 --> 00:03:54.066 align:middle
+Gracias a janvt, que se
+ha puesto manos a la obra.
+
+00:03:54.286 --> 00:03:55.586 align:middle
+¡Vamos, código abierto! De
+
+00:03:56.336 --> 00:03:59.256 align:middle
+todos modos, como vamos a
+probar la ruta create(),
+
+00:03:59.436 --> 00:04:01.606 align:middle
+añade public function testCreate().
+
+00:04:03.136 --> 00:04:10.226 align:middle
+Dentro, para asegurarme de que las cosas funcionan, voy
+a probar mi favorito $this->assertEquals(42, 42).
+
+00:04:10.506 --> 00:04:14.626 align:middle
+Fíjate en que no he obtenido
+ningún autocompletado en esto.
+
+00:04:15.386 --> 00:04:20.256 align:middle
+Eso es porque el propio PHPUnit
+no se ha descargado todavía.
+
+00:04:20.946 --> 00:04:23.946 align:middle
+Compruébalo: busca tu terminal
+y ejecuta las pruebas con:
+
+00:04:24.036 --> 00:04:32.976 align:middle
+php bin/phpunit Este pequeño script utiliza Composer
+para descargar PHPUnit en un directorio separado
+
+00:04:33.006 --> 00:04:38.906 align:middle
+en segundo plano, lo que es bueno porque significa
+que puedes obtener cualquier versión de PHPUnit,
+
+00:04:39.336 --> 00:04:43.196 align:middle
+incluso si algunas de sus dependencias
+chocan con las de tu proyecto.
+
+00:04:44.006 --> 00:04:45.146 align:middle
+Una vez que haya terminado...
+
+00:04:45.526 --> 00:04:49.156 align:middle
+¡ding! Nuestra única prueba está en verde.
+
+00:04:49.156 --> 00:04:56.116 align:middle
+Y la próxima vez que ejecutemos: php
+bin/phpunit saltará directamente a las pruebas.
+
+00:04:56.116 --> 00:05:01.676 align:middle
+Y ahora que PHPUnit está descargado,
+una vez que PhpStorm construya su caché,
+
+00:05:02.226 --> 00:05:05.246 align:middle
+ese fondo amarillo en
+assertEquals() desaparecerá.
+
+00:05:05.956 --> 00:05:10.386 align:middle
+Para probar la ruta en sí, primero
+necesitamos una imagen que podamos subir.
+
+00:05:11.276 --> 00:05:15.896 align:middle
+Dentro del directorio tests/, vamos a crear un
+directorio fixtures/ para contener esa imagen.
+
+00:05:17.316 --> 00:05:20.246 align:middle
+Ahora copiaré una de las
+imágenes que he estado sub iendo
+
+00:05:20.306 --> 00:05:24.666 align:middle
+a este directorio y la
+llamaré ryan-fabien.jpg.
+
+00:05:29.116 --> 00:05:29.996 align:middle
+Ahí lo tienes.
+
+00:05:30.916 --> 00:05:37.006 align:middle
+La prueba en sí es bastante sencilla: crear
+un cliente con $client = static::createClient()
+
+00:05:38.636 --> 00:05:42.686 align:middle
+y un objeto UploadedFile que representará
+el archivo que se está subiendo:
+
+00:05:42.686 --> 00:05:51.216 align:middle
+$uploadedFile = new UploadedFile()
+pasando la ruta del archivo
+
+00:05:51.216 --> 00:05:54.876 align:middle
+como primer argumento -
+__DIR__.'/../fixtures/ryan-fabien.jpg
+
+00:05:54.876 --> 00:06:03.036 align:middle
+- y el nombre del archivo como
+segundo - ryan-fabien.jpg. ¿Por qué
+
+00:06:04.536 --> 00:06:08.026 align:middle
+el segundo argumento, un poco
+"redundante"? Cuando subes
+
+00:06:08.976 --> 00:06:13.926 align:middle
+un archivo en un navegador, éste
+envía dos informaciones: el
+
+00:06:13.926 --> 00:06:19.486 align:middle
+contenido físico del archivo y el nombre del
+archivo en tu sistema de archivos. Finalmente,
+
+00:06:19.486 --> 00:06:25.366 align:middle
+podemos hacer la petición
+: $client->request(). El
+
+00:06:27.936 --> 00:06:29.726 align:middle
+primer argumento es el método... que
+
+00:06:29.996 --> 00:06:40.536 align:middle
+es POST, y luego la URL - /api/images - no
+necesitamos ningún parámetro GET o POST, pero
+
+00:06:40.946 --> 00:06:44.406 align:middle
+sí necesitamos pasar una
+matriz de archivos. Si
+
+00:06:45.566 --> 00:06:50.836 align:middle
+te fijas en ImagePostController, esperamos
+que el nombre del archivo subido -que
+
+00:06:51.166 --> 00:06:57.586 align:middle
+normalmente es el atributo name del campo
+<input - sea literalmente file. No es
+
+00:06:58.316 --> 00:07:00.466 align:middle
+el nombre más creativo... pero es
+
+00:07:00.466 --> 00:07:01.646 align:middle
+sensato. Utiliza
+
+00:07:02.676 --> 00:07:06.536 align:middle
+esa clave en nuestra prueba y ponla
+en el objeto $uploadedFile. Y...
+
+00:07:07.226 --> 00:07:08.416 align:middle
+¡ya está! Para
+
+00:07:08.416 --> 00:07:16.136 align:middle
+ver si ha funcionado, vamos a
+dd($client->getResponse()->getContent()). ¡
+
+00:07:19.036 --> 00:07:19.946 align:middle
+Hora de probar! Busca
+
+00:07:19.946 --> 00:07:25.846 align:middle
+tu terminal, limpia la pantalla,
+respira profundamente y... php
+
+00:07:25.846 --> 00:07:28.436 align:middle
+bin/phpunit ¡Ya está! Y
+
+00:07:28.436 --> 00:07:35.136 align:middle
+obtenemos un nuevo identificador
+cada vez que lo ejecutamos. Los
+
+00:07:36.086 --> 00:07:41.356 align:middle
+registros deImagePost se guardan en nuestra base de
+datos normal porque no me he tomado la molestia de
+
+00:07:41.356 --> 00:07:44.206 align:middle
+crear una base de datos distinta
+para mi entorno test. Eso
+
+00:07:44.746 --> 00:07:49.016 align:middle
+es algo que normalmente me gusta hacer. Elimina
+
+00:07:49.126 --> 00:07:55.596 align:middle
+el dd(): vamos a utilizar una afirmación real:
+$this->assertResponseIsSuccessful(). Este
+
+00:07:56.406 --> 00:07:59.286 align:middle
+bonito método se añadió en Symfony 4.3... y
+
+00:07:59.526 --> 00:08:06.146 align:middle
+no es el único: ¡este nuevo
+WebTestAssertionsTrait tiene un montón de
+
+00:08:06.146 --> 00:08:10.336 align:middle
+nuevos y bonitos métodos para
+probar un montón de cosas! Si
+
+00:08:10.416 --> 00:08:11.096 align:middle
+nos detenemos ahora... esta
+
+00:08:11.466 --> 00:08:15.226 align:middle
+es una bonita prueba y puede que estés
+perfectamente satisfecho con ella. Pero...
+
+00:08:15.636 --> 00:08:18.596 align:middle
+hay una parte que no es ideal.
+
+00:08:20.176 --> 00:08:22.296 align:middle
+Ahora mismo, cuando
+ejecutamos nuestra prueba, el
+
+00:08:22.296 --> 00:08:27.806 align:middle
+mensajeAddPonkaToImage se envía
+realmente a nuestro transporte... o
+
+00:08:28.206 --> 00:08:30.976 align:middle
+al menos creemos que lo hace...
+
+00:08:31.656 --> 00:08:34.476 align:middle
+no estamos verificando realmente
+que esto haya ocurrido... aunque
+
+00:08:34.856 --> 00:08:37.146 align:middle
+podemos comprobarlo
+manualmente ahora mismo. Para
+
+00:08:37.146 --> 00:08:42.836 align:middle
+que esta prueba sea más útil, podemos hacer
+una de estas dos cosas. En primer lugar,
+
+00:08:42.836 --> 00:08:47.706 align:middle
+podríamos anular los transportes
+para que sean síncronos en
+
+00:08:47.706 --> 00:08:51.326 align:middle
+el entorno de prueba, como
+hicimos con dev. Entonces,
+
+00:08:52.426 --> 00:08:56.146 align:middle
+si el manejo del mensaje fallara, nuestra
+prueba fallaría. O , en segundo lugar
+
+00:08:56.876 --> 00:09:02.266 align:middle
+, podríamos al menos escribir algo
+de código aquí que demuestre que
+
+00:09:02.266 --> 00:09:05.916 align:middle
+el mensaje se envió al menos al transporte.
+
+00:09:07.146 --> 00:09:10.826 align:middle
+Ahora mismo, es posible que
+la ruta devuelva 200... pero
+
+00:09:11.236 --> 00:09:15.336 align:middle
+algún error en nuestro código hizo
+que el mensaje nunca se enviara.
+
+00:09:16.036 --> 00:09:20.956 align:middle
+Añadamos esa comprobación a continuación,
+aprovechando un transporte especial "en memoria"
