@@ -1,0 +1,456 @@
+WEBVTT
+
+00:00:00.046 --> 00:00:04.806 align:middle
+Supón que necesitas que tu
+amigo venga a cuidar a tu perra
+
+00:00:04.806 --> 00:00:07.276 align:middle
+durante el fin de semana, llamémosla Molly.
+
+00:00:08.056 --> 00:00:12.396 align:middle
+Así que le escribes un mensaje explicándole
+todos los detalles que necesita saber la
+
+00:00:12.816 --> 00:00:17.556 align:middle
+frecuencia con la que debe alimentar a Molly,
+cuándo debe sacarla a pasear, dónde le gusta
+
+00:00:17.556 --> 00:00:20.936 align:middle
+que le rasquen detrás de las orejas,
+tu película de superhéroes favorita
+
+00:00:21.226 --> 00:00:23.636 align:middle
+y el nombre de tu mejor amigo de la infancia.
+
+00:00:24.276 --> 00:00:26.446 align:middle
+Espera... esas dos últimas cosas...
+
+00:00:26.566 --> 00:00:27.946 align:middle
+aunque son fascinantes...
+
+00:00:28.186 --> 00:00:30.956 align:middle
+¡no tienen nada que ver
+con ver a tu perro Molly!
+
+00:00:30.956 --> 00:00:35.256 align:middle
+Y esto toca una buena práctica
+para diseñar tus clases de mensajes
+
+00:00:35.736 --> 00:00:39.276 align:middle
+haz que contengan todos los detalles
+que el manipulador necesita...
+
+00:00:39.586 --> 00:00:41.076 align:middle
+y nada más.
+
+00:00:41.956 --> 00:00:43.586 align:middle
+Esto no es una regla absoluta...
+
+00:00:43.996 --> 00:00:47.096 align:middle
+sólo hace que sean más delgadas,
+más pequeñas y más dirigidas.
+
+00:00:47.096 --> 00:00:53.066 align:middle
+Si piensas en nuestro mensaje, en realidad
+no necesitamos todo el objeto ImagePost.
+
+00:00:53.496 --> 00:00:57.856 align:middle
+Lo más pequeño que podríamos
+pasar es en realidad el id...
+
+00:00:58.326 --> 00:01:02.406 align:middle
+que podríamos utilizar para consultar el objeto
+ImagePost y obtener el nombre del archivo.
+
+00:01:03.346 --> 00:01:06.536 align:middle
+Cambia el argumento del
+constructor por int $imagePostId.
+
+00:01:07.816 --> 00:01:12.166 align:middle
+Lo cambiaré a continuación e iré a Código ->
+Refactorizar para cambiar el nombre de la propiedad.
+
+00:01:13.096 --> 00:01:14.186 align:middle
+Ah, y ¡brillante!
+
+00:01:14.516 --> 00:01:18.306 align:middle
+También cambió el nombre de
+mi getter a getImagePostId().
+
+00:01:19.706 --> 00:01:21.826 align:middle
+Actualiza el tipo de
+retorno para que sea un int.
+
+00:01:23.796 --> 00:01:26.326 align:middle
+Podemos eliminar la antigua
+declaración use como crédito extra.
+
+00:01:27.406 --> 00:01:33.676 align:middle
+A continuación, en ImagePostController,
+busca AddPonkaToImage y...
+
+00:01:34.086 --> 00:01:36.926 align:middle
+cámbialo por $imagePost->getId().
+
+00:01:38.016 --> 00:01:40.796 align:middle
+Nuestra clase de mensaje es
+ahora lo más pequeña posible.
+
+00:01:40.796 --> 00:01:46.036 align:middle
+Por supuesto, esto significa que tenemos que hacer
+un poco de trabajo extra en nuestro manejador.
+
+00:01:46.036 --> 00:01:49.086 align:middle
+En primer lugar, la variable
+$imagePost ya no es...
+
+00:01:49.266 --> 00:01:51.276 align:middle
+bueno... ¡un ImagePost!
+
+00:01:52.086 --> 00:01:53.896 align:middle
+Cámbiale el nombre a $imagePostId.
+
+00:01:54.866 --> 00:01:58.926 align:middle
+Para consultar el objeto real, añade
+un nuevo argumento del constructor:
+
+00:01:59.736 --> 00:02:02.406 align:middle
+ImagePostRepository $imagePostRepository.
+
+00:02:03.676 --> 00:02:07.466 align:middle
+Pulsaré Alt + Enter -> Inicializar campos
+para crear esa propiedad y establecerla.
+
+00:02:08.926 --> 00:02:17.416 align:middle
+De vuelta al método, podemos decir $imagePost =
+$this->imagePostRepository->find($imagePostId).
+
+00:02:18.406 --> 00:02:19.426 align:middle
+Ya está
+
+00:02:19.426 --> 00:02:21.676 align:middle
+¡Y esto soluciona nuestro
+problema con Doctrine!
+
+00:02:22.376 --> 00:02:25.686 align:middle
+Ahora que estamos consultando la
+entidad, cuando llamemos a flush(),
+
+00:02:25.966 --> 00:02:28.466 align:middle
+la guardará correctamente con un UPDATE.
+
+00:02:29.096 --> 00:02:32.376 align:middle
+Podemos eliminar la llamada a persist() porque
+no es necesaria para las actualizaciones.
+
+00:02:33.396 --> 00:02:34.026 align:middle
+¡Vamos a probarlo!
+
+00:02:34.876 --> 00:02:36.816 align:middle
+Como acabamos de cambiar el
+código en nuestro manejador,
+
+00:02:37.156 --> 00:02:43.626 align:middle
+pulsa Ctrl+C para detener nuestro
+trabajador y luego reinícialo: ¡Ya está!
+
+00:02:44.506 --> 00:02:45.676 align:middle
+Sube un nuevo archivo...
+
+00:02:51.526 --> 00:02:55.486 align:middle
+comprueba el trabajador -sí,
+se ha procesado bien- y...
+
+00:02:55.926 --> 00:02:58.866 align:middle
+¡reactiva! ¡Sí!
+
+00:02:59.196 --> 00:03:03.896 align:middle
+No hay duplicación, ¡Ponka va a visitar
+mi taller y la fecha está fijada!
+
+00:03:04.806 --> 00:03:07.366 align:middle
+Pero... siento dar una mala noticia...
+
+00:03:07.816 --> 00:03:11.906 align:middle
+¿qué pasa si no se puede encontrar
+el ImagePost para este $imagePostId?
+
+00:03:12.716 --> 00:03:14.216 align:middle
+Eso no debería ocurrir...
+
+00:03:14.646 --> 00:03:17.966 align:middle
+pero dependiendo de tu
+aplicación, ¡podría ser posible!
+
+00:03:18.056 --> 00:03:20.656 align:middle
+Para nosotros... ¡lo es!
+
+00:03:20.656 --> 00:03:25.886 align:middle
+Si un usuario sube una foto y luego la borra
+antes de que el trabajador pueda gestionarla,
+
+00:03:26.136 --> 00:03:28.126 align:middle
+¡el ImagePost desaparecerá!
+
+00:03:28.976 --> 00:03:31.106 align:middle
+¿Es realmente un problema?
+
+00:03:31.796 --> 00:03:36.286 align:middle
+Si el ImagePost ya se ha borrado, ¿nos
+importa que este manipulador explote?
+
+00:03:36.876 --> 00:03:37.526 align:middle
+Probablemente no...
+
+00:03:37.786 --> 00:03:42.336 align:middle
+siempre y cuando hayas pensado en
+cómo va a explotar y sea intencionado.
+
+00:03:43.246 --> 00:03:45.226 align:middle
+Fíjate en esto: empecemos por decir
+
+00:03:45.516 --> 00:03:49.636 align:middle
+if (!$imagePost) para que podamos
+hacer un manejo especial...
+
+00:03:49.846 --> 00:03:53.766 align:middle
+en lugar de intentar llamar a
+getFilename() sobre null aquí abajo.
+
+00:03:53.766 --> 00:03:59.756 align:middle
+Si esto ocurre, sabemos que probablemente
+sea porque la imagen ya se ha borrado.
+
+00:04:00.166 --> 00:04:03.346 align:middle
+Pero... como odio las sorpresas
+en producción, vamos a
+
+00:04:03.656 --> 00:04:05.996 align:middle
+registrar un mensaje para
+saber que esto ha ocurrido...
+
+00:04:06.366 --> 00:04:08.736 align:middle
+por si acaso se debe a un
+error en nuestro código.
+
+00:04:09.736 --> 00:04:14.356 align:middle
+A partir de Symfony 4.2, hay un pequeño atajo
+para conseguir el servicio principal logger.
+
+00:04:14.356 --> 00:04:18.156 align:middle
+Primero, haz que tu servicio
+implemente LoggerAwareInterface.
+
+00:04:19.856 --> 00:04:23.326 align:middle
+Luego, utiliza un rasgo
+llamado LoggerAwareTrait.
+
+00:04:23.996 --> 00:04:24.586 align:middle
+Y ya está
+
+00:04:25.496 --> 00:04:27.566 align:middle
+Vamos a echar un vistazo al
+interior de LoggerAwareTrait.
+
+00:04:28.866 --> 00:04:33.526 align:middle
+Muy bien. En el núcleo de Symfony,
+hay un poco de código que dice
+
+00:04:33.826 --> 00:04:38.226 align:middle
+siempre que veas un servicio de usuario
+que implemente LoggerAwareInterface,
+
+00:04:38.676 --> 00:04:42.336 align:middle
+llama automáticamente a
+setLogger() en él y pasa el logger.
+
+00:04:43.226 --> 00:04:45.366 align:middle
+Al combinar la interfaz con este rasgo...
+
+00:04:45.546 --> 00:04:47.506 align:middle
+¡no tenemos que hacer nada!
+
+00:04:47.876 --> 00:04:50.766 align:middle
+Al instante tenemos una propiedad
+$logger que podemos utilizar.
+
+00:04:51.716 --> 00:04:53.576 align:middle
+Bien, pues de vuelta a nuestra sentencia if...
+
+00:04:54.246 --> 00:04:56.956 align:middle
+¿qué debemos hacer si no
+se encuentra el ImagePost?
+
+00:04:57.906 --> 00:04:59.396 align:middle
+Tenemos dos opciones...
+
+00:04:59.806 --> 00:05:02.216 align:middle
+y la elección correcta
+depende de la situación.
+
+00:05:02.286 --> 00:05:06.656 align:middle
+En primer lugar, podríamos lanzar
+una excepción -cualquier excepción-
+
+00:05:07.176 --> 00:05:10.406 align:middle
+y eso haría que se reintentara el mensaje.
+
+00:05:11.166 --> 00:05:13.046 align:middle
+Pronto habrá más reintentos.
+
+00:05:14.036 --> 00:05:17.966 align:middle
+O bien, podrías simplemente
+"devolver" y este mensaje "parecerá"
+
+00:05:17.966 --> 00:05:19.466 align:middle
+que se ha gestionado con éxito...
+
+00:05:19.656 --> 00:05:21.526 align:middle
+y se eliminará de la cola.
+
+00:05:22.636 --> 00:05:26.576 align:middle
+Volvamos: no tiene sentido
+reintentar este mensaje más tarde...
+
+00:05:26.916 --> 00:05:29.266 align:middle
+¡ese ImagePost ha desaparecido!
+
+00:05:30.176 --> 00:05:37.436 align:middle
+Pero también registremos un mensaje: si $this->logger,
+entonces $this->logger->alert() con,
+
+00:05:37.816 --> 00:05:41.156 align:middle
+¿qué tal, ¡Falta el mensaje de imagen %d!
+
+00:05:42.096 --> 00:05:44.336 align:middle
+pasando $imagePostId por el comodín.
+
+00:05:45.236 --> 00:05:50.126 align:middle
+Ah, y la única razón por la que compruebo
+si $this->logger está activado es...
+
+00:05:50.336 --> 00:05:50.966 align:middle
+básicamente...
+
+00:05:50.966 --> 00:05:52.096 align:middle
+para ayudar en las pruebas unitarias.
+
+00:05:52.786 --> 00:05:56.476 align:middle
+Dentro de Symfony, la propiedad
+logger siempre estará establecida.
+
+00:05:57.016 --> 00:06:01.086 align:middle
+Pero a nivel orientado a objetos,
+no hay nada que garantice
+
+00:06:01.086 --> 00:06:03.526 align:middle
+que alguien haya llamado a setLogger()...
+
+00:06:03.806 --> 00:06:06.076 align:middle
+así que esto es un poco más responsable.
+
+00:06:07.116 --> 00:06:07.956 align:middle
+¡Vamos a probar esta cosa!
+
+00:06:08.556 --> 00:06:12.286 align:middle
+¡Veamos qué ocurre si borramos un
+ImagePost antes de que se procese!
+
+00:06:12.286 --> 00:06:20.006 align:middle
+Primero, muévete, detén el manejador y reinícialo:
+Y como cada mensaje tarda unos segundos en procesarse
+
+00:06:20.006 --> 00:06:24.456 align:middle
+, si subimos un montón de fotos...
+
+00:06:26.556 --> 00:06:28.826 align:middle
+y las borramos súper rápido...
+
+00:06:29.576 --> 00:06:33.986 align:middle
+con un poco de suerte, borraremos una
+antes de que se gestione su mensaje.
+
+00:06:36.496 --> 00:06:37.436 align:middle
+¡Veamos si ha funcionado!
+
+00:06:38.996 --> 00:06:42.196 align:middle
+Así que... algunas sí
+se procesaron con éxito.
+
+00:06:42.596 --> 00:06:43.516 align:middle
+Pero... ¡sí!
+
+00:06:44.036 --> 00:06:45.886 align:middle
+¡Este tiene una alerta!
+
+00:06:46.436 --> 00:06:50.016 align:middle
+Y gracias al "retorno" que
+añadimos, fue "reconocido"...
+
+00:06:50.406 --> 00:06:52.546 align:middle
+lo que significa que se eliminó de la cola.
+
+00:06:53.736 --> 00:06:55.826 align:middle
+Ah... e interesante...
+
+00:06:56.126 --> 00:06:59.166 align:middle
+hay otro error que no había
+previsto a continuación:
+
+00:06:59.166 --> 00:07:05.686 align:middle
+Se produjo una excepción al manejar el mensaje
+AddPonkaToImage: Archivo no encontrado en la ruta...
+
+00:07:05.686 --> 00:07:07.336 align:middle
+¡Esto es increíble!
+
+00:07:07.726 --> 00:07:13.936 align:middle
+Esto es lo que parece si, por cualquier motivo,
+se lanza una excepción en tu manejador.
+
+00:07:14.936 --> 00:07:18.286 align:middle
+Al parecer, el ImagePost se
+encontró en la base de datos...
+
+00:07:18.626 --> 00:07:23.796 align:middle
+pero cuando intentó leer el archivo en el
+sistema de archivos, ¡se había eliminado! Lo
+
+00:07:24.696 --> 00:07:28.246 align:middle
+realmente sorprendente es
+que Messenger vio este fallo
+
+00:07:28.496 --> 00:07:31.446 align:middle
+y volvió a intentar automáticamente
+el mensaje una segunda vez...
+
+00:07:31.676 --> 00:07:33.186 align:middle
+y luego una tercera vez.
+
+00:07:34.246 --> 00:07:36.656 align:middle
+Hablaremos más sobre los fallos y
+los reintentos un poco más adelante.
+
+00:07:37.256 --> 00:07:41.916 align:middle
+Pero primero, nuestro mensaje DeleteImagePost
+se sigue gestionando de forma sincrónica.
+
+00:07:42.656 --> 00:07:44.216 align:middle
+¿Podríamos hacerlo asíncrono?
+
+00:07:44.796 --> 00:07:46.066 align:middle
+Pues... ¡no!
+
+00:07:46.406 --> 00:07:50.416 align:middle
+Necesitamos que el ImagePost se elimine
+de la base de datos inmediatamente
+
+00:07:50.656 --> 00:07:53.416 align:middle
+para que el usuario no lo vea si actualiza.
+
+00:07:53.956 --> 00:07:57.786 align:middle
+A menos que... podamos dividir la
+tarea de borrado en dos partes...
+
+00:07:58.496 --> 00:07:59.456 align:middle
+¡Vamos a intentarlo a continuación!
