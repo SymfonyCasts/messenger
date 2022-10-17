@@ -1,0 +1,241 @@
+WEBVTT
+
+00:00:01.026 --> 00:00:06.416 align:middle
+Acabamos de dividir nuestro proceso de borrado de imágenes
+en trozos más pequeños creando una nueva clase de comando,
+
+00:00:06.646 --> 00:00:11.926 align:middle
+un nuevo manejador y enviando ese
+nuevo comando desde el manejador
+
+00:00:12.646 --> 00:00:17.966 align:middle
+Esto... técnicamente no es nada especial, pero es genial ver
+cómo puedes dividir cada tarea en los trozos más pequeños que
+
+00:00:17.966 --> 00:00:20.766 align:middle
+necesites.
+
+00:00:21.566 --> 00:00:22.306 align:middle
+Pero vamos a...
+
+00:00:22.306 --> 00:00:24.136 align:middle
+asegurarnos de que esto funciona realmente.
+
+00:00:24.696 --> 00:00:27.086 align:middle
+Todo debería seguir procesándose
+de forma sincronizada.
+
+00:00:28.206 --> 00:00:31.286 align:middle
+Borra la primera imagen y...
+
+00:00:31.286 --> 00:00:32.396 align:middle
+actualiza para asegurarte.
+
+00:00:33.646 --> 00:00:34.696 align:middle
+¡Ya no está!
+
+00:00:34.696 --> 00:00:38.766 align:middle
+Antes de manejar la nueva clase
+de comando de forma asíncrona,
+
+00:00:39.096 --> 00:00:40.816 align:middle
+tenemos que pensar en algo.
+
+00:00:41.616 --> 00:00:46.286 align:middle
+Si, por alguna razón, hay un problema al
+eliminar este ImagePost de la base de datos,
+
+00:00:46.676 --> 00:00:51.426 align:middle
+Doctrine lanzará una excepción aquí
+mismo y el archivo nunca se eliminará.
+
+00:00:52.166 --> 00:00:58.636 align:middle
+Eso es perfecto: tanto la fila en la base de datos como
+el archivo en el sistema de archivos permanecerán.
+
+00:00:59.496 --> 00:01:02.906 align:middle
+Pero si la eliminación de la fila de la
+base de datos se realiza con éxito...
+
+00:01:03.236 --> 00:01:06.676 align:middle
+pero hay un problema al eliminar el
+archivo del sistema de archivos -
+
+00:01:06.906 --> 00:01:11.726 align:middle
+como un problema de conexión temporal al hablar con
+S3 si nuestro archivo estuviera almacenado allí...
+
+00:01:12.366 --> 00:01:13.386 align:middle
+ese archivo...
+
+00:01:13.646 --> 00:01:14.316 align:middle
+en realidad..
+
+00:01:14.526 --> 00:01:15.836 align:middle
+¡nunca se borraría!
+
+00:01:16.466 --> 00:01:17.776 align:middle
+Y... quizás no te importe.
+
+00:01:18.296 --> 00:01:23.206 align:middle
+Pero si te importa, podrías envolver todo
+este bloque en una transacción de Doctrine
+
+00:01:23.466 --> 00:01:27.836 align:middle
+para asegurarte de que todo ha salido
+bien antes de eliminar finalmente la fila.
+
+00:01:29.196 --> 00:01:29.666 align:middle
+Por supuesto...
+
+00:01:29.856 --> 00:01:33.516 align:middle
+una vez que cambiemos este mensaje para que se
+gestione de forma asíncrona, la eliminación
+
+00:01:33.996 --> 00:01:37.206 align:middle
+del archivo real se hará más tarde...
+
+00:01:37.646 --> 00:01:41.876 align:middle
+y estaremos, en cierto modo, "confiando"
+en que se gestione con éxito.
+
+00:01:42.826 --> 00:01:45.896 align:middle
+Vamos a hablar de los fallos
+y reintentos muy pronto. De
+
+00:01:46.796 --> 00:01:49.746 align:middle
+todos modos, ahora que hemos
+dividido esto en dos partes,
+
+00:01:49.926 --> 00:01:52.906 align:middle
+dirígete a config/packages/messenger.yaml.
+
+00:01:54.136 --> 00:01:59.696 align:middle
+Copia la línea existente, pégala y
+dirige la nueva DeletePhotoFile a async.
+
+00:02:00.886 --> 00:02:05.216 align:middle
+¡Genial! Con un poco de suerte, la fila de la
+base de datos se eliminará inmediatamente...
+
+00:02:05.566 --> 00:02:07.916 align:middle
+y el archivo unos segundos después.
+
+00:02:08.926 --> 00:02:12.476 align:middle
+Y como acabamos de hacer un cambio
+en el código del manejador, vete,
+
+00:02:12.686 --> 00:02:18.796 align:middle
+para nuestro trabajador y
+reinícialo: ¡Tiempo de prueba!
+
+00:02:18.796 --> 00:02:20.996 align:middle
+Refresca para estar seguro...
+
+00:02:21.236 --> 00:02:23.146 align:middle
+y probemos a borrar.
+
+00:02:25.996 --> 00:02:27.746 align:middle
+¡Comprueba cuánto más rápido es!
+
+00:02:27.866 --> 00:02:31.516 align:middle
+Si te acercas al terminal del trabajador...
+
+00:02:32.466 --> 00:02:35.636 align:middle
+sí, está haciendo todo
+tipo de cosas buenas aquí.
+
+00:02:38.096 --> 00:02:39.246 align:middle
+Ah, ¡y divertido!
+
+00:02:39.576 --> 00:02:45.046 align:middle
+Se ha producido una excepción al manejar uno
+de los mensajes: no se ha encontrado un archivo.
+
+00:02:45.046 --> 00:02:49.746 align:middle
+Creo que se debe a la fila duplicada causada
+por el error de Doctrine de hace unos minutos:
+
+00:02:50.306 --> 00:02:53.926 align:middle
+el archivo ya había desaparecido
+cuando se eliminó la segunda imagen.
+
+00:02:53.926 --> 00:02:59.836 align:middle
+Lo bueno es que ya está reintentando ese
+mensaje por si fuera un fallo temporal.
+
+00:03:00.596 --> 00:03:03.696 align:middle
+Al final, se rinde y "rechaza" el mensaje.
+
+00:03:04.636 --> 00:03:07.126 align:middle
+¡Vamos a probar juntos este loco sistema!
+
+00:03:08.406 --> 00:03:10.136 align:middle
+Sube un montón de fotos...
+
+00:03:12.726 --> 00:03:13.586 align:middle
+luego... ¡rápido!
+
+00:03:13.896 --> 00:03:14.666 align:middle
+¡Borra un par!
+
+00:03:20.896 --> 00:03:21.816 align:middle
+Si miras al trabajador...
+
+00:03:22.196 --> 00:03:27.196 align:middle
+está todo muy mezclado: aquí se manejan
+unos cuantos objetos de AddPonkaToImage...
+
+00:03:27.516 --> 00:03:30.096 align:middle
+y luego DeletePhotoFile.
+
+00:03:30.096 --> 00:03:34.466 align:middle
+Ah, y por cierto: si miras la
+sección routing en messenger.yaml,
+
+00:03:34.836 --> 00:03:43.066 align:middle
+normalmente enrutarás las cosas por su nombre de
+clase exacto: App\Message\AddPonkaToImage va a async.
+
+00:03:43.496 --> 00:03:47.816 align:middle
+Pero también puedes enrutar mediante
+interfaces o clases base. Por
+
+00:03:47.886 --> 00:03:53.386 align:middle
+ejemplo, si tienes un montón de clases
+que deben ir al transporte async,
+
+00:03:53.766 --> 00:03:58.556 align:middle
+podrías crear tu propia interfaz
+-tal vez AsyncMessageInterface -,
+
+00:03:59.126 --> 00:04:05.246 align:middle
+hacer que tus mensajes la implementen, y entonces
+sólo tendrás que enrutar esa interfaz a async aquí.
+
+00:04:05.926 --> 00:04:09.986 align:middle
+Pero ten cuidado porque, si una clase
+coincide con varias líneas de enrutamiento,
+
+00:04:10.356 --> 00:04:13.586 align:middle
+se enviará a todos esos transportes.
+
+00:04:14.876 --> 00:04:17.496 align:middle
+Ah, y por último: en caso
+de que tengas un caso de uso,
+
+00:04:17.766 --> 00:04:20.846 align:middle
+cada entrada de enrutamiento puede
+enviar a múltiples transportes.
+
+00:04:22.066 --> 00:04:25.006 align:middle
+Siguiente: ¿recuerdas
+que el mensaje serializado
+
+00:04:25.006 --> 00:04:27.966 align:middle
+en la base de datos estaba
+envuelto en algo llamado Envelope?
+
+00:04:28.546 --> 00:04:34.286 align:middle
+Vamos a aprender qué es eso y cómo su sistema
+de sellos nos da algunos superpoderes geniales
