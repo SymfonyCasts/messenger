@@ -1,0 +1,268 @@
+WEBVTT
+
+00:00:01.136 --> 00:00:05.436 align:middle
+Cuando empiezas a manejar cosas de forma
+asíncrona, pensar en lo que ocurre
+
+00:00:05.436 --> 00:00:08.386 align:middle
+cuando el código falla es aún más importante
+
+00:00:09.226 --> 00:00:14.586 align:middle
+¿Por qué? Bueno, cuando manejas las cosas de
+forma sincrónica, si algo falla, normalmente
+
+00:00:14.586 --> 00:00:18.046 align:middle
+falla todo el proceso, no sólo la mitad.
+
+00:00:18.656 --> 00:00:22.846 align:middle
+O, al menos, puedes hacer que todo
+el proceso falle si lo necesitas.
+
+00:00:23.736 --> 00:00:29.916 align:middle
+Por ejemplo: imagina que todo nuestro código
+sigue siendo síncrono: guardamos el ImagePost
+
+00:00:29.916 --> 00:00:34.896 align:middle
+en la base de datos, pero luego, aquí abajo,
+falla la adición de Ponka a la imagen...
+
+00:00:35.006 --> 00:00:36.156 align:middle
+porque está durmiendo la siesta.
+
+00:00:36.876 --> 00:00:41.016 align:middle
+Ahora mismo, eso supondría la
+mitad del trabajo realizado...
+
+00:00:41.346 --> 00:00:46.306 align:middle
+lo que, dependiendo de lo sensible que sea tu
+aplicación, puede o no ser un gran problema.
+
+00:00:47.196 --> 00:00:51.656 align:middle
+Si lo es, puedes resolverlo envolviendo todo
+esto en una transacción de base de datos. Pensar
+
+00:00:52.686 --> 00:00:57.046 align:middle
+en cómo van a fallar las cosas -y codificar
+a la defensiva cuando sea necesario-
+
+00:00:57.556 --> 00:00:59.896 align:middle
+es una práctica de programación saludable.
+
+00:01:00.446 --> 00:01:03.426 align:middle
+Pero todo esto cambia cuando
+el código es asíncrono
+
+00:01:03.486 --> 00:01:10.416 align:middle
+Piénsalo: guardamos el ImagePost en la
+base de datos, se envía AddPonkaToImage
+
+00:01:10.416 --> 00:01:14.626 align:middle
+al transporte y se devuelve
+la respuesta con éxito.
+
+00:01:15.236 --> 00:01:19.726 align:middle
+Luego, unos segundos después, nuestro
+trabajador procesa ese mensaje y,
+
+00:01:20.196 --> 00:01:24.146 align:middle
+debido a un problema temporal de la red,
+¡el manejador lanza una excepción!
+
+00:01:24.746 --> 00:01:27.326 align:middle
+Esto no es una buena situación.
+
+00:01:27.946 --> 00:01:31.826 align:middle
+El usuario piensa que todo ha ido
+bien porque no ha visto un error.
+
+00:01:32.386 --> 00:01:35.296 align:middle
+Y ahora tenemos un ImagePost
+en la base de datos...
+
+00:01:35.486 --> 00:01:38.166 align:middle
+pero Ponka nunca será añadido a ella.
+
+00:01:38.716 --> 00:01:40.356 align:middle
+Ponka está furioso. La cuestión
+
+00:01:41.186 --> 00:01:45.856 align:middle
+es: cuando se envía un mensaje a un
+transporte, tenemos que asegurarnos de
+
+00:01:45.856 --> 00:01:48.526 align:middle
+que el mensaje se procesa finalmente.
+
+00:01:49.166 --> 00:01:52.686 align:middle
+Si no lo es, podría dar lugar a algunas
+condiciones extrañas en nuestro sistema.
+
+00:01:53.216 --> 00:01:55.786 align:middle
+Así que empecemos a hacer que nuestro
+código falle para ver qué pasa
+
+00:01:56.866 --> 00:02:06.456 align:middle
+Dentro de AddPonkaToImageHandler, justo antes de que se
+ejecute el código real, digamos que si rand(0, 10) < 7,
+
+00:02:06.816 --> 00:02:11.016 align:middle
+entonces lanza un new \Exception() con:
+¡¡¡¡He fallado aleatoriamente!!!!
+
+00:02:11.076 --> 00:02:13.906 align:middle
+¡Veamos qué ocurre!
+
+00:02:14.586 --> 00:02:21.626 align:middle
+Primero, ve a reiniciar el trabajador:
+Luego despejaré la pantalla y...
+
+00:02:21.626 --> 00:02:22.416 align:middle
+¡vamos a subir!
+
+00:02:23.546 --> 00:02:25.046 align:middle
+¿Qué tal cinco fotos?
+
+00:02:27.176 --> 00:02:28.796 align:middle
+¡Vuelve a ver lo que pasa!
+
+00:02:32.506 --> 00:02:34.786 align:middle
+¡Whoa! Están pasando muchas cosas.
+
+00:02:35.236 --> 00:02:36.656 align:middle
+Vamos a desmontar esto.
+
+00:02:37.946 --> 00:02:40.536 align:middle
+El primer mensaje se recibió y se gestionó.
+
+00:02:41.976 --> 00:02:45.816 align:middle
+El segundo mensaje se recibió y
+también se gestionó con éxito.
+
+00:02:46.746 --> 00:02:51.596 align:middle
+El tercer mensaje se recibió, pero se
+produjo una excepción al manejarlo:
+
+00:02:51.596 --> 00:02:52.716 align:middle
+"¡Fallo aleatorio!".
+
+00:02:53.676 --> 00:02:59.726 align:middle
+Luego dice: "Reintento - reintento
+nº 1" seguido de "Enviando mensaje".
+
+00:03:00.496 --> 00:03:05.056 align:middle
+Sí, como ha fallado, Messenger
+lo "reintenta" automáticamente...
+
+00:03:05.366 --> 00:03:11.106 align:middle
+¡lo que significa literalmente que devuelve ese
+mensaje a la cola para que se procese más tarde!
+
+00:03:12.066 --> 00:03:17.546 align:middle
+Uno de estos registros de "Mensaje recibido" de
+aquí abajo es en realidad ese mensaje recibido
+
+00:03:17.546 --> 00:03:20.056 align:middle
+por segunda vez, gracias al reintento.
+
+00:03:20.856 --> 00:03:21.656 align:middle
+Lo bueno es que...
+
+00:03:21.956 --> 00:03:22.616 align:middle
+finalmente...
+
+00:03:22.856 --> 00:03:25.496 align:middle
+¡todos los mensajes se
+han gestionado con éxito!
+
+00:03:26.046 --> 00:03:27.966 align:middle
+Por eso los reintentos molan.
+
+00:03:28.706 --> 00:03:33.096 align:middle
+Podemos ver esto cuando refrescamos:
+todos tienen una foto de Ponka...
+
+00:03:33.536 --> 00:03:35.636 align:middle
+aunque algunas hayan fallado al principio.
+
+00:03:36.316 --> 00:03:38.446 align:middle
+Pero... vamos a intentarlo de nuevo...
+
+00:03:39.016 --> 00:03:42.426 align:middle
+porque ese ejemplo no mostraba
+el caso más interesante.
+
+00:03:43.136 --> 00:03:45.316 align:middle
+Esta vez seleccionaré todas las fotos...
+
+00:03:46.256 --> 00:03:49.816 align:middle
+oh, pero antes, vamos a limpiar la
+pantalla de nuestro terminal de trabajo.
+
+00:03:51.186 --> 00:03:52.966 align:middle
+Vale, sube, entonces...
+
+00:03:53.246 --> 00:03:53.776 align:middle
+muévete.
+
+00:03:55.076 --> 00:03:56.726 align:middle
+Allá vamos: esta vez...
+
+00:03:56.956 --> 00:04:00.456 align:middle
+gracias a la aleatoriedad,
+vemos muchos más fallos.
+
+00:04:01.306 --> 00:04:05.426 align:middle
+Vemos que un par de mensajes fallaron y
+fueron enviados para el reintento nº 1.
+
+00:04:06.096 --> 00:04:10.896 align:middle
+Luego, algunos de esos mensajes volvieron a
+fallar y se enviaron para el reintento nº 2
+
+00:04:12.226 --> 00:04:12.626 align:middle
+Y... ¡sí!
+
+00:04:13.236 --> 00:04:17.386 align:middle
+Volvieron a fallar y se enviaron
+para el reintento nº 3.
+
+00:04:18.646 --> 00:04:19.406 align:middle
+Finalmente...
+
+00:04:19.736 --> 00:04:25.786 align:middle
+oh sí, perfecto: después de intentarlo
+una vez y reintentarlo 3 veces más,
+
+00:04:26.146 --> 00:04:28.176 align:middle
+uno de los mensajes siguió fallando.
+
+00:04:28.976 --> 00:04:36.066 align:middle
+Esta vez, en lugar de enviar para reintento
+#4, dice Rechazando AddPonkaToImage (eliminando
+
+00:04:36.066 --> 00:04:40.396 align:middle
+del transporte) Esto es lo
+que ocurre: por defecto,
+
+00:04:40.706 --> 00:04:43.366 align:middle
+Messenger reintenta un mensaje tres veces.
+
+00:04:44.206 --> 00:04:50.276 align:middle
+Si sigue fallando, finalmente se elimina del
+transporte y el mensaje se pierde definitivamente.
+
+00:04:50.766 --> 00:04:53.066 align:middle
+Bueno... eso no es totalmente cierto...
+
+00:04:53.066 --> 00:04:56.136 align:middle
+y aquí ocurre algo más de
+lo que parece a primera vista.
+
+00:04:57.226 --> 00:04:59.276 align:middle
+A continuación, si te fijas bien...
+
+00:04:59.506 --> 00:05:03.366 align:middle
+estos reintentos se retrasan cada vez más.
+
+00:05:04.086 --> 00:05:09.316 align:middle
+Vamos a aprender por qué y cómo tomar el control
+total sobre cómo se reintentan tus mensajes
