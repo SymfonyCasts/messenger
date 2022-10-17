@@ -1,0 +1,332 @@
+WEBVTT
+
+00:00:00.036 --> 00:00:03.616 align:middle
+¡Hola amigos!
+
+00:00:03.926 --> 00:00:06.386 align:middle
+¡¡Es la hora de Symfony Messenger!!
+
+00:00:07.046 --> 00:00:09.646 align:middle
+¿Qué es Symfony Messenger?
+
+00:00:10.246 --> 00:00:12.526 align:middle
+Es una herramienta que te permite...
+
+00:00:12.776 --> 00:00:15.016 align:middle
+um... enviar mensajes...
+
+00:00:15.476 --> 00:00:17.246 align:middle
+Espera... eso no tiene sentido.
+
+00:00:17.736 --> 00:00:18.686 align:middle
+Intentémoslo de nuevo.
+
+00:00:19.416 --> 00:00:25.496 align:middle
+Messenger es una herramienta que permite un patrón de
+diseño realmente genial en el que escribes "mensajes"
+
+00:00:25.586 --> 00:00:29.846 align:middle
+y luego otro código que hace
+algo cuando se envía ese mensaje.
+
+00:00:29.896 --> 00:00:38.706 align:middle
+Si has oído hablar de CQRS -Segregación de Responsabilidad
+de Consulta de Comandos- Messenger es una herramienta
+
+00:00:38.706 --> 00:00:40.696 align:middle
+que permite ese patrón de diseño.
+
+00:00:41.446 --> 00:00:42.806 align:middle
+Todo eso está muy bien...
+
+00:00:42.806 --> 00:00:45.176 align:middle
+y vamos a aprender mucho sobre ello.
+
+00:00:45.646 --> 00:00:50.666 align:middle
+Pero es muy probable que estés viendo
+esto porque quieres aprender algo más
+
+00:00:50.666 --> 00:00:57.636 align:middle
+que hace Messenger: ¡te permite ejecutar código
+de forma asíncrona con colas y trabajadores!
+
+00:00:58.146 --> 00:00:59.546 align:middle
+Oooooooo.
+
+00:00:59.836 --> 00:01:02.616 align:middle
+Ésa es la verdadera gracia de Messenger.
+
+00:01:03.536 --> 00:01:05.446 align:middle
+Ah, y tengo dos argumentos de venta más.
+
+00:01:05.796 --> 00:01:12.196 align:middle
+En primer lugar, Symfony 4.3 tiene un montón de nuevas
+características que realmente hacen brillar a Messenger.
+
+00:01:12.776 --> 00:01:16.396 align:middle
+Y segundo, usar Messenger
+es una absoluta delicia.
+
+00:01:16.396 --> 00:01:18.416 align:middle
+Así que... ¡vamos a hacerlo!
+
+00:01:18.416 --> 00:01:24.556 align:middle
+Si quieres convertirte en un trabajador de
+procesamiento de colas de comandos, en un middleware...
+
+00:01:24.556 --> 00:01:25.286 align:middle
+y
+
+00:01:25.286 --> 00:01:26.866 align:middle
+otras palabras de moda... Messenger
+
+00:01:26.866 --> 00:01:31.616 align:middle
+, calienta tu café y
+codifica conmigo. Descarga
+
+00:01:32.846 --> 00:01:34.486 align:middle
+el código del curso desde esta página. Cuando
+
+00:01:35.316 --> 00:01:39.066 align:middle
+lo descomprimas, encontrarás
+dentro un directorio start/ con
+
+00:01:39.196 --> 00:01:41.096 align:middle
+el mismo código que ves aquí. Abre
+
+00:01:41.956 --> 00:01:47.456 align:middle
+el archivo README.md para conocer todos los
+detalles sobre cómo poner en marcha el proyecto y
+
+00:01:47.526 --> 00:01:53.276 align:middle
+un poema totalmente ajeno, pero
+encantador, llamado "El Mens ajero ". El
+
+00:01:55.006 --> 00:02:01.516 align:middle
+último paso de configuración será encontrar un terminal y
+utilizar el binario de Symfony para iniciar un servidor web en
+
+00:02:01.516 --> 00:02:07.336 align:middle
+https://localhost:8000 : Bien, vamos
+a comprobarlo en nuestro navegador.
+
+00:02:10.486 --> 00:02:15.146 align:middle
+Saluda a nuestra nueva creación de
+SymfonyCasts: Ponka-fy Me. Por si
+
+00:02:15.146 --> 00:02:23.066 align:middle
+no lo sabías, Ponka, de día, es uno de los principales
+desarrolladores aquí en SymfonyCasts. De noche...
+
+00:02:24.446 --> 00:02:26.126 align:middle
+es la gata de Víctor. En realidad...
+
+00:02:26.956 --> 00:02:27.676 align:middle
+debido a
+
+00:02:27.676 --> 00:02:30.216 align:middle
+su frecuente horario de siesta...
+
+00:02:30.346 --> 00:02:32.536 align:middle
+en realidad no hace nada
+de codificación... ahora
+
+00:02:32.536 --> 00:02:33.766 align:middle
+que lo pienso. De todos modos, hemos
+
+00:02:34.596 --> 00:02:40.346 align:middle
+notado un problema en el que nos vamos de
+vacaciones, pero Ponka no puede venir... ¡así que
+
+00:02:40.606 --> 00:02:44.456 align:middle
+cuando volvemos, ninguna de nuestras
+fotos tiene a Ponka! Ponka-fy
+
+00:02:45.106 --> 00:02:49.246 align:middle
+Me lo soluciona: seleccionamos
+una foto de las vacaciones...
+
+00:02:53.136 --> 00:02:54.006 align:middle
+se carga... y...
+
+00:02:56.236 --> 00:02:57.286 align:middle
+¡sí! ¡ Mira qué bien
+
+00:02:57.936 --> 00:02:58.606 align:middle
+! ¡ Ponka
+
+00:02:59.586 --> 00:03:03.016 align:middle
+se unió sin problemas a
+nuestra foto de vacaciones!
+
+00:03:04.206 --> 00:03:07.506 align:middle
+Entre bastidores, esta aplicación
+utiliza un frontend Vue.js... que
+
+00:03:07.946 --> 00:03:10.216 align:middle
+no es importante para lo que vamos
+a aprender. Lo que sí es importante
+
+00:03:11.146 --> 00:03:17.056 align:middle
+saber es que esto sube a una ruta
+de la API que almacena la foto y
+
+00:03:17.346 --> 00:03:20.146 align:middle
+luego combina dos imágenes juntas. Eso es
+
+00:03:21.046 --> 00:03:23.436 align:middle
+algo bastante pesado para
+hacer en una petición web...
+
+00:03:23.846 --> 00:03:30.876 align:middle
+por eso, si te fijas bien, es un poco
+lento: terminará de subir... espera...
+
+00:03:31.206 --> 00:03:35.646 align:middle
+y, sí, luego cargará la nueva
+imagen a la derecha. Veamos la ruta
+
+00:03:37.036 --> 00:03:40.656 align:middle
+de la API para que te hagas una
+idea de cómo funciona: está
+
+00:03:41.436 --> 00:03:44.486 align:middle
+en src/Controller/ImagePostController.php.
+
+00:03:44.486 --> 00:03:53.956 align:middle
+Busca en create() esta es la punta de la API
+de carga: coge el archivo, lo valida, utiliza
+
+00:03:54.296 --> 00:03:58.826 align:middle
+otro servicio para almacenar ese archivo
+-ese es el método uploadImage() -, crea
+
+00:03:59.746 --> 00:04:06.716 align:middle
+una nueva entidad ImagePost, la guarda en la
+base de datos con Doctrine y luego, aquí abajo,
+
+00:04:07.026 --> 00:04:09.956 align:middle
+tenemos algo de código para añadir
+Ponka a nuestra foto. Ese método
+
+00:04:10.476 --> 00:04:13.516 align:middle
+ponkafy() hace el trabajo realmente pesado:
+
+00:04:14.136 --> 00:04:17.516 align:middle
+toma las dos imágenes, las
+empalma y ... para hacerlo
+
+00:04:17.746 --> 00:04:22.156 align:middle
+más dramático y lento a
+efectos de este tutorial,
+
+00:04:22.546 --> 00:04:25.006 align:middle
+se toma una pausa de 2 segundos
+para el té. Sobre todo...
+
+00:04:26.036 --> 00:04:29.686 align:middle
+todo este código pretende ser
+bastante aburrido. Claro, he
+
+00:04:30.116 --> 00:04:32.876 align:middle
+organizado las cosas en unos
+cuantos servicios... eso está
+
+00:04:32.996 --> 00:04:35.616 align:middle
+bien, pero todo es muy tradicional. ¡Es
+
+00:04:36.136 --> 00:04:38.876 align:middle
+un caso de prueba perfecto
+para Messenger! Así que...
+
+00:04:39.566 --> 00:04:41.056 align:middle
+¡vamos a instalarlo! Busca
+
+00:04:41.056 --> 00:04:51.586 align:middle
+tu terminal, abre una nueva pestaña y ejec uta:
+composer require messenger Cuando termine...
+
+00:04:51.936 --> 00:04:53.626 align:middle
+recibimos un "mensaje"... ¡de
+
+00:04:53.626 --> 00:04:54.826 align:middle
+Messenger! Bueno, de
+
+00:04:55.446 --> 00:04:56.866 align:middle
+su receta. Esto
+
+00:04:57.896 --> 00:05:01.156 align:middle
+es genial, pero ya hablaremos
+de todo esto por el camino.
+
+00:05:02.256 --> 00:05:04.436 align:middle
+Además de instalar el
+componente Messenger, su receta
+
+00:05:04.776 --> 00:05:07.946 align:middle
+de Flex hizo dos cambios en nuestra
+aplicación. En primer lugar,
+
+00:05:07.946 --> 00:05:10.436 align:middle
+modificó .env.
+
+00:05:11.486 --> 00:05:12.276 align:middle
+Veamos...
+
+00:05:14.976 --> 00:05:17.046 align:middle
+añadió esta configuración de
+"transporte". Esto se refiere a la
+
+00:05:17.916 --> 00:05:21.996 align:middle
+puesta en cola de los mensajes
+-más adelante se hablará de ello-.
+
+00:05:23.006 --> 00:05:26.816 align:middle
+También añadió un nuevo
+archivo messenger.yaml, que... si
+
+00:05:27.046 --> 00:05:28.366 align:middle
+lo abres... es
+
+00:05:28.906 --> 00:05:30.316 align:middle
+perfectamente... ¡aburrido!
+
+00:05:30.566 --> 00:05:36.516 align:middle
+Tiene las claves transports y routing -de nuevo,
+cosas relacionadas con el encadenamiento- pero está
+
+00:05:36.786 --> 00:05:39.466 align:middle
+todo vacío y no hace
+nada todavía. Así que...
+
+00:05:40.256 --> 00:05:44.186 align:middle
+¿qué nos ha aportado la instalación
+del componente Messenger...
+
+00:05:44.576 --> 00:05:47.666 align:middle
+aparte de algunas nuevas clases PHP
+dentro del directorio vendor/? Nos dio
+
+00:05:48.376 --> 00:05:51.136 align:middle
+un nuevo servicio importante. Vuelve a
+
+00:05:51.716 --> 00:05:59.126 align:middle
+tu terminal y ejecuta: php bin/console
+debug:autowiring mess ¡Ahí está!
+
+00:05:59.676 --> 00:06:05.366 align:middle
+Tenemos un nuevo servicio que podemos utilizar
+con esta pista de tipo MessageBusInterface. Eh...
+
+00:06:05.366 --> 00:06:07.306 align:middle
+¿qué hace?
+
+00:06:07.766 --> 00:06:08.836 align:middle
+No lo sé ¡ Pero vamos a
+
+00:06:08.836 --> 00:06:10.146 align:middle
+descubrirlo a continuación!
+
+00:06:10.146 --> 00:06:13.856 align:middle
+Además de aprender sobre las clases de
+mensajes y los manejadores de mensajes
