@@ -1,0 +1,318 @@
+WEBVTT
+
+00:00:01.096 --> 00:00:06.046 align:middle
+Ahora estamos utilizando tanto el patrón del bus de
+comandos, donde creamos comandos y manejadores de comandos,
+
+00:00:06.286 --> 00:00:11.366 align:middle
+como el patrón del bus de eventos: tenemos
+nuestro primer evento y manejador de eventos.
+
+00:00:12.316 --> 00:00:14.536 align:middle
+La diferencia entre un comando y un evento...
+
+00:00:14.786 --> 00:00:16.746 align:middle
+es un poco sutil.
+
+00:00:17.316 --> 00:00:19.876 align:middle
+Cada comando debe tener
+exactamente un manejador:
+
+00:00:20.686 --> 00:00:26.656 align:middle
+estamos ordenando que algo realice
+una acción concreta: AddPonkaToImage.
+
+00:00:27.286 --> 00:00:32.096 align:middle
+Pero un evento es algo que suele enviarse
+después de que se realice esa acción,
+
+00:00:32.346 --> 00:00:39.916 align:middle
+y su finalidad es permitir que cualquier otra persona
+realice una acción secundaria: reaccionar a la acción.
+
+00:00:40.606 --> 00:00:44.196 align:middle
+Obviamente, el propio Messenger es una
+herramienta lo suficientemente genérica como para
+
+00:00:44.196 --> 00:00:46.606 align:middle
+poder utilizarla en ambos casos.
+
+00:00:47.566 --> 00:00:49.916 align:middle
+Abre config/packages/messenger.yaml.
+Hemos decidido
+
+00:00:50.926 --> 00:00:55.676 align:middle
+registrar un servicio de bus que estamos
+utilizando como nuestro bus de comandos
+
+00:00:55.866 --> 00:00:59.836 align:middle
+y otro servicio de bus que estamos
+utilizando como nuestro bus de eventos.
+
+00:01:00.536 --> 00:01:05.206 align:middle
+Pero... ¡en realidad no hay casi
+ninguna diferencia entre estos dos buses!
+
+00:01:05.676 --> 00:01:08.706 align:middle
+Un bus no es más que un
+conjunto de middleware...
+
+00:01:09.006 --> 00:01:13.666 align:middle
+así que las únicas diferencias son
+que el primero tiene AuditMiddleware...
+
+00:01:13.866 --> 00:01:15.596 align:middle
+que también podríamos añadir al segundo...
+
+00:01:16.306 --> 00:01:22.496 align:middle
+y le dijimos a la HandleMessageMiddleware del bus de eventos
+que no permitiera "ningún manejador" para un mensaje:
+
+00:01:22.996 --> 00:01:26.576 align:middle
+si un evento tiene cero manejadores,
+no lanzará una excepción.
+
+00:01:27.236 --> 00:01:27.766 align:middle
+Pero realmente...
+
+00:01:27.916 --> 00:01:34.376 align:middle
+esto es tan poco importante que si quisieras utilizar
+un solo bus para todo, funcionaría muy bien.
+
+00:01:35.066 --> 00:01:40.806 align:middle
+Sin embargo, hay algunas personas que hacen sus
+buses de comandos y eventos un poco más diferentes.
+
+00:01:41.936 --> 00:01:46.126 align:middle
+Busca en Google "Symfony Messenger multiple
+buses" para encontrar un artículo que habla
+
+00:01:46.126 --> 00:01:48.196 align:middle
+de cómo gestionar varios buses.
+
+00:01:49.366 --> 00:01:56.356 align:middle
+En este ejemplo, los documentos muestran tres buses
+diferentes: el bus de comandos, un bus de consultas
+
+00:01:56.356 --> 00:02:00.046 align:middle
+-del que hablaremos en un
+minuto- y un bus de eventos.
+
+00:02:00.956 --> 00:02:03.736 align:middle
+Pero cada bus tiene un
+middleware ligeramente diferente.
+
+00:02:04.466 --> 00:02:09.566 align:middle
+Estos dos middleware - validation y
+doctrine_transaction - vienen automáticamente
+
+00:02:09.566 --> 00:02:12.226 align:middle
+con Symfony pero no están
+activados por defecto.
+
+00:02:13.056 --> 00:02:16.996 align:middle
+Si añades el middleware validation,
+cuando envíes un mensaje,
+
+00:02:17.296 --> 00:02:22.936 align:middle
+ese middleware validará el propio objeto
+mensaje a través del validador de Symfony.
+
+00:02:23.546 --> 00:02:28.476 align:middle
+Si la validación falla, lanzará un
+ValidationFailedException que puedes atrapar
+
+00:02:28.476 --> 00:02:30.566 align:middle
+en tu código para leer los errores.
+
+00:02:31.536 --> 00:02:32.166 align:middle
+Esto es genial...
+
+00:02:32.296 --> 00:02:37.986 align:middle
+pero no lo vamos a utilizar porque prefiero
+validar mis datos antes de enviarlos al bus.
+
+00:02:38.636 --> 00:02:43.516 align:middle
+Simplemente tiene más sentido para mí y parece un
+poco más sencillo que una capa , en cierto modo,
+
+00:02:43.626 --> 00:02:46.496 align:middle
+"invisible" que haga la
+validación por nosotros.
+
+00:02:47.216 --> 00:02:49.536 align:middle
+Pero, es algo totalmente válido para usar.
+
+00:02:50.476 --> 00:02:52.426 align:middle
+El middleware doctrine_transaction es similar.
+
+00:02:53.126 --> 00:02:58.166 align:middle
+Si activas este middleware, envolverá tu
+manejador dentro de una transacción Doctrine.
+
+00:02:58.726 --> 00:03:02.796 align:middle
+Si el manejador lanza una excepción,
+revertirá la transacción.
+
+00:03:03.226 --> 00:03:06.476 align:middle
+Y si no se lanza ninguna
+excepción, la confirmará.
+
+00:03:07.426 --> 00:03:11.456 align:middle
+Esto significa que tu gestor no necesitará
+llamar a flush() en el Gestor de Entidades:
+
+00:03:12.006 --> 00:03:13.826 align:middle
+el middleware lo hace por ti.
+
+00:03:15.166 --> 00:03:16.076 align:middle
+Esto está bien...
+
+00:03:16.236 --> 00:03:20.646 align:middle
+pero me parece bien crear y gestionar yo mismo
+las transacciones de Doctrine si las necesito.
+
+00:03:21.296 --> 00:03:25.376 align:middle
+Así que éste es otro bonito middleware
+que me gusta, pero que no utilizo. De
+
+00:03:26.446 --> 00:03:29.926 align:middle
+todos modos, si utilizas más
+middleware del que estamos usando,
+
+00:03:30.286 --> 00:03:32.676 align:middle
+entonces tus diferentes
+buses podrían empezar a...
+
+00:03:32.796 --> 00:03:34.626 align:middle
+a ser más diferentes...
+
+00:03:35.166 --> 00:03:38.246 align:middle
+y utilizar varios servicios
+de bus tendría más sentido.
+
+00:03:39.516 --> 00:03:42.066 align:middle
+Como con todo, si el enfoque más sencillo
+
+00:03:42.136 --> 00:03:45.666 align:middle
+-usar un solo bus para
+todo- te funciona, ¡genial!
+
+00:03:46.036 --> 00:03:48.156 align:middle
+Hazlo. Si necesitas flexibilidad
+
+00:03:48.156 --> 00:03:51.836 align:middle
+para tener diferentes middleware
+en diferentes buses, genial.
+
+00:03:52.096 --> 00:03:53.756 align:middle
+Configura varios buses.
+
+00:03:54.546 --> 00:03:57.746 align:middle
+Dado que los buses múltiples son
+el caso de uso más complejo...
+
+00:03:57.866 --> 00:04:02.786 align:middle
+y estamos profundizando en Messenger , mantengamos
+nuestra configuración de múltiples buses
+
+00:04:02.966 --> 00:04:06.606 align:middle
+y organicemos mejor nuestro
+código en torno a este concepto.
+
+00:04:07.596 --> 00:04:14.366 align:middle
+Busca tu terminal y ejecuta: php
+bin/console debug:messenger Ah...
+
+00:04:14.656 --> 00:04:20.386 align:middle
+Ahora que tenemos múltiples buses,
+desglosa la información bus por bus.
+
+00:04:21.106 --> 00:04:25.706 align:middle
+Dice que se pueden enviar los siguientes
+mensajes a nuestro bus de comandos y...
+
+00:04:26.236 --> 00:04:31.616 align:middle
+eh... estos mismos mensajes se
+pueden enviar al bus de eventos.
+
+00:04:32.166 --> 00:04:33.856 align:middle
+Eso está... bien...
+
+00:04:33.856 --> 00:04:36.046 align:middle
+pero no es lo que realmente queremos.
+
+00:04:36.736 --> 00:04:41.236 align:middle
+Sabemos que ciertos mensajes
+son órdenes y se enviarán
+
+00:04:41.236 --> 00:04:44.366 align:middle
+al bus de órdenes y otros son eventos.
+
+00:04:44.936 --> 00:04:48.136 align:middle
+Pero cuando configuramos nuestros
+manejadores, nunca le dijimos a Messenger
+
+00:04:48.136 --> 00:04:52.156 align:middle
+que este manejador sólo debe
+ser utilizado por este bus.
+
+00:04:52.556 --> 00:04:57.706 align:middle
+Así, Messenger se asegura de que todos
+los buses conozcan todos los manejadores.
+
+00:04:58.226 --> 00:05:02.296 align:middle
+Esto no es un gran problema, pero significa que si accidentalmente
+tom áramos este comando y lo enviáramos al bus de eventos
+
+00:05:02.296 --> 00:05:04.956 align:middle
+, ¡funcionaría!
+
+00:05:04.956 --> 00:05:10.966 align:middle
+Y si tomáramos este evento y lo enviáramos
+al bus de comandos, funcionaría. Si confiamos
+
+00:05:11.736 --> 00:05:15.566 align:middle
+en que cada bus tenga un
+middleware bastante diferente,
+
+00:05:16.066 --> 00:05:18.356 align:middle
+probablemente no querremos cometer ese error.
+
+00:05:19.136 --> 00:05:22.546 align:middle
+Así que... vamos a hacer
+algo totalmente opcional...
+
+00:05:22.666 --> 00:05:25.386 align:middle
+pero agradable, cuando se
+utilizan eventos y comandos.
+
+00:05:26.786 --> 00:05:29.786 align:middle
+Mira dentro de los directorios
+Message y MessageHandler:
+
+00:05:30.926 --> 00:05:32.956 align:middle
+tenemos una mezcla de eventos y comandos.
+
+00:05:33.766 --> 00:05:36.856 align:middle
+Claro, he puesto el evento
+en un subdirectorio Event/,
+
+00:05:37.106 --> 00:05:38.966 align:middle
+pero no hemos hecho lo mismo con los comandos.
+
+00:05:39.746 --> 00:05:44.446 align:middle
+Hagamos eso a continuación: organicemos mejor
+nuestros mensajes y manejadores de mensajes.
+
+00:05:45.266 --> 00:05:49.956 align:middle
+Una vez hecho esto, podemos utilizar un truco de
+configuración de servicios para asegurarnos de
+
+00:05:49.956 --> 00:05:53.176 align:middle
+que el bus de comandos sólo
+conoce los manejadores de comandos
+
+00:05:53.556 --> 00:05:57.156 align:middle
+y el bus de eventos sólo conoce
+los manejadores de eventos
