@@ -1,0 +1,434 @@
+WEBVTT
+
+00:00:01.016 --> 00:00:04.526 align:middle
+Entonces... ¿cómo funciona
+todo esto en producción?
+
+00:00:05.116 --> 00:00:11.656 align:middle
+En realidad es un problema sencillo: en producción, tenemos
+que asegurarnos de alguna manera de que este comando -
+
+00:00:11.936 --> 00:00:15.086 align:middle
+messenger:consume - se ejecute siempre.
+
+00:00:15.476 --> 00:00:17.146 align:middle
+Como, siempre.
+
+00:00:17.906 --> 00:00:20.386 align:middle
+Algunas plataformas de
+alojamiento -como SymfonyCloud-
+
+00:00:20.736 --> 00:00:23.496 align:middle
+te permiten hacer esto con
+una sencilla configuración.
+
+00:00:24.346 --> 00:00:27.756 align:middle
+Básicamente dices ¡Oye, proveedor de la nube!
+
+00:00:28.006 --> 00:00:33.126 align:middle
+Por favor, asegúrate de que bin/console
+messenger:consume esté siempre en funcionamiento.
+
+00:00:33.126 --> 00:00:36.496 align:middle
+Si se cierra por alguna
+razón, inicia uno nuevo.
+
+00:00:37.026 --> 00:00:40.226 align:middle
+Si no utilizas una plataforma de
+alojamiento así, no pasa nada,
+
+00:00:40.616 --> 00:00:44.176 align:middle
+pero tendrás que hacer un poco de
+trabajo para obtener el mismo resultado.
+
+00:00:44.216 --> 00:00:48.796 align:middle
+Y, en realidad, no es sólo que
+necesitemos una forma de asegur arnos de
+
+00:00:48.796 --> 00:00:52.406 align:middle
+que alguien inicie este comando
+y luego se ejecute para siempre.
+
+00:00:52.876 --> 00:00:55.756 align:middle
+En realidad no queremos que el
+comando se ejecute para siempre.
+
+00:00:56.106 --> 00:01:02.486 align:middle
+Por muy bien que escribas tu código PHP, éste
+no está hecho para ejecutarse eternamente:
+
+00:01:03.016 --> 00:01:07.796 align:middle
+con el tiempo, su huella de memoria
+aumentará demasiado y el proceso morirá.
+
+00:01:08.176 --> 00:01:09.676 align:middle
+Y... ¡eso es perfecto!
+
+00:01:09.976 --> 00:01:12.596 align:middle
+No queremos que nuestro proceso
+se ejecute para siempre.
+
+00:01:13.316 --> 00:01:18.196 align:middle
+No: lo que realmente queremos es que
+messenger:consume se ejecute, maneje...
+
+00:01:18.236 --> 00:01:19.626 align:middle
+unos cuantos mensajes...
+
+00:01:19.786 --> 00:01:21.736 align:middle
+y luego se cierre.
+
+00:01:21.806 --> 00:01:24.816 align:middle
+Luego, utilizaremos otra
+herramienta para asegurarnos
+
+00:01:24.816 --> 00:01:28.826 align:middle
+de que cada vez que el proceso
+desaparezca, se reinicie.
+
+00:01:29.716 --> 00:01:32.306 align:middle
+La herramienta que hace
+eso se llama supervisor.
+
+00:01:32.306 --> 00:01:38.396 align:middle
+Después de instalarla, le das un comando
+que quieres que se ejecute siempre y se queda
+
+00:01:38.396 --> 00:01:44.196 align:middle
+despierto toda la noche comiendo pizza constantemente
+y vigilando que ese comando se ejecute.
+
+00:01:44.836 --> 00:01:51.396 align:middle
+En el momento en que deja de ejecutarse, por
+cualquier motivo, deja la pizza y reinicia el comando.
+
+00:01:51.396 --> 00:01:55.266 align:middle
+Así que vamos a ver cómo funciona el
+Supervisor y cómo podemos utilizarlo
+
+00:01:55.266 --> 00:01:58.016 align:middle
+para asegurarnos de que nuestro
+trabajador está siempre en marcha.
+
+00:01:59.006 --> 00:02:03.446 align:middle
+Como estoy utilizando un Mac, ya he
+instalado el Supervisor a través de Brew.
+
+00:02:03.566 --> 00:02:07.656 align:middle
+Si usas Ubuntu, puedes
+instalarlo mediante apt. Por
+
+00:02:08.386 --> 00:02:12.576 align:middle
+cierto, en realidad no necesitas
+instalar y configurar Super visor
+
+00:02:12.576 --> 00:02:15.946 align:middle
+en tu máquina local: sólo
+lo necesitas en producción.
+
+00:02:16.606 --> 00:02:19.726 align:middle
+Lo instalamos para poder probar y
+asegurarnos de que todo funciona.
+
+00:02:20.516 --> 00:02:24.416 align:middle
+Para ponerlo en marcha, necesitamos un
+archivo de configuración de Supervisor.
+
+00:02:25.826 --> 00:02:29.566 align:middle
+Busca en Google "Messenger Symfony"
+y abre la documentación principal.
+
+00:02:32.796 --> 00:02:33.676 align:middle
+En el medio...
+
+00:02:33.816 --> 00:02:36.136 align:middle
+hay un punto que habla del supervisor.
+
+00:02:39.936 --> 00:02:41.556 align:middle
+Copia el archivo de configuración.
+
+00:02:42.586 --> 00:02:46.146 align:middle
+Podemos ponerlo en cualquier sitio: no es
+necesario que viva en nuestro proyecto.
+
+00:02:46.666 --> 00:02:50.146 align:middle
+Pero, a mí me gusta tenerlo en mi
+repo para poder guardarlo en git.
+
+00:02:50.956 --> 00:02:56.586 align:middle
+En... qué tal config/, crea un nuevo
+archivo llamado messenger-worker.ini
+
+00:02:56.696 --> 00:03:00.246 align:middle
+y pega el código dentro.
+
+00:03:00.246 --> 00:03:06.106 align:middle
+El archivo le dice al Supervisor qué comando
+debe ejecutar y otra información importante
+
+00:03:06.506 --> 00:03:12.206 align:middle
+como el usuario con el que debe ejecutar el
+proceso y el número de procesos a ejecutar.
+
+00:03:13.316 --> 00:03:16.126 align:middle
+Esto creará dos procesos trabajadores.
+
+00:03:16.786 --> 00:03:20.446 align:middle
+Cuantos más trabajadores se ejecuten, más
+mensajes se podrán gestionar a la vez.
+
+00:03:21.046 --> 00:03:24.586 align:middle
+Pero también, más memoria y CPU necesitarás.
+
+00:03:25.906 --> 00:03:28.796 align:middle
+Ahora, localmente, no necesito
+ejecutar el supervisor...
+
+00:03:28.916 --> 00:03:32.346 align:middle
+porque podemos ejecutar
+manualmente messenger:consume.
+
+00:03:33.366 --> 00:03:38.906 align:middle
+Pero para asegurarnos de que todo esto funciona,
+vamos a fingir que mi ordenador es de producción
+
+00:03:39.216 --> 00:03:48.966 align:middle
+y cambiar la ruta para que apunte a usar mi
+ruta local: /Users/weaverryan/messenger...
+
+00:03:50.276 --> 00:03:53.046 align:middle
+lo que si compruebo dos veces en mi terminal...
+
+00:03:54.036 --> 00:03:56.306 align:middle
+oop - me olvidé de la parte Sites/.
+
+00:03:59.376 --> 00:04:02.996 align:middle
+Luego, aquí abajo, cambiaré el
+usuario para que sea weaverryan.
+
+00:04:04.006 --> 00:04:08.366 align:middle
+Una vez más, normalmente lo establecerás
+con tus valores de producción.
+
+00:04:09.346 --> 00:04:13.986 align:middle
+Ah, y si te fijas bien en el comando, se
+está ejecutando messenger:consume async.
+
+00:04:14.056 --> 00:04:17.926 align:middle
+Asegúrate de consumir
+también async_priority_high.
+
+00:04:19.776 --> 00:04:25.806 align:middle
+El comando también tiene una
+opción --time-limit=3600.
+
+00:04:26.486 --> 00:04:32.256 align:middle
+Hablaremos más de esto y de otras opciones
+dentro de un rato, pero esto es genial:
+
+00:04:32.836 --> 00:04:36.666 align:middle
+le dice al trabajador que se ejecute
+durante 60 minutos y luego salga,
+
+00:04:36.716 --> 00:04:40.086 align:middle
+para asegurarse de que no envejece
+demasiado y ocupa demasiada memoria.
+
+00:04:40.846 --> 00:04:44.336 align:middle
+En cuanto salga, el Supervisor lo reiniciará.
+
+00:04:45.096 --> 00:04:48.836 align:middle
+Ahora que tenemos nuestro archivo de configuración,
+tenemos que asegurarnos de que el Supervisor puede verlo.
+
+00:04:49.646 --> 00:04:53.506 align:middle
+Cada instalación de Supervisor tiene
+un archivo de configuración principal.
+
+00:04:54.356 --> 00:04:58.506 align:middle
+En un Mac donde se instala a través
+de Brew, ese archivo se encuentra
+
+00:04:58.506 --> 00:05:02.226 align:middle
+en /usr/local/etc/supervisord.ini.
+
+00:05:03.616 --> 00:05:10.006 align:middle
+En Ubuntu, debería estar en
+/etc/supervisor/supervisord.conf.
+
+00:05:10.006 --> 00:05:15.876 align:middle
+Entonces, en algún lugar de tu archivo de configuración,
+encontrarás una sección include con una línea files.
+
+00:05:16.406 --> 00:05:24.266 align:middle
+Esto significa que el Supervisor está buscando
+en este directorio archivos de configuración
+
+00:05:24.436 --> 00:05:27.046 align:middle
+-como el nuestro- que le dirán qué hacer.
+
+00:05:28.056 --> 00:05:33.006 align:middle
+Para introducir nuestro archivo de configuración en
+ese directorio, podemos crear un enlace simbólico:
+
+00:05:34.056 --> 00:05:40.336 align:middle
+ln -s
+~/Sites/messenger/config/messenger-worker.ini
+
+00:05:40.616 --> 00:05:42.156 align:middle
+y luego pegar el directorio.
+
+00:05:43.366 --> 00:05:47.016 align:middle
+Ya está Ahora el supervisor debería poder
+ver nuestro archivo de configuración.
+
+00:05:47.716 --> 00:05:52.286 align:middle
+Para ejecutar el supervisor,
+utilizaremos algo llamado supervisorctl.
+
+00:05:53.016 --> 00:05:57.706 align:middle
+Como estoy en un Mac, también
+necesito pasar una opción -c y apuntar
+
+00:05:57.706 --> 00:06:00.296 align:middle
+al archivo de configuración
+que acabamos de ver.
+
+00:06:00.896 --> 00:06:05.306 align:middle
+Si estás en Ubuntu, no deberías necesitar
+hacer esto: ya sabrá dónde buscar.
+
+00:06:06.386 --> 00:06:13.906 align:middle
+Luego di reread: eso le dice al Supervisor que vuelva
+a leer los archivos de configuración: Por cierto,
+
+00:06:14.146 --> 00:06:16.316 align:middle
+es posible que tengas que
+ejecutar este comando con sudo.
+
+00:06:16.676 --> 00:06:21.956 align:middle
+Si lo haces, no pasa nada:
+ejecutará los procesos
+
+00:06:22.146 --> 00:06:24.776 align:middle
+como el usuario de tu
+archivo de configuración.
+
+00:06:24.776 --> 00:06:28.696 align:middle
+¡Genial! Ve el nuevo grupo messager-consume.
+
+00:06:29.746 --> 00:06:32.766 align:middle
+Ese nombre procede de la clave que hay
+en la parte superior de nuestro archivo.
+
+00:06:34.536 --> 00:06:36.466 align:middle
+A continuación, ejecuta el comando update...
+
+00:06:36.586 --> 00:06:39.946 align:middle
+que reiniciará cualquier proceso
+con la nueva configuración...
+
+00:06:40.386 --> 00:06:41.936 align:middle
+si ya estuvieran en marcha...
+
+00:06:42.016 --> 00:06:51.966 align:middle
+pero los nuestros aún no lo están: Para iniciarlos,
+ejecuta start messenger-consume:*: Ese último argumento -
+
+00:06:52.386 --> 00:06:56.086 align:middle
+messenger-consume:* no es muy obvio.
+
+00:06:57.246 --> 00:07:00.766 align:middle
+Cuando creas un "programa"
+llamado messenger-consume,
+
+00:07:01.126 --> 00:07:05.036 align:middle
+se crea lo que se llama un
+"grupo de procesos homogéneos".
+
+00:07:06.256 --> 00:07:11.226 align:middle
+Como tenemos processes=2, este
+grupo ejecutará dos procesos.
+
+00:07:12.346 --> 00:07:16.126 align:middle
+Al decir messenger-consume:*
+le dice al Supervisor
+
+00:07:16.126 --> 00:07:19.346 align:middle
+que inicie todos los
+procesos dentro de ese grupo.
+
+00:07:20.256 --> 00:07:21.516 align:middle
+Cuando lo ejecutamos...
+
+00:07:21.516 --> 00:07:23.186 align:middle
+no dice nada...
+
+00:07:23.406 --> 00:07:26.406 align:middle
+pero... ¡nuestros comandos de
+trabajador deberían ejecutarse ahora!
+
+00:07:27.206 --> 00:07:32.086 align:middle
+Vamos a detener nuestro trabajador manual para
+que sólo se ejecuten los del Supervisor. Ahora
+
+00:07:33.346 --> 00:07:40.306 align:middle
+, tail -f var/log/messenger.log Esto
+hará que sea realmente obvio si
+
+00:07:40.306 --> 00:07:43.356 align:middle
+nuestros mensajes están siendo
+gestionados por esos trabajadores.
+
+00:07:44.456 --> 00:07:56.166 align:middle
+Ahora, sube unas cuantas fotos, borra
+un par de elementos, muévete y...
+
+00:07:56.416 --> 00:07:58.726 align:middle
+¡sí! ¡Está funcionando!
+
+00:07:59.346 --> 00:08:05.326 align:middle
+En realidad está funcionando casi el doble de rápido
+de lo normal porque tenemos el doble de trabajadores.
+
+00:08:06.576 --> 00:08:09.176 align:middle
+Y ahora podemos divertirnos un poco.
+
+00:08:09.176 --> 00:08:14.786 align:middle
+En primer lugar, podemos ver los identificadores
+de proceso creados por el Supervisor ejecutando:
+
+00:08:14.946 --> 00:08:25.176 align:middle
+ps -A | grep messenger:consume
+Ahí están: 19915 y 19916.
+
+00:08:25.926 --> 00:08:33.956 align:middle
+Matemos uno de ellos: kill 19915
+Y ejecutémoslo de nuevo: ¡Sí!
+
+00:08:33.956 --> 00:08:39.036 align:middle
+19916 sigue ahí, pero
+como hemos matado al otro,
+
+00:08:39.306 --> 00:08:44.176 align:middle
+el supervisor ha iniciado un
+nuevo proceso para él: 19995.
+
+00:08:44.666 --> 00:08:46.436 align:middle
+El supervisor es genial.
+
+00:08:47.436 --> 00:08:50.686 align:middle
+A continuación, vamos a hablar más
+sobre las opciones que podemos utilizar
+
+00:08:50.686 --> 00:08:55.986 align:middle
+para hacer salir a los trabajadores a propósito
+antes de que ocupen demasiada memoria.
+
+00:08:56.526 --> 00:09:01.566 align:middle
+También hablaremos de cómo reiniciar los trabajadores
+al desplegarse para que vean el nuevo código
+
+00:09:02.016 --> 00:09:07.066 align:middle
+y un pequeño detalle sobre cómo pueden romperse
+las cosas si actualizas tu clase de mensajes
