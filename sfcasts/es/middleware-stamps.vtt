@@ -1,0 +1,267 @@
+WEBVTT
+
+00:00:01.026 --> 00:00:05.736 align:middle
+De alguna manera, queremos adjuntar
+un identificador único -una cadena-
+
+00:00:05.986 --> 00:00:10.386 align:middle
+que permanezca con el mensaje para siempre:
+tanto si se gestiona inmediatamente, como si
+
+00:00:10.546 --> 00:00:14.556 align:middle
+se envía a un transporte, o incluso
+se vuelve a intentar varias veces.
+
+00:00:15.286 --> 00:00:16.736 align:middle
+¿Cómo podemos adjuntar más...
+
+00:00:16.906 --> 00:00:18.576 align:middle
+"cosas" adicionales a un mensaje?
+
+00:00:19.046 --> 00:00:21.646 align:middle
+Dándole nuestro propio sello
+
+00:00:23.276 --> 00:00:28.976 align:middle
+En el directorio Messenger/, crea una
+nueva clase PHP llamada UniqueIdStamp.
+
+00:00:30.386 --> 00:00:37.676 align:middle
+Los sellos también tienen una sola regla: implementan
+MessengerEnvelopeMetadataAwareContainerReaderInterface.
+
+00:00:37.676 --> 00:00:38.336 align:middle
+No, estoy
+
+00:00:38.856 --> 00:00:40.826 align:middle
+bromeando: ese sería un nombre tonto.
+
+00:00:41.316 --> 00:00:43.516 align:middle
+Sólo tienen que implementar
+StampInterface. Y...
+
+00:00:43.936 --> 00:00:45.006 align:middle
+¡eso es todo!
+
+00:00:45.546 --> 00:00:50.296 align:middle
+Es una interfaz vacía que sólo sirve para
+"marcar" objetos como sell os. Dentro...
+
+00:00:51.356 --> 00:00:54.376 align:middle
+podemos hacer lo que queramos ... siempre que
+
+00:00:54.966 --> 00:00:58.076 align:middle
+PHP pueda serializar este mensaje... lo que
+
+00:00:58.146 --> 00:01:01.396 align:middle
+básicamente significa: siempre
+que contenga datos simples.
+
+00:01:01.396 --> 00:01:07.596 align:middle
+Añadamos una propiedad private $uniqueId, y
+luego un constructor sin argumentos. Dentro,
+
+00:01:09.136 --> 00:01:12.966 align:middle
+digamos $this->uniqueId = uniqid(). En
+
+00:01:12.966 --> 00:01:19.296 align:middle
+la parte inferior, ve a Código -> Generar -o
+Comando+N en un Mac- y genera el getter... que
+
+00:01:19.836 --> 00:01:21.306 align:middle
+devolverá un string. ¡Sello,
+
+00:01:22.046 --> 00:01:23.346 align:middle
+hecho! A continuación,
+
+00:01:24.466 --> 00:01:31.466 align:middle
+dentro de AuditMiddleware, antes de llamar al
+siguiente middleware -que llamará al resto
+
+00:01:31.466 --> 00:01:36.586 align:middle
+del middleware y, en última instancia, manejará
+o enviará el mensaje- añadiremos el sello. Pero,
+
+00:01:37.426 --> 00:01:42.326 align:middle
+cuidado: tenemos que asegurarnos de que
+sólo adjuntamos el sello una vez. Como
+
+00:01:43.056 --> 00:01:46.186 align:middle
+veremos dentro de un minuto, un
+mensaje puede pasar al bus -y
+
+00:01:46.516 --> 00:01:49.786 align:middle
+, por tanto, al middleware-
+¡muchas veces! Una vez
+
+00:01:50.406 --> 00:01:53.746 align:middle
+cuando se envía inicialmente y otra cuando se
+
+00:01:53.986 --> 00:01:56.776 align:middle
+recibe del transporte y
+se maneja. Si el manejo de
+
+00:01:56.776 --> 00:02:03.926 align:middle
+ese mensaje falla y se vuelve a intentar,
+pasaría por el bus aún más veces. Por tanto,
+
+00:02:04.716 --> 00:02:12.476 align:middle
+empieza por comprobar si null ===
+$envelope->last(UniqueIdStamp::class), y luego
+
+00:02:13.606 --> 00:02:19.946 align:middle
+$envelope = $envelope->with(new
+UniqueIdStamp()).
+
+00:02:21.236 --> 00:02:23.106 align:middle
+Aquí hay algunas cosas
+interesantes. En primer lugar,
+
+00:02:23.236 --> 00:02:29.776 align:middle
+cada Envelope es "inmutable", lo que significa
+que, sólo por la forma en que se escribió esa
+
+00:02:29.776 --> 00:02:33.626 align:middle
+clase, no puedes cambiar
+ningún dato en ella. Cuando
+
+00:02:34.506 --> 00:02:40.876 align:middle
+llamas a $envelope->with() para añadir un nuevo
+sello, en realidad no modifica el Envelope. No,
+
+00:02:41.646 --> 00:02:46.676 align:middle
+internamente, hace un clon de sí
+mismo más el nuevo sello. Eso...
+
+00:02:47.716 --> 00:02:51.676 align:middle
+no es muy importante, salvo
+que tienes que acordarte de
+
+00:02:51.676 --> 00:02:58.566 align:middle
+decir $envelope = $envelope->with() para que $envelope se
+convierta en el nuevo objeto sellado. Además, cuando se trata
+
+00:02:59.716 --> 00:03:04.346 align:middle
+de sellos, un Envelope
+podría, en teoría, contener
+
+00:03:04.526 --> 00:03:07.316 align:middle
+varios sellos de la misma clase. El
+
+00:03:08.086 --> 00:03:13.906 align:middle
+método$envelope->last() dice:
+Dame el más reciente UniqueIdStamp o
+
+00:03:14.096 --> 00:03:15.676 align:middle
+null si no hay ninguno. Gracias
+
+00:03:16.196 --> 00:03:18.796 align:middle
+a nuestro trabajo, debajo de la
+sentencia if -independientemente
+
+00:03:19.176 --> 00:03:22.746 align:middle
+de si este mensaje se acaba de enviar... o
+
+00:03:23.046 --> 00:03:25.256 align:middle
+se acaba de recibir de un transporte... o
+
+00:03:25.256 --> 00:03:31.156 align:middle
+se está reintentando- nuestro Envelope debería
+tener exactamente un UniqueIdStamp. Recógelo
+
+00:03:31.266 --> 00:03:38.046 align:middle
+con $stamp =
+$envelope->last(UniqueIdStamp::class).
+
+00:03:39.096 --> 00:03:42.486 align:middle
+También voy a añadir una pequeña
+pista a mi editor para que sepa que
+
+00:03:42.486 --> 00:03:45.776 align:middle
+esto es específicamente un UniqueIdStamp. Para
+
+00:03:47.176 --> 00:03:51.306 align:middle
+ver si esto funciona, vamos a
+dump($stamp->getUniqueId()).
+
+00:03:53.206 --> 00:03:53.906 align:middle
+¡Probemos! Si hemos
+
+00:03:54.446 --> 00:04:00.976 align:middle
+hecho bien nuestro trabajo, para un mensaje
+asíncrono, ese dump() se ejecutará una vez cuando
+
+00:04:00.976 --> 00:04:05.596 align:middle
+se envíe el mensaje y otra vez
+dentro del trabajador cuando se
+
+00:04:05.646 --> 00:04:08.296 align:middle
+reciba del transporte y se gestione. Actualiza
+
+00:04:09.426 --> 00:04:14.666 align:middle
+la página para estar seguro,
+y luego sube una imagen. Para
+
+00:04:17.776 --> 00:04:22.776 align:middle
+ver si nuestro dump() ha sido alcanzado, utilizaré el enlace
+de la barra de herramientas de depuración de la web para abrir
+
+00:04:22.776 --> 00:04:24.846 align:middle
+el perfilador de esa petición. Haz clic en
+
+00:04:25.816 --> 00:04:27.936 align:middle
+"Depuración" a la izquierda y... ¡ahí
+
+00:04:28.406 --> 00:04:29.486 align:middle
+está! ¡ Nuestro
+
+00:04:29.926 --> 00:04:30.966 align:middle
+identificador único! Dentro de
+
+00:04:30.966 --> 00:04:36.946 align:middle
+unos minutos, nos aseguraremos de que este
+código también se ejecute en el trabajador. Y
+
+00:04:36.946 --> 00:04:42.186 align:middle
+como el middleware se ejecuta para cada
+mensaje, también deberíamos poder
+
+00:04:42.186 --> 00:04:44.066 align:middle
+verlo al borrar un mensaje. Haz clic en
+
+00:04:45.356 --> 00:04:49.486 align:middle
+eso, luego abre el perfilador de la petición
+DELETE y haz clic en "Depurar". ¡Ja!
+
+00:04:52.706 --> 00:04:57.206 align:middle
+Esta vez hay dos identificadores
+únicos distintos porque al borrar
+
+00:04:57.206 --> 00:05:00.876 align:middle
+se envían dos mensajes diferentes.
+A continuación, ¡ vamos a
+
+00:05:01.896 --> 00:05:05.116 align:middle
+hacer algo útil con esto! Dentro
+
+00:05:05.816 --> 00:05:10.696 align:middle
+de nuestro middleware, vamos a registrar todo
+el ciclo de vida de un único mensaje: cuando se
+
+00:05:11.146 --> 00:05:14.536 align:middle
+envía originalmente, cuando
+se envía a un transporte y
+
+00:05:14.816 --> 00:05:17.686 align:middle
+cuando se recibe de un transporte
+y se gestiona. Para saber
+
+00:05:18.546 --> 00:05:21.566 align:middle
+en qué parte del proceso se
+encuentra el mensaje, vamos a
+
+00:05:21.846 --> 00:05:24.346 align:middle
+utilizar de nuevo los sellos. Pero
+
+00:05:24.776 --> 00:05:29.116 align:middle
+en lugar de crear nuevos sellos,
+leeremos los sellos del núcleo
