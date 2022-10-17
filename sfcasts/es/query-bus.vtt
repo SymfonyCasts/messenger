@@ -1,0 +1,408 @@
+WEBVTT
+
+00:00:01.036 --> 00:00:03.956 align:middle
+El último tipo de autobús
+del que oirás hablar es...
+
+00:00:04.126 --> 00:00:06.956 align:middle
+¡el autobús turístico de dos pisos!
+
+00:00:07.296 --> 00:00:09.396 align:middle
+Es decir... ¡el autobús de la consulta!
+
+00:00:09.396 --> 00:00:10.746 align:middle
+Para que lo sepas...
+
+00:00:11.016 --> 00:00:18.206 align:middle
+aunque soy un fanático de saludar como un idiota en el nivel
+superior de un autobús turístico, no soy un gran fanático
+
+00:00:18.206 --> 00:00:22.446 align:middle
+de los autobuses de consulta: Creo que
+hacen tu código un poco más complejo...
+
+00:00:22.536 --> 00:00:24.666 align:middle
+para no obtener mucho beneficio.
+
+00:00:24.666 --> 00:00:30.486 align:middle
+Dicho esto, quiero que al menos
+entiendas lo que es y cómo encaja
+
+00:00:30.486 --> 00:00:32.576 align:middle
+en la metodología del bus de mensajes.
+
+00:00:33.366 --> 00:00:38.556 align:middle
+En config/packages/messenger.yaml
+tenemos command.bus y event.bus.
+
+00:00:39.506 --> 00:00:41.456 align:middle
+Añadamos query.bus.
+
+00:00:42.496 --> 00:00:47.336 align:middle
+Mantendré las cosas sencillas y sólo pondré esto
+en ~ para obtener la configuración por defecto.
+
+00:00:48.346 --> 00:00:51.756 align:middle
+Bien: ¿cuál es el objetivo
+de un "bus de consultas"?
+
+00:00:52.246 --> 00:00:58.626 align:middle
+Entendemos el propósito de los comandos:
+enviamos mensajes que suenan como comandos:
+
+00:00:59.106 --> 00:01:01.766 align:middle
+AddPonkaToImage o DeleteImagePost.
+
+00:01:02.636 --> 00:01:07.216 align:middle
+Cada comando tiene entonces exactamente
+un manejador que realiza ese trabajo...
+
+00:01:07.546 --> 00:01:10.226 align:middle
+pero no devuelve nada.
+
+00:01:10.226 --> 00:01:15.166 align:middle
+En realidad, aún no lo he mencionado:
+los comandos sólo realizan un trabajo,
+
+00:01:15.446 --> 00:01:18.646 align:middle
+pero no comunican nada de vuelta. Por ello
+
+00:01:19.286 --> 00:01:24.266 align:middle
+, no hay problema en procesar los comandos
+de forma sincrónica o asincrónica:
+
+00:01:24.636 --> 00:01:28.206 align:middle
+nuestro código no está esperando a recibir
+información de vuelta del manejador.
+
+00:01:28.206 --> 00:01:31.296 align:middle
+Un bus de consulta es lo contrario.
+
+00:01:31.796 --> 00:01:36.236 align:middle
+En lugar de ordenar al bus que haga su trabajo, el objetivo
+de una consulta es obtener información del manipulador.
+
+00:01:39.596 --> 00:01:45.366 align:middle
+Por ejemplo, supongamos que, en nuestra
+página web, queremos imprimir el número
+
+00:01:45.366 --> 00:01:47.256 align:middle
+de fotos que se han subido.
+
+00:01:47.986 --> 00:01:55.996 align:middle
+Esta es una pregunta o consulta que queremos hacer a
+nuestro sistema: ¿Cuántas fotos hay en la base de datos?
+
+00:01:55.996 --> 00:01:59.946 align:middle
+Si utilizas el patrón del bus
+de consulta, en lugar de obtener
+
+00:01:59.946 --> 00:02:03.206 align:middle
+esa información directamente,
+enviarás una consulta.
+
+00:02:04.336 --> 00:02:08.126 align:middle
+Dentro del directorio Message/,
+crea un nuevo subdirectorio Query/.
+
+00:02:08.946 --> 00:02:13.746 align:middle
+Y dentro de él, crea una nueva
+clase PHP llamada GetTotalImageCount.
+
+00:02:15.706 --> 00:02:21.866 align:middle
+Incluso ese nombre parece una consulta en lugar de un
+comando: Quiero obtener el número total de imágenes.
+
+00:02:22.376 --> 00:02:26.256 align:middle
+Y... en este caso, podemos dejar
+la clase de consulta en blanco:
+
+00:02:26.836 --> 00:02:29.866 align:middle
+no necesitaremos pasar ningún
+dato extra al manejador.
+
+00:02:31.076 --> 00:02:36.436 align:middle
+A continuación, dentro de MessageHandler/,
+haz lo mismo: añade un subdirectorio Query/
+
+00:02:37.326 --> 00:02:41.596 align:middle
+y luego una nueva clase llamada
+GetTotalImageCountHandler.
+
+00:02:43.206 --> 00:02:47.706 align:middle
+Y, como con todo lo demás, haz que
+ésta implemente MessageHandlerInterface
+
+00:02:48.326 --> 00:02:54.946 align:middle
+y crea public function __invoke() con un
+argumento de tipo-indicado con la clase mensaje:
+
+00:02:55.706 --> 00:02:58.096 align:middle
+GetTotalImageCount $getTotalImageCount.
+
+00:02:59.156 --> 00:03:00.796 align:middle
+¿Qué hacemos aquí dentro?
+
+00:03:01.356 --> 00:03:02.556 align:middle
+¡Encontrar el recuento de imágenes!
+
+00:03:03.256 --> 00:03:10.986 align:middle
+Probablemente inyectando el ImagePostRepository,
+ejecutando una consulta y devolviendo ese valor.
+
+00:03:11.686 --> 00:03:15.726 align:middle
+Dejaré la parte de la consulta
+para ti y sólo return 50.
+
+00:03:16.816 --> 00:03:18.036 align:middle
+Pero espera un segundo...
+
+00:03:18.036 --> 00:03:21.376 align:middle
+¡porque acabamos de hacer
+algo totalmente nuevo!
+
+00:03:22.016 --> 00:03:25.236 align:middle
+¡Estamos devolviendo un
+valor de nuestro manejador!
+
+00:03:25.936 --> 00:03:29.576 align:middle
+Esto no es algo que hayamos
+hecho en ningún otro sitio.
+
+00:03:30.186 --> 00:03:33.476 align:middle
+Los comandos funcionan, pero
+no devuelven ningún valor.
+
+00:03:34.356 --> 00:03:39.316 align:middle
+Una consulta no hace realmente ningún trabajo,
+su único objetivo es devolver un valor.
+
+00:03:40.656 --> 00:03:44.866 align:middle
+Antes de enviar la consulta,
+abre config/services.yaml
+
+00:03:45.106 --> 00:03:49.506 align:middle
+para que podamos hacer nuestro mismo truco
+de vincular cada manejador al bus correcto.
+
+00:03:50.876 --> 00:03:57.276 align:middle
+Copia la sección Event\, pégala, cambia
+Event por Query en ambos lugares...
+
+00:03:59.606 --> 00:04:01.666 align:middle
+y luego fija el bus a query.bus.
+
+00:04:01.866 --> 00:04:10.536 align:middle
+¡Me encanta! Comprobemos nuestro trabajo
+ejecutando: php bin/console debug:messenger ¡Si!
+
+00:04:10.806 --> 00:04:15.966 align:middle
+query.bus tiene un manejador, event.bus
+tiene un manejador y command.bus tiene dos.
+
+00:04:17.876 --> 00:04:18.606 align:middle
+¡Hagamos esto!
+
+00:04:19.036 --> 00:04:23.286 align:middle
+Abre src/Controller/MainController.php.
+
+00:04:23.286 --> 00:04:27.736 align:middle
+Esto renderiza la página de inicio y,
+por tanto, es aquí donde necesitamos
+
+00:04:27.736 --> 00:04:30.666 align:middle
+saber cuántas fotos se han subido.
+
+00:04:31.356 --> 00:04:37.316 align:middle
+Para obtener el bus de consulta, necesitamos saber qué combinación
+de tipo-indicación y nombre de argumento debemos utilizar.
+
+00:04:38.076 --> 00:04:45.076 align:middle
+Obtenemos esa información ejecutando: php bin/console
+debug:autowiring mess Podemos obtener el command.bus principal
+
+00:04:45.076 --> 00:04:50.246 align:middle
+utilizando la sugerencia de tipo MessageBusInterface
+con cualquier nombre de argumento.
+
+00:04:51.206 --> 00:04:56.656 align:middle
+Para obtener el bus de consulta, tenemos que utilizar
+esa sugerencia de tipo y nombrar el argumento: $queryBus.
+
+00:04:57.476 --> 00:05:01.636 align:middle
+Hazlo: MessageBusInterface $queryBus.
+
+00:05:02.306 --> 00:05:11.236 align:middle
+Dentro de la función, di $envelope =
+$queryBus->dispatch(new GetTotalImageCount()).
+
+00:05:12.106 --> 00:05:18.476 align:middle
+No lo hemos utilizado demasiado, pero el método
+dispatch() devuelve el objeto final Envelope,
+
+00:05:18.886 --> 00:05:21.366 align:middle
+que tendrá una serie de sellos diferentes.
+
+00:05:22.346 --> 00:05:25.216 align:middle
+Una de las propiedades
+de un bus de consultas es
+
+00:05:25.216 --> 00:05:29.716 align:middle
+que cada consulta se gestionará
+siempre de forma sincrónica.
+
+00:05:30.376 --> 00:05:34.506 align:middle
+¿Por qué? Sencillo: necesitamos
+la respuesta a nuestra consulta...
+
+00:05:34.726 --> 00:05:35.686 align:middle
+¡ahora mismo!
+
+00:05:36.116 --> 00:05:39.486 align:middle
+Y, por tanto, nuestro manejador
+debe ejecutarse inmediatamente.
+
+00:05:40.586 --> 00:05:44.806 align:middle
+En Messenger, no hay nada que imponga
+esto en un bus de consultas... es que
+
+00:05:44.946 --> 00:05:49.066 align:middle
+nunca dirigiremos nuestras consultas
+a un transporte, por lo que
+
+00:05:49.416 --> 00:05:52.336 align:middle
+siempre se gestionarán ahora mismo.
+
+00:05:53.326 --> 00:05:59.736 align:middle
+De todos modos, una vez que se maneja un mensaje, Messenger
+añade automáticamente un sello llamado HandledStamp.
+
+00:05:59.736 --> 00:06:07.576 align:middle
+Vamos a conseguirlo: $handled =
+$envelope->last() con HandledStamp::class.
+
+00:06:08.886 --> 00:06:13.096 align:middle
+Añadiré algo de documentación inline
+encima de eso para decirle a mi editor
+
+00:06:13.096 --> 00:06:16.206 align:middle
+que esto será una instancia de HandledStamp.
+
+00:06:17.166 --> 00:06:19.686 align:middle
+Entonces... ¿por qué conseguimos este sello?
+
+00:06:20.476 --> 00:06:24.346 align:middle
+Bueno, necesitamos saber cuál era el
+valor de retorno de nuestro manejador.
+
+00:06:24.556 --> 00:06:28.776 align:middle
+Y, convenientemente, Messenger
+lo almacena en este sello
+
+00:06:29.706 --> 00:06:34.076 align:middle
+Consíguelo con $imageCount
+= $handled->getResult().
+
+00:06:37.676 --> 00:06:41.276 align:middle
+Pasémoslo a la plantilla como
+una variable imageCount....
+
+00:06:42.346 --> 00:06:47.556 align:middle
+y luego en la plantilla -
+templates/main/homepage.html.twig -
+
+00:06:48.196 --> 00:06:54.016 align:middle
+ya que todo nuestro frontend está construido en
+Vue.js, anulemos el bloque title en la página
+
+00:06:54.286 --> 00:07:00.766 align:middle
+y usémoslo allí: Ponka'd
+{{ imageCount }} Photos.
+
+00:07:03.176 --> 00:07:04.036 align:middle
+¡Vamos a comprobarlo!
+
+00:07:04.696 --> 00:07:07.836 align:middle
+Muévete, actualiza y...
+
+00:07:08.246 --> 00:07:11.756 align:middle
+¡funciona! Tenemos las 50 fotos de Ponka...
+
+00:07:11.906 --> 00:07:14.836 align:middle
+al menos según nuestra lógica codificada.
+
+00:07:15.576 --> 00:07:17.156 align:middle
+Así que... ¡eso es un bus de consulta!
+
+00:07:17.776 --> 00:07:22.526 align:middle
+No es mi favorito porque no se
+nos garantiza qué tipo devuelve:
+
+00:07:22.886 --> 00:07:25.866 align:middle
+el imageCount podría ser
+realmente una cadena...
+
+00:07:25.866 --> 00:07:28.266 align:middle
+o un objeto de cualquier clase.
+
+00:07:29.116 --> 00:07:34.406 align:middle
+Como no estamos llamando a un método directo, los
+datos que obtenemos de vuelta parecen un poco confusos.
+
+00:07:35.116 --> 00:07:40.406 align:middle
+Además, como las consultas deben gestionarse de forma
+sincrónica, no estás ahorrando nada de rendimiento
+
+00:07:40.586 --> 00:07:44.596 align:middle
+al aprovechar un bus de consultas: es
+puramente un patrón de programación.
+
+00:07:45.176 --> 00:07:50.006 align:middle
+Pero mi opinión es totalmente subjetiva, y a
+mucha gente le encantan los buses de consulta.
+
+00:07:50.276 --> 00:07:56.376 align:middle
+De hecho, hemos hablado sobre todo de las herramientas
+en sí: buses de comandos, eventos y consultas.
+
+00:07:56.706 --> 00:08:03.026 align:middle
+Pero hay algunos patrones más profundos, como CQRS o
+event sourcing, que estas herramientas pueden desbloquear.
+
+00:08:03.906 --> 00:08:07.066 align:middle
+Esto no es algo que utilicemos
+actualmente aquí en SymfonyCasts...
+
+00:08:07.066 --> 00:08:10.536 align:middle
+pero si estás interesado, puedes
+leer más sobre este tema -
+
+00:08:11.036 --> 00:08:13.746 align:middle
+el blog de Matthias Noback
+es mi fuente favorita.
+
+00:08:14.326 --> 00:08:17.636 align:middle
+Ah, y antes de que se me olvide, si miras
+atrás en los documentos de Symfony...
+
+00:08:17.636 --> 00:08:20.146 align:middle
+en la página principal de Messenger...
+
+00:08:21.246 --> 00:08:23.366 align:middle
+hasta abajo del todo...
+
+00:08:24.426 --> 00:08:27.736 align:middle
+hay un punto aquí sobre cómo
+obtener resultados de tu manejador.
+
+00:08:28.726 --> 00:08:34.106 align:middle
+Muestra algunos atajos que puedes utilizar
+para obtener más fácilmente el valor del bus.
+
+00:08:35.606 --> 00:08:39.756 align:middle
+A continuación, vamos a hablar de los
+suscriptores de los manejadores de mensajes:
+
+00:08:40.176 --> 00:08:45.666 align:middle
+una forma alternativa de configurar un manejador
+de mensajes que tiene algunas opciones extra
