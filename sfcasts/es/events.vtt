@@ -1,0 +1,398 @@
+WEBVTT
+
+00:00:01.086 --> 00:00:04.166 align:middle
+Entonces... ¿qué diablos es un evento?
+
+00:00:05.006 --> 00:00:06.476 align:middle
+Te voy a poner un ejemplo.
+
+00:00:06.476 --> 00:00:09.666 align:middle
+Supón que un usuario se
+registra en tu sitio web.
+
+00:00:10.516 --> 00:00:15.636 align:middle
+Cuando eso ocurre, haces tres cosas:
+guardar al usuario en la base de datos,
+
+00:00:15.876 --> 00:00:20.756 align:middle
+enviarle un correo electrónico
+y añadirlo a un sistema de CRM.
+
+00:00:21.686 --> 00:00:24.226 align:middle
+El código para hacer todo esto
+podría vivir en un controlador,
+
+00:00:24.516 --> 00:00:30.876 align:middle
+un servicio o un SaveRegisteredUserHandler
+si tuvieras un comando SaveRegisteredUser.
+
+00:00:31.516 --> 00:00:34.966 align:middle
+Esto significa que tu servicio -o
+quizás tu controlador de comandos-
+
+00:00:35.236 --> 00:00:37.896 align:middle
+está haciendo tres cosas distintas.
+
+00:00:38.546 --> 00:00:40.786 align:middle
+Eso... no es gran cosa.
+
+00:00:41.146 --> 00:00:46.516 align:middle
+Pero si de repente necesitas hacer una cuarta
+cosa, tendrás que añadir aún más código.
+
+00:00:47.246 --> 00:00:52.906 align:middle
+Tu servicio -o manejador- viola el
+principio de responsabilidad única que dice
+
+00:00:52.906 --> 00:00:56.606 align:middle
+que cada función sólo debe
+realizar una única tarea.
+
+00:00:57.446 --> 00:01:01.726 align:middle
+Esto no es el fin del mundo: a
+menudo escribo código así...
+
+00:01:01.796 --> 00:01:04.086 align:middle
+y no suele molestarme.
+
+00:01:04.886 --> 00:01:10.266 align:middle
+Pero este problema de organización del código es exactamente
+la razón por la que existen los eventos. Esta es la
+
+00:01:11.416 --> 00:01:16.296 align:middle
+idea: si tienes un manejador de
+comandos como SaveRegisteredUser, se
+
+00:01:16.546 --> 00:01:20.416 align:middle
+supone que sólo debe
+realizar su tarea principal:
+
+00:01:21.026 --> 00:01:23.866 align:middle
+debe guardar el usuario
+registrado en la base de datos.
+
+00:01:23.946 --> 00:01:31.876 align:middle
+Si sigues esta práctica, no debería realizar tareas
+"secundarias", como enviar un correo electrónico al usuario
+
+00:01:31.936 --> 00:01:34.586 align:middle
+o configurarlo en un sistema CRM.
+
+00:01:34.586 --> 00:01:43.306 align:middle
+En su lugar, debería realizar la tarea principal
+y luego enviar un evento, como UserWasRegistered.
+
+00:01:43.746 --> 00:01:48.906 align:middle
+Entonces, tendríamos dos manejadores para ese
+evento: uno que envíe el correo electrónico
+
+00:01:49.116 --> 00:01:51.656 align:middle
+y otro que configure al usuario en
+el CRM. El manejador de comandos
+
+00:01:52.776 --> 00:01:57.976 align:middle
+realiza la "acción" principal
+y el evento ayuda a otras partes
+
+00:01:57.976 --> 00:02:00.336 align:middle
+del sistema a "reaccionar" a esa acción.
+
+00:02:01.106 --> 00:02:05.946 align:middle
+En lo que respecta a Messenger, los
+comandos y los eventos son idénticos.
+
+00:02:06.706 --> 00:02:10.446 align:middle
+La diferencia se reduce a que cada uno
+soporta un patrón de diseño diferente.
+
+00:02:11.186 --> 00:02:14.726 align:middle
+Y... ¡ya tenemos una situación así!
+
+00:02:15.186 --> 00:02:19.296 align:middle
+Mira DeleteImagePost y luego
+DeleteImagePostHandler.
+
+00:02:20.576 --> 00:02:25.196 align:middle
+La tarea "principal" de este gestor es
+eliminar este ImagePost de la base de datos.
+
+00:02:25.716 --> 00:02:32.316 align:middle
+Pero también tiene una segunda tarea: eliminar el
+archivo subyacente del sistema de archivos. Para ello
+
+00:02:32.316 --> 00:02:39.666 align:middle
+, enviamos un segundo
+comando - DeletePhotoFile -
+
+00:02:39.666 --> 00:02:41.706 align:middle
+y su manejador elimina el archivo.
+
+00:02:42.836 --> 00:02:43.406 align:middle
+Adivina qué...
+
+00:02:43.886 --> 00:02:46.166 align:middle
+¡este es el patrón del evento!
+
+00:02:46.596 --> 00:02:48.956 align:middle
+Bueno, es casi el patrón de eventos.
+
+00:02:49.506 --> 00:02:55.176 align:middle
+La única diferencia es la denominación:
+DeletePhotoFile suena como un "comando".
+
+00:02:56.066 --> 00:02:58.896 align:middle
+En lugar de "ordenar" al sistema que haga algo,
+
+00:02:59.196 --> 00:03:04.196 align:middle
+un evento es más bien un
+"anuncio" de que algo ha ocurrido.
+
+00:03:05.046 --> 00:03:09.806 align:middle
+Para entenderlo bien, retrocedamos y
+volvamos a implementar todo esto de nuevo.
+
+00:03:10.986 --> 00:03:13.296 align:middle
+Comenta la llamada a $messageBus->dispatch()
+
+00:03:13.296 --> 00:03:17.276 align:middle
+y luego elimina la declaración de uso
+DeletePhotoFile de la parte superior.
+
+00:03:18.536 --> 00:03:20.556 align:middle
+A continuación, para empezar de cero
+
+00:03:21.016 --> 00:03:26.106 align:middle
+elimina la propia clase de comando
+DeletePhotoFile y DeletePhotoFileHandler.
+
+00:03:31.276 --> 00:03:37.476 align:middle
+Por último, en config/packages/messenger.yaml,
+dirigimos el comando que acabamos de eliminar.
+
+00:03:38.516 --> 00:03:39.376 align:middle
+Comenta eso.
+
+00:03:40.306 --> 00:03:42.746 align:middle
+Veamos esto con ojos nuevos.
+
+00:03:43.286 --> 00:03:49.496 align:middle
+Hemos conseguido que DeleteImagePostHandler
+realice únicamente su trabajo principal:
+
+00:03:50.426 --> 00:03:51.856 align:middle
+borrar el ImagePost.
+
+00:03:52.266 --> 00:03:55.566 align:middle
+Y ahora nos preguntamos:
+¿dónde debo poner el código
+
+00:03:55.566 --> 00:03:59.436 align:middle
+para realizar la tarea secundaria
+de borrar el archivo físico?
+
+00:04:00.626 --> 00:04:05.636 align:middle
+Podríamos poner esa lógica aquí
+mismo, o aprovechar un evento.
+
+00:04:06.306 --> 00:04:08.856 align:middle
+Los comandos, los eventos y
+sus manejadores son idénticos.
+
+00:04:09.876 --> 00:04:14.346 align:middle
+En el directorio src/Message, para empezar
+a organizar las cosas un poco mejor, vamos a
+
+00:04:14.596 --> 00:04:17.036 align:middle
+crear un subdirectorio Event/.
+
+00:04:19.006 --> 00:04:25.596 align:middle
+Dentro, añade una nueva
+clase: ImagePostDeletedEvent.
+
+00:04:26.816 --> 00:04:30.246 align:middle
+Fíjate en el nombre de
+esta clase: es fundamental.
+
+00:04:31.156 --> 00:04:34.176 align:middle
+Todo lo que hemos hecho hasta
+ahora ha sonado como un comando
+
+00:04:34.816 --> 00:04:38.586 align:middle
+estamos recorriendo nuestra base de
+código gritando: ¡ AddPonkaToImage!
+
+00:04:38.746 --> 00:04:40.506 align:middle
+¡Y DeleteImagePost!
+
+00:04:41.016 --> 00:04:42.086 align:middle
+Parecemos mandones.
+
+00:04:42.876 --> 00:04:48.166 align:middle
+Pero con los eventos, no estás utilizando una orden
+estricta, sino que estás notificando al sistema
+
+00:04:48.166 --> 00:04:55.036 align:middle
+algo que acaba de ocurrir: vamos a eliminar por
+completo el post de la imagen y luego diremos ¡Oye!
+
+00:04:55.286 --> 00:04:57.036 align:middle
+¡Acabo de borrar un post de imagen!
+
+00:04:57.616 --> 00:04:58.456 align:middle
+Si te interesa...
+
+00:04:58.696 --> 00:05:01.126 align:middle
+eh... ahora es tu oportunidad de...
+
+00:05:01.126 --> 00:05:02.196 align:middle
+eh... ¡hacer algo!
+
+00:05:02.516 --> 00:05:04.396 align:middle
+Pero no me importa si lo haces o no.
+
+00:05:04.396 --> 00:05:07.166 align:middle
+El evento en sí podría ser manejado por...
+
+00:05:07.166 --> 00:05:10.986 align:middle
+nadie... o podría tener varios manejadores.
+
+00:05:12.116 --> 00:05:16.256 align:middle
+Dentro de la clase, almacenaremos
+los datos que consideremos útiles.
+
+00:05:17.366 --> 00:05:21.806 align:middle
+Añade un constructor con un string
+$filename - saber el nombre de archivo
+
+00:05:21.806 --> 00:05:23.896 align:middle
+del ImagePost eliminado podría ser útil.
+
+00:05:25.046 --> 00:05:30.136 align:middle
+Pulsaré Alt + Enter e iré a "Inicializar
+campos" para crear esa propiedad y establecerla.
+
+00:05:31.346 --> 00:05:35.686 align:middle
+Luego, en la parte inferior, iré a "Código
+-> Generar" -o Comando + N en un Mac-
+
+00:05:35.886 --> 00:05:38.636 align:middle
+y seleccionaré "Obtenedores"
+para generar este único getter.
+
+00:05:40.096 --> 00:05:45.956 align:middle
+Te habrás dado cuenta de que, aparte de su
+nombre, esta clase de "evento" es exactamente
+
+00:05:45.956 --> 00:05:47.966 align:middle
+igual que el comando que acabamos de eliminar
+
+00:05:48.656 --> 00:05:52.756 align:middle
+La creación de un "manejador" de eventos también tiene
+un aspecto idéntico al de los manejadores de comandos.
+
+00:05:53.746 --> 00:05:58.626 align:middle
+En el directorio MessageHandler, vamos a
+crear otro subdirectorio llamado Event/
+
+00:05:58.736 --> 00:05:59.716 align:middle
+para organizarnos.
+
+00:06:00.876 --> 00:06:03.006 align:middle
+A continuación, añade una nueva clase PHP.
+
+00:06:03.786 --> 00:06:07.576 align:middle
+Llamémosla RemoveFileWhenImagePostDeleted.
+
+00:06:10.836 --> 00:06:14.306 align:middle
+Pero asegúrate de que lo
+escribes correctamente.
+
+00:06:15.636 --> 00:06:18.326 align:middle
+Esto también sigue una convención
+de nomenclatura diferente.
+
+00:06:18.326 --> 00:06:22.706 align:middle
+En el caso de los comandos, si un
+comando se llamaba AddPonkaToImage,
+
+00:06:23.246 --> 00:06:26.286 align:middle
+llamábamos al manejador
+AddPonkaToImageHandler.
+
+00:06:27.276 --> 00:06:30.306 align:middle
+La gran diferencia entre los
+comandos y los eventos es que,
+
+00:06:30.376 --> 00:06:33.696 align:middle
+mientras que cada comando
+tiene exactamente un manejador
+
+00:06:33.696 --> 00:06:37.396 align:middle
+-por lo que usar la convención "nombre
+del comando Manejador" tiene sentido-,
+
+00:06:37.876 --> 00:06:40.876 align:middle
+cada evento puede tener varios manejadores.
+
+00:06:41.246 --> 00:06:47.486 align:middle
+Pero el interior de un manejador es el
+mismo: implementa MessageHandlerInterface
+
+00:06:47.666 --> 00:06:54.246 align:middle
+y luego crea nuestro querido public
+function __invoke() con el tipo-indicación
+
+00:06:54.246 --> 00:06:58.656 align:middle
+de la clase de evento:
+ImagePostDeletedEvent $event.
+
+00:06:59.846 --> 00:07:01.696 align:middle
+Ahora... haremos el trabajo...
+
+00:07:02.246 --> 00:07:05.976 align:middle
+y esto será idéntico al
+manejador que acabamos de eliminar.
+
+00:07:07.026 --> 00:07:13.106 align:middle
+Añade un constructor con el único servicio que
+necesitamos para eliminar archivos: PhotoFileManager.
+
+00:07:14.636 --> 00:07:19.216 align:middle
+Inicializaré los campos para crear
+esa propiedad y luego, más abajo,
+
+00:07:19.296 --> 00:07:20.276 align:middle
+terminaré las cosas
+
+00:07:20.276 --> 00:07:27.516 align:middle
+con $this->photoFileManager->deleteImage()
+pasando ese $event->getFilename().
+
+00:07:28.976 --> 00:07:32.086 align:middle
+Espero que esto te haya resultado
+deliciosamente aburrido.
+
+00:07:32.706 --> 00:07:35.426 align:middle
+Hemos eliminado un comando y
+un manejador de comandos...
+
+00:07:35.566 --> 00:07:40.356 align:middle
+y los sustituimos por un evento y
+un manejador de eventos que son...
+
+00:07:40.656 --> 00:07:41.636 align:middle
+aparte del nombre...
+
+00:07:41.906 --> 00:07:42.856 align:middle
+¡idénticos!
+
+00:07:44.066 --> 00:07:46.266 align:middle
+A continuación, vamos a
+enviar este nuevo evento...
+
+00:07:46.416 --> 00:07:48.536 align:middle
+pero a nuestro bus de eventos.
+
+00:07:49.146 --> 00:07:53.536 align:middle
+Luego, ajustaremos un poco ese bus para
+asegurarnos de que funciona perfectamente
