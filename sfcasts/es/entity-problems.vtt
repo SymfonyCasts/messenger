@@ -1,0 +1,264 @@
+WEBVTT
+
+00:00:01.096 --> 00:00:03.526 align:middle
+Tenemos un problema extraño: sabemos
+
+00:00:03.526 --> 00:00:08.026 align:middle
+que AddPonkaToImageHandler está siendo llamado
+con éxito por el proceso trabajador....
+
+00:00:08.186 --> 00:00:11.346 align:middle
+porque realmente está
+añadiendo Ponka a las imágenes
+
+00:00:11.676 --> 00:00:13.026 align:middle
+Pero, por alguna razón...
+
+00:00:13.356 --> 00:00:17.096 align:middle
+aunque llamemos a
+$imagePost->markAsPonkaAdded()...
+
+00:00:18.106 --> 00:00:20.726 align:middle
+que establece la propiedad $ponkaAddedAt...
+
+00:00:24.356 --> 00:00:27.446 align:middle
+y luego $this->entityManager->flush()...
+
+00:00:27.716 --> 00:00:29.156 align:middle
+¡parece que no se guarda!
+
+00:00:29.706 --> 00:00:33.996 align:middle
+Así que... te preguntarás: ¿Tengo
+que llamar a persist() en $imagePost?
+
+00:00:34.866 --> 00:00:38.936 align:middle
+Vamos a probarlo:
+$this->entityManager->persist($imagePost).
+
+00:00:40.536 --> 00:00:45.296 align:middle
+En teoría, no deberíamos necesitarlo:
+sólo hay que llamar a persist()
+
+00:00:45.296 --> 00:00:47.756 align:middle
+en los objetos nuevos que quieras guardar.
+
+00:00:48.276 --> 00:00:49.256 align:middle
+No es necesario...
+
+00:00:49.446 --> 00:00:51.426 align:middle
+y normalmente no hace nada...
+
+00:00:51.656 --> 00:00:54.386 align:middle
+cuando lo llamas en un objeto
+que se va a actualizar.
+
+00:00:55.006 --> 00:00:56.226 align:middle
+Pero... qué demonios...
+
+00:00:56.406 --> 00:00:57.316 align:middle
+vamos a ver qué pasa.
+
+00:00:58.006 --> 00:00:59.916 align:middle
+Pero antes de intentarlo...
+
+00:01:00.086 --> 00:01:03.106 align:middle
+¡tenemos que hacer algo muy importante!
+
+00:01:03.106 --> 00:01:08.876 align:middle
+Busca tu terminal, pulsa Ctrl+C para
+detener el trabajador y luego reinícialo:
+
+00:01:08.876 --> 00:01:13.186 align:middle
+php bin/console messenger:consume ¿Por qué?
+
+00:01:14.026 --> 00:01:16.566 align:middle
+Como sabes, los trabajadores
+se quedan ahí y se ejecutan...
+
+00:01:16.856 --> 00:01:23.936 align:middle
+para siempre. El problema es que, si actualizas
+algo de tu código, ¡el trabajador no lo verá!
+
+00:01:24.596 --> 00:01:29.746 align:middle
+Hasta que lo reinicies, ¡sigue teniendo el
+código antiguo almacenado en la memoria!
+
+00:01:30.446 --> 00:01:35.236 align:middle
+Así que cada vez que hagas un cambio en el código
+que utiliza un trabajador, asegúrate de reiniciarlo.
+
+00:01:36.156 --> 00:01:39.266 align:middle
+Más adelante, hablaremos de cómo
+hacer esto de forma segura al desplegar.
+
+00:01:40.356 --> 00:01:43.656 align:middle
+Veamos qué ocurre ahora que hemos
+añadido esa nueva llamada a persist().
+
+00:01:44.696 --> 00:01:51.656 align:middle
+Sube un nuevo archivo, busca tu trabajador y...
+
+00:01:52.276 --> 00:01:54.156 align:middle
+¡sí! Se ha gestionado con éxito.
+
+00:01:55.096 --> 00:01:57.666 align:middle
+¿Se ha solucionado el
+problema de guardar la entidad?
+
+00:01:57.666 --> 00:01:59.426 align:middle
+Actualiza la página.
+
+00:02:01.476 --> 00:02:03.616 align:middle
+¡Vaya! ¡Qué acaba de pasar!
+
+00:02:04.206 --> 00:02:06.266 align:middle
+¡La imagen aparece dos veces!
+
+00:02:06.886 --> 00:02:08.646 align:middle
+Una con la fecha puesta...
+
+00:02:08.646 --> 00:02:09.806 align:middle
+y otra sin ella.
+
+00:02:10.646 --> 00:02:11.836 align:middle
+¡En la base de datos!
+
+00:02:13.176 --> 00:02:16.796 align:middle
+SELECT * FROM image_post \G Sí...
+
+00:02:17.196 --> 00:02:22.196 align:middle
+esta única imagen está en dos
+filas: Lo sé porque apuntan
+
+00:02:22.196 --> 00:02:25.156 align:middle
+exactamente al mismo archivo
+en el sistema de archivos.
+
+00:02:25.776 --> 00:02:26.506 align:middle
+El trabajador...
+
+00:02:26.686 --> 00:02:27.556 align:middle
+de alguna manera...
+
+00:02:27.806 --> 00:02:30.026 align:middle
+duplicó esa fila en la base de datos.
+
+00:02:30.916 --> 00:02:33.216 align:middle
+Esto... es un error confuso...
+
+00:02:33.506 --> 00:02:35.196 align:middle
+pero tiene una fácil solución.
+
+00:02:35.196 --> 00:02:39.716 align:middle
+Primero, veamos las cosas desde
+la perspectiva de Doctrine.
+
+00:02:40.586 --> 00:02:45.406 align:middle
+Internamente, Doc trine mantiene una lista de
+todos los objetos de entidad con los que está
+
+00:02:45.406 --> 00:02:47.356 align:middle
+tratando en ese momento.
+
+00:02:48.246 --> 00:02:51.636 align:middle
+Cuando consultas una entidad,
+la añade a esta lista.
+
+00:02:52.256 --> 00:02:56.636 align:middle
+Cuando llama a persist(), si no
+está ya en la lista, la añade.
+
+00:02:57.376 --> 00:03:02.126 align:middle
+Luego, cuando llamamos a flush() ,
+Doctrine recorre todos estos objetos,
+
+00:03:02.546 --> 00:03:07.416 align:middle
+busca los que han cambiado y crea las
+consultas UPDATE o INSERT adecuadas.
+
+00:03:08.296 --> 00:03:13.026 align:middle
+Sabe si un objeto debe ser insertado
+o actualizado porque sabe si
+
+00:03:13.026 --> 00:03:17.206 align:middle
+fue responsable de la
+consulta de ese objeto. Por
+
+00:03:18.406 --> 00:03:21.256 align:middle
+cierto, si quieres empollar más este tema,
+
+00:03:21.546 --> 00:03:25.006 align:middle
+esta "lista" se llama mapa de identidad...
+
+00:03:25.256 --> 00:03:28.986 align:middle
+y no es más que una gran matriz que empieza
+vacía al principio de cada petición
+
+00:03:29.306 --> 00:03:32.126 align:middle
+y se va haciendo más grande a medida
+que consultas o persigues cosas.
+
+00:03:33.546 --> 00:03:36.396 align:middle
+Así que ahora pensemos en lo
+que ocurre en nuestro trabajador.
+
+00:03:37.126 --> 00:03:40.486 align:middle
+Cuando deserializa el objeto AddPonkaToImage,
+
+00:03:40.886 --> 00:03:45.456 align:middle
+también deserializa el objeto
+ImagePost que vive dentro.
+
+00:03:45.456 --> 00:03:51.886 align:middle
+En ese momento, el mapa de identidad
+de Doctrine no contiene este objeto...
+
+00:03:52.246 --> 00:03:58.546 align:middle
+porque no lo ha consultado dentro de este
+proceso PHP, desde el interior del trabajador.
+
+00:03:59.176 --> 00:04:04.226 align:middle
+Por eso, originalmente, antes de añadir
+persist(), cuando llamamos a flush(),
+
+00:04:04.676 --> 00:04:10.076 align:middle
+Doctrine miró la lista de objetos de su
+mapa de identidad -que estaba vacía- y...
+
+00:04:10.456 --> 00:04:15.486 align:middle
+no hizo absolutamente nada: ¡no
+sabe que debe guardar el ImagePost!
+
+00:04:16.356 --> 00:04:19.506 align:middle
+Cuando añadimos persist(),
+creamos un problema diferente.
+
+00:04:20.456 --> 00:04:23.336 align:middle
+Ahora Doctrine sabe que debe guardar esto...
+
+00:04:23.896 --> 00:04:30.426 align:middle
+pero como no lo consultó originalmente,
+piensa erróneamente que debe insertarse
+
+00:04:30.426 --> 00:04:34.176 align:middle
+en la base de datos como una nueva
+fila, en lugar de actualizarse.
+
+00:04:34.176 --> 00:04:37.566 align:middle
+¡Uf! Quería que vieras esto porque...
+
+00:04:37.756 --> 00:04:39.846 align:middle
+es un poco difícil de depurar.
+
+00:04:40.386 --> 00:04:42.526 align:middle
+Afortunadamente, la solución es fácil.
+
+00:04:42.926 --> 00:04:47.506 align:middle
+Y toca una importante práctica
+recomendada para tus mensajes:
+
+00:04:48.096 --> 00:04:50.676 align:middle
+incluye sólo la información que necesites.
+
+00:04:51.316 --> 00:04:52.086 align:middle
+Eso a continuación
