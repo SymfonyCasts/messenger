@@ -1,0 +1,316 @@
+WEBVTT
+
+00:00:01.126 --> 00:00:03.816 align:middle
+Vamos a cambiar este retraso a un segundo...
+
+00:00:03.816 --> 00:00:07.036 align:middle
+para que no tengamos que esperar todo el
+día a que se procesen nuestras fotos.
+
+00:00:08.256 --> 00:00:13.486 align:middle
+En messenger.yaml, los mensajes enviados a
+cada transporte - async y async_priority_high -
+
+00:00:13.856 --> 00:00:17.676 align:middle
+tienen que ser entregados finalmente
+en dos colas diferentes para que
+
+00:00:17.886 --> 00:00:20.876 align:middle
+podamos consumirlos independientemente.
+
+00:00:21.206 --> 00:00:22.766 align:middle
+Y... ¡lo hemos conseguido!
+
+00:00:22.766 --> 00:00:25.656 align:middle
+Pero hay dos formas diferentes en
+las que podríamos haber hecho esto.
+
+00:00:25.706 --> 00:00:33.156 align:middle
+En primer lugar, recuerda que en AMQP los mensajes
+se envían a un intercambio, no a una cola.
+
+00:00:34.276 --> 00:00:37.696 align:middle
+Ahora mismo, cuando un mensaje se
+dirige al transporte async, Messenger
+
+00:00:37.946 --> 00:00:41.276 align:middle
+lo envía a un intercambio llamado messages.
+
+00:00:42.066 --> 00:00:44.146 align:middle
+No ves esa configuración aquí sólo
+
+00:00:44.146 --> 00:00:48.056 align:middle
+porque messages es el nombre de intercambio
+por defecto en Messenger. Cuando
+
+00:00:49.246 --> 00:00:52.506 align:middle
+un mensaje se dirige al transporte async_priority_high,
+Messenger lo envía a un intercambio llamado
+
+00:00:52.776 --> 00:00:57.146 align:middle
+messages_high_priority.
+
+00:00:58.246 --> 00:01:02.296 align:middle
+Cada transporte siempre envía
+a exactamente un intercambio.
+
+00:01:02.716 --> 00:01:06.996 align:middle
+Entonces, cada intercambio enruta cada
+mensaje a una sola cola, como el intercambio
+
+00:01:07.386 --> 00:01:11.126 align:middle
+messages envía a una cola messages...
+
+00:01:14.376 --> 00:01:18.116 align:middle
+y messages_high_priority envía
+a una cola messages_high.
+
+00:01:19.146 --> 00:01:25.956 align:middle
+No hay una clave de enrutamiento en la vinculación:
+Messenger vincula cada intercambio a una cola...
+
+00:01:26.186 --> 00:01:27.786 align:middle
+pero sin clave de enrutamiento.
+
+00:01:28.346 --> 00:01:33.046 align:middle
+Así es como funciona un intercambio "fanout":
+no le importan las claves de enrutamiento...
+
+00:01:33.366 --> 00:01:36.936 align:middle
+simplemente envía cada mensaje a
+todas las colas vinculadas a él.
+
+00:01:37.606 --> 00:01:39.616 align:middle
+Esa es una forma de resolver el problema.
+
+00:01:40.416 --> 00:01:44.076 align:middle
+La otra forma consiste en
+tener un único intercambio...
+
+00:01:44.366 --> 00:01:48.626 align:middle
+pero haciéndolo lo suficientemente inteligente
+como para enviar algunos mensajes a la cola messages
+
+00:01:48.866 --> 00:01:51.806 align:middle
+y otros mensajes a messages_high.
+
+00:01:52.756 --> 00:01:55.846 align:middle
+Lo hacemos con claves de enlace y
+enrutamiento más inteligentes...
+
+00:01:56.076 --> 00:01:58.986 align:middle
+que ya vimos con el intercambio delays.
+
+00:01:59.776 --> 00:02:03.086 align:middle
+Vamos a refactorizar nuestros transportes
+para utilizar este sistema "más inteligente".
+
+00:02:04.506 --> 00:02:10.656 align:middle
+En el transporte async, añade options,
+luego exchange, y establece name en messages.
+
+00:02:12.306 --> 00:02:18.386 align:middle
+Si nos detuviéramos aquí, esto no cambiaría nada: éste
+es el nombre de intercambio por defecto en Messenger.
+
+00:02:19.146 --> 00:02:22.816 align:middle
+Pero ahora, añade una clave
+type configurada como direct.
+
+00:02:24.176 --> 00:02:28.366 align:middle
+Esto sí cambia las cosas: el
+valor por defecto es fanout.
+
+00:02:29.476 --> 00:02:35.376 align:middle
+Añade una clave más debajo de ésta:
+default_publish_routing_key ajustada a normal.
+
+00:02:36.786 --> 00:02:38.166 align:middle
+Hablaré de ello en un segundo.
+
+00:02:39.446 --> 00:02:41.506 align:middle
+A continuación, añade una sección queues.
+
+00:02:42.636 --> 00:02:47.616 align:middle
+Vamos a "vincular" este intercambio
+a una cola llamada messages_normal.
+
+00:02:48.506 --> 00:02:49.756 align:middle
+Pero no nos detendremos ahí
+
+00:02:50.326 --> 00:02:53.856 align:middle
+Debajo de esto, añade
+binding_keys ajustado a [normal].
+
+00:02:55.046 --> 00:02:58.256 align:middle
+Esa palabra normal podría
+ser cualquier cadena.
+
+00:02:58.576 --> 00:03:03.986 align:middle
+Pero no es casualidad que coincida con lo que
+hemos establecido para default_publish_routing_key.
+
+00:03:04.936 --> 00:03:08.016 align:middle
+En lugar de hablar mucho
+sobre lo que hará esto...
+
+00:03:08.016 --> 00:03:09.796 align:middle
+¡veámoslo en acción!
+
+00:03:10.936 --> 00:03:16.006 align:middle
+Haz clic para eliminar una foto: eso debería
+enviar un mensaje al transporte async.
+
+00:03:16.816 --> 00:03:19.416 align:middle
+¡Pero la llamada AJAX explota!
+
+00:03:20.306 --> 00:03:22.076 align:middle
+Abre el perfilador para ver el error.
+
+00:03:23.016 --> 00:03:30.956 align:middle
+Ah: Error del canal del servidor: 406, mensaje:
+PRECONDITION_FAILED - inequivalent arg 'type '
+
+00:03:30.996 --> 00:03:37.456 align:middle
+for exchange 'messages': received 'direct'
+but current is 'fanout' El problema es
+
+00:03:37.456 --> 00:03:42.666 align:middle
+que ya tenemos un intercambio llamado
+messages , que es de tipo fanout...
+
+00:03:42.946 --> 00:03:46.616 align:middle
+pero ahora estamos intentando
+utilizarlo como un intercambio direct.
+
+00:03:47.216 --> 00:03:51.316 align:middle
+¡AMQP nos avisa de que estamos
+intentando hacer una locura!
+
+00:03:51.696 --> 00:03:53.976 align:middle
+Así que vamos a empezar de nuevo.
+
+00:03:53.976 --> 00:03:58.746 align:middle
+Ahora que estamos haciendo las cosas de una
+manera nueva, vamos a pulsar el botón de reinicio
+
+00:03:58.786 --> 00:04:01.456 align:middle
+y permitir que Messenger cree todo lo nuevo.
+
+00:04:01.456 --> 00:04:07.486 align:middle
+Busca tu terminal - yo cerraré la sesión
+de MySQL - y detén tu trabajador...
+
+00:04:08.176 --> 00:04:12.646 align:middle
+de lo contrario, seguirá intentando crear tus
+intercambios y colas con la antigua configuración.
+
+00:04:13.316 --> 00:04:18.616 align:middle
+Luego vuelve al administrador de RabbitMQ,
+borra el intercambi o messages...
+
+00:04:21.036 --> 00:04:23.656 align:middle
+y luego el intercambio messages_high_priority.
+
+00:04:23.656 --> 00:04:30.496 align:middle
+Y aunque las colas no se verán diferentes, para
+estar más seguros, borremos también las dos.
+
+00:04:36.416 --> 00:04:41.236 align:middle
+Así volvemos a no tener colas y a tener sólo
+los intercambios originales que creó AMQP
+
+00:04:41.376 --> 00:04:44.796 align:middle
+-que de todas formas no estamos
+utilizando- y el intercambio delays.
+
+00:04:45.546 --> 00:04:47.446 align:middle
+¡Estamos empezando de cero!
+
+00:04:48.846 --> 00:04:52.776 align:middle
+Vuelve a nuestro sitio,
+elimina la segunda imagen y...
+
+00:04:53.176 --> 00:04:54.566 align:middle
+¡parece que ha funcionado!
+
+00:04:55.006 --> 00:04:58.016 align:middle
+¡Genial! ¡Veamos qué ha
+pasado dentro de RabbitMQ!
+
+00:04:59.476 --> 00:05:05.106 align:middle
+¡Sí! Tenemos un nuevo intercambio
+llamado messages y es de tipo directo.
+
+00:05:06.576 --> 00:05:11.826 align:middle
+Dentro, tiene un único enlace que dice
+Cuando se envía un mensaje a este intercambio
+
+00:05:11.826 --> 00:05:18.226 align:middle
+con una clave de enrutamiento llamada normal,
+se entregará a la cola llamada messages_normal.
+
+00:05:18.906 --> 00:05:23.416 align:middle
+Todo esto se ha establecido gracias a la
+configuración de queues y binding_keys.
+
+00:05:24.276 --> 00:05:28.886 align:middle
+Esto le dice a Messenger: Quiero que
+crees una cola llamada messages_normal.
+
+00:05:29.756 --> 00:05:36.316 align:middle
+Además, asegúrate de que hay un enlace en
+el intercambio que dirigirá cualquier mensaje
+
+00:05:36.316 --> 00:05:39.586 align:middle
+con una clave de enrutamiento
+establecida en normal a esta cola.
+
+00:05:40.746 --> 00:05:44.566 align:middle
+Pero... ¿envió Messenger el mensaje
+con esa clave de enrutamiento?
+
+00:05:45.516 --> 00:05:47.976 align:middle
+Hasta ahora, aparte de la
+cuestión del retraso, Messenger
+
+00:05:48.346 --> 00:05:53.926 align:middle
+ha estado enviando nuestros mensajes
+a AMQP sin clave de enrutamiento.
+
+00:05:54.706 --> 00:05:58.136 align:middle
+La configuración de
+default_publish_routing_key cambia eso.
+
+00:05:58.686 --> 00:05:59.866 align:middle
+Dice: ¡Oye!
+
+00:06:00.226 --> 00:06:04.756 align:middle
+Siempre que un mensaje se dirija al
+transporte async, quiero que lo envíe
+
+00:06:04.756 --> 00:06:08.866 align:middle
+al intercambio messages con una clave
+de enrutamiento establecida en normal.
+
+00:06:09.876 --> 00:06:12.706 align:middle
+Todo esto significa que si miramos las colas...
+
+00:06:14.276 --> 00:06:20.136 align:middle
+¡sí! ¡Tenemos una cola message_normal
+con un mensaje esperando dentro!
+
+00:06:20.706 --> 00:06:22.346 align:middle
+¡Lo hemos conseguido!
+
+00:06:22.346 --> 00:06:24.806 align:middle
+A continuación, repitamos
+esto para el otro transporte.
+
+00:06:25.406 --> 00:06:31.276 align:middle
+Entonces, aprenderemos cómo esto nos da
+la flexibilidad de controlar dinámicamente
+
+00:06:31.276 --> 00:06:35.706 align:middle
+dónde se entregará un mensaje
+en el momento en que lo enviemos
