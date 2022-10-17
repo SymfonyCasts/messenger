@@ -1,0 +1,344 @@
+WEBVTT
+
+00:00:01.096 --> 00:00:04.646 align:middle
+Dentro de nuestro controlador, después de guardar
+el nuevo archivo en el sistema de archivos,
+
+00:00:04.866 --> 00:00:10.046 align:middle
+estamos creando un nuevo objeto AddPonkaToImage
+y enviándolo al bus de mensajes...
+
+00:00:10.106 --> 00:00:12.876 align:middle
+o técnicamente al bus de "comandos"...
+
+00:00:13.306 --> 00:00:16.006 align:middle
+porque actualmente lo estamos
+utilizando como bus de comandos. El
+
+00:00:16.536 --> 00:00:20.796 align:middle
+resultado final es que el bus
+llama al método __invoke()
+
+00:00:20.796 --> 00:00:23.586 align:middle
+de nuestro manejador y le
+pasa ese objeto. Messenger
+
+00:00:24.246 --> 00:00:28.866 align:middle
+entiende la conexión entre el objeto
+mensaje y el manipulador gracias a
+
+00:00:28.866 --> 00:00:31.146 align:middle
+la sugerencia de tipo de
+argumento y a esta interfaz.
+
+00:00:32.146 --> 00:00:35.186 align:middle
+Por cierto, puede que estés pensando Espera...
+
+00:00:35.386 --> 00:00:38.606 align:middle
+el objetivo de un bus de "comandos" es...
+
+00:00:38.886 --> 00:00:42.846 align:middle
+¿"llamar" a este método __invoke() por mí?
+
+00:00:43.396 --> 00:00:44.296 align:middle
+¿No podría simplemente...
+
+00:00:44.296 --> 00:00:44.676 align:middle
+ya sabes...
+
+00:00:44.786 --> 00:00:46.646 align:middle
+llamarlo yo mismo y saltarme una capa?
+
+00:00:47.136 --> 00:00:48.496 align:middle
+Y... ¡sí!
+
+00:00:48.716 --> 00:00:49.996 align:middle
+¡Es así de sencillo!
+
+00:00:50.406 --> 00:00:54.066 align:middle
+Al principio, debería parecer
+totalmente decepcionante
+
+00:00:54.436 --> 00:00:59.016 align:middle
+Pero tener esa "capa", el "bus",
+en medio nos da dos cosas buenas.
+
+00:00:59.076 --> 00:01:03.586 align:middle
+En primer lugar, nuestro código está más
+desacoplado: el código que crea el "comando"
+
+00:01:04.046 --> 00:01:08.076 align:middle
+-nuestro controlador en este caso- no conoce
+ni se preocupa de nuestro controlador.
+
+00:01:08.336 --> 00:01:10.266 align:middle
+Envía el mensaje y sigue adelante.
+
+00:01:10.516 --> 00:01:16.986 align:middle
+Y en segundo lugar, este sencillo cambio nos va a
+permitir ejecutar los manejadores de forma asíncrona.
+
+00:01:17.656 --> 00:01:18.436 align:middle
+Pronto hablaremos de ello.
+
+00:01:19.066 --> 00:01:24.986 align:middle
+De vuelta al trabajo: todo el código para añadir Ponka a
+la imagen se sigue haciendo dentro de nuestro controlador:
+
+00:01:25.736 --> 00:01:29.016 align:middle
+éste obtiene una versión actualizada
+de la imagen con Ponka dentro,
+
+00:01:29.406 --> 00:01:34.836 align:middle
+otro servicio guarda realmente la nueva imagen
+en el sistema de archivos, y esta última parte -
+
+00:01:34.836 --> 00:01:39.726 align:middle
+$imagePost->markAsPonkaAdded() -
+actualiza un campo de fecha en la entidad.
+
+00:01:40.526 --> 00:01:42.026 align:middle
+Son sólo unas pocas líneas de código...
+
+00:01:42.096 --> 00:01:43.976 align:middle
+¡pero es mucho trabajo!
+
+00:01:44.536 --> 00:01:48.726 align:middle
+Copia todo esto, elimínalo y
+quita también mis comentarios.
+
+00:01:49.946 --> 00:01:51.926 align:middle
+Pega todo eso en el manejador.
+
+00:01:53.656 --> 00:01:57.176 align:middle
+Vale, no es una sorpresa, tenemos
+algunas variables indefinidas.
+
+00:01:57.176 --> 00:02:02.406 align:middle
+$ponkaficator, $photoManager y
+$entityManager son todos servicios.
+
+00:02:03.126 --> 00:02:03.856 align:middle
+En el controlador...
+
+00:02:04.126 --> 00:02:08.516 align:middle
+de arriba, estábamos autocableando esos
+servicios en el método del controlador.
+
+00:02:08.966 --> 00:02:10.626 align:middle
+Ya no necesitamos $ponkaficator.
+
+00:02:11.766 --> 00:02:15.596 align:middle
+De todos modos, ¿cómo podemos obtener esos
+servicios en nuestro controlador? Esto es
+
+00:02:16.436 --> 00:02:19.836 align:middle
+lo más interesante: la clase "mensaje" -
+
+00:02:20.046 --> 00:02:23.976 align:middle
+AddPonkaToImage es una clase
+simple, "modelo". Es una
+
+00:02:24.506 --> 00:02:27.876 align:middle
+especie de entidad: no vive en el contenedor
+
+00:02:27.876 --> 00:02:30.306 align:middle
+y no la autoconducimos a nuestras clases.
+
+00:02:30.996 --> 00:02:36.556 align:middle
+Si necesitamos un objeto AddPonkaToImage,
+decimos: new AddPonkaToImage().
+
+00:02:36.906 --> 00:02:39.846 align:middle
+Si decidimos dar a esa clase
+algún argumento de constructor
+
+00:02:40.096 --> 00:02:42.566 align:middle
+-más sobre eso en breve- se lo pasamos aquí.
+
+00:02:43.196 --> 00:02:46.096 align:middle
+Pero las clases manejadoras son servicios.
+
+00:02:46.416 --> 00:02:50.856 align:middle
+Y eso significa que podemos utilizar, a la
+vieja usanza, la inyección de dependencias
+
+00:02:50.906 --> 00:02:52.686 align:middle
+para obtener cualquier servicio
+que necesitemos. Añadimos
+
+00:02:53.606 --> 00:03:00.976 align:middle
+public function __construct() con, veamos
+aquí, PhotoPonkaficator $ponkaficator,
+
+00:03:01.406 --> 00:03:07.536 align:middle
+PhotoFileManager $photoManager y...
+
+00:03:07.536 --> 00:03:11.806 align:middle
+necesitamos el gestor de entidades:
+EntityManagerInterface $entityManager.
+
+00:03:11.806 --> 00:03:23.356 align:middle
+Pulsaré Alt + Enter y seleccionaré Inicializar
+campos para crear esas propiedades y establecerlas.
+
+00:03:23.356 --> 00:03:27.216 align:middle
+Ahora... vamos a utilizarlas:
+$this->ponkaficator,
+
+00:03:27.436 --> 00:03:31.906 align:middle
+$this->photoManager,
+$this->photoManager de nuevo...
+
+00:03:32.056 --> 00:03:34.606 align:middle
+y $this->entityManager.
+
+00:03:35.486 --> 00:03:39.366 align:middle
+¡Qué bien! Esto nos deja con
+una sola variable indefinida:
+
+00:03:39.766 --> 00:03:43.146 align:middle
+el propio $imagePost al que
+tenemos que añadir Ponka.
+
+00:03:44.276 --> 00:03:44.996 align:middle
+Veamos...
+
+00:03:45.286 --> 00:03:48.696 align:middle
+en el controlador, creamos este
+objeto de entidad ImagePost...
+
+00:03:48.726 --> 00:03:55.966 align:middle
+que es bastante sencillo: contiene el nombre
+del archivo en el sistema de archivos...
+
+00:03:55.966 --> 00:03:58.756 align:middle
+y algunos otros datos menores.
+
+00:03:59.526 --> 00:04:01.246 align:middle
+Esto es lo que almacenamos en la base de datos.
+
+00:04:02.166 --> 00:04:07.516 align:middle
+Volviendo a AddPonkaToImageHandler, a
+alto nivel, esta clase necesita saber
+
+00:04:07.566 --> 00:04:10.546 align:middle
+en qué ImagePost se supone
+que está trabajando.
+
+00:04:11.936 --> 00:04:16.556 align:middle
+¿Cómo podemos pasar esa información
+del controlador al manejador?
+
+00:04:17.766 --> 00:04:19.946 align:middle
+¡Poniéndola en la clase mensaje!
+
+00:04:20.606 --> 00:04:25.796 align:middle
+Recuerda que ésta es nuestra clase, y
+puede contener los datos que queramos.
+
+00:04:26.386 --> 00:04:29.746 align:middle
+Así que ahora que hemos descubierto que nuestro
+controlador necesita el objeto ImagePost,
+
+00:04:30.046 --> 00:04:36.626 align:middle
+añade un public function __construct()
+con un argumento: ImagePost $imagePost.
+
+00:04:37.956 --> 00:04:39.576 align:middle
+Haré mi habitual Alt+Enter
+
+00:04:39.936 --> 00:04:43.056 align:middle
+y seleccionaré "Inicializar campos"
+para crear y establecer esa propiedad.
+
+00:04:44.326 --> 00:04:47.496 align:middle
+Más adelante, necesitaremos
+una forma de leer esa propiedad.
+
+00:04:48.026 --> 00:04:54.086 align:middle
+Añade un getter: public function
+getImagePost() con un tipo de retorno ImagePost.
+
+00:04:55.396 --> 00:04:58.066 align:middle
+Dentro, return $this->imagePost.
+
+00:04:58.576 --> 00:04:59.856 align:middle
+Y realmente...
+
+00:04:59.966 --> 00:05:05.056 align:middle
+puedes hacer que esta clase tenga el aspecto que quieras:
+podríamos haber hecho que fuera una propiedad public
+
+00:05:05.266 --> 00:05:07.616 align:middle
+sin necesidad de un constructor o un getter.
+
+00:05:08.226 --> 00:05:11.316 align:middle
+O podrías sustituir el
+constructor por un setImagePost().
+
+00:05:11.966 --> 00:05:13.516 align:middle
+Así es como me gusta hacerlo a mí...
+
+00:05:13.516 --> 00:05:18.326 align:middle
+pero no importa: mientras contenga los
+datos que quieres pasar al manejador...
+
+00:05:18.626 --> 00:05:19.166 align:middle
+¡estás bien!
+
+00:05:19.866 --> 00:05:22.296 align:middle
+De todos modos, ¡ahora somos peligrosos!
+
+00:05:22.656 --> 00:05:28.556 align:middle
+De vuelta a ImagePostController, aquí abajo,
+AddPonkaToImage necesita ahora un argumento.
+
+00:05:29.466 --> 00:05:30.896 align:middle
+Pásale $imagePost.
+
+00:05:32.496 --> 00:05:41.056 align:middle
+Luego, en el manejador, termina esto con
+$imagePost = $addPonkaToImage->getImagePost().
+
+00:05:41.796 --> 00:05:42.496 align:middle
+¡Me encanta! Este es
+
+00:05:42.926 --> 00:05:48.376 align:middle
+el poder de la clase mensaje: es
+como si escribieras un mensaje
+
+00:05:48.376 --> 00:05:53.066 align:middle
+a alguien que dijera: quiero que hagas una
+tarea y aquí está toda la información que
+
+00:05:53.066 --> 00:05:55.426 align:middle
+necesitas saber para hacer esa tarea.
+
+00:05:56.026 --> 00:05:59.616 align:middle
+Entonces, se lo pasas al bus de
+mensajes, éste llama al manejador,
+
+00:05:59.616 --> 00:06:03.406 align:middle
+y el manejador tiene toda la información
+que necesita para hacer esa tarea.
+
+00:06:04.146 --> 00:06:05.066 align:middle
+Es una idea sencilla...
+
+00:06:05.066 --> 00:06:07.006 align:middle
+pero muy buena idea.
+
+00:06:08.056 --> 00:06:12.456 align:middle
+Asegurémonos de que todo funciona:
+muévete y actualiza para estar seguro.
+
+00:06:14.826 --> 00:06:21.896 align:middle
+Sube una nueva imagen y...
+
+00:06:22.226 --> 00:06:23.826 align:middle
+¡sigue funcionando!
+
+00:06:24.526 --> 00:06:31.116 align:middle
+A continuación: ya hay otra tarea que podemos trasladar
+a un sistema de manejo de comandos: borrar una imagen
