@@ -1,0 +1,447 @@
+WEBVTT
+
+00:00:01.066 --> 00:00:04.216 align:middle
+Acabamos de cambiar la configuración de
+nuestro Messenger para enviar los mensajes
+
+00:00:04.216 --> 00:00:08.556 align:middle
+a una instancia de RabbitMQ basada
+en la nube, en lugar de enviarlos
+
+00:00:08.556 --> 00:00:10.826 align:middle
+a Doctrine para ser almacenados
+en la base de datos.
+
+00:00:11.246 --> 00:00:12.776 align:middle
+Y después de hacer ese cambio...
+
+00:00:12.996 --> 00:00:13.586 align:middle
+todo...
+
+00:00:13.696 --> 00:00:15.136 align:middle
+¡siguió funcionando!
+
+00:00:15.746 --> 00:00:20.436 align:middle
+Podemos enviar mensajes de forma normal y
+consumirlos con el comando messenger:consume.
+
+00:00:21.196 --> 00:00:22.346 align:middle
+¡Eso es genial!
+
+00:00:22.506 --> 00:00:25.506 align:middle
+Pero quiero mirar un poco
+más cómo funciona esto...
+
+00:00:25.746 --> 00:00:29.456 align:middle
+lo que realmente ocurre dentro de RabbitMQ.
+
+00:00:29.456 --> 00:00:31.446 align:middle
+Detén el trabajador...
+
+00:00:31.746 --> 00:00:40.136 align:middle
+y luego vamos a borrar unas
+cuantas imágenes: una, dos, tres.
+
+00:00:41.466 --> 00:00:45.226 align:middle
+Esto debería haber provocado el envío
+de tres nuevos mensajes a Rabbit.
+
+00:00:46.166 --> 00:00:51.176 align:middle
+Cuando utilizábamos el transporte Doctrine, podíamos
+consultar una tabla de la base de datos para verlos.
+
+00:00:51.736 --> 00:00:54.356 align:middle
+¿Podemos hacer algo similar con RabbitMQ?
+
+00:00:54.356 --> 00:00:56.236 align:middle
+Sí... ¡podemos!
+
+00:00:56.766 --> 00:01:02.226 align:middle
+RabbitMQ viene con una preciosa
+herramienta llamada RabbitMQ Manager.
+
+00:01:03.356 --> 00:01:04.596 align:middle
+Haz clic para entrar en ella.
+
+00:01:06.826 --> 00:01:09.486 align:middle
+Ah, sí, ¡tenemos datos!
+
+00:01:09.486 --> 00:01:13.036 align:middle
+Y si aprendemos lo que significan
+algunos de estos términos...
+
+00:01:13.096 --> 00:01:15.756 align:middle
+¡estos datos empezarán a tener sentido!
+
+00:01:16.536 --> 00:01:20.806 align:middle
+El primer gran concepto de
+RabbitMQ es un intercambio...
+
+00:01:21.136 --> 00:01:25.866 align:middle
+y, para mí, ésta fue la parte más
+confusa de aprender cómo funciona Rabbit.
+
+00:01:26.826 --> 00:01:32.666 align:middle
+Cuando envías un mensaje a RabbitMQ,
+lo envías a un intercambio específico.
+
+00:01:33.436 --> 00:01:36.816 align:middle
+La mayoría de estos intercambios se
+crearon automáticamente para nosotros...
+
+00:01:36.816 --> 00:01:38.006 align:middle
+y puedes ignorarlos.
+
+00:01:38.426 --> 00:01:40.576 align:middle
+¿Pero ves ese intercambio de messages?
+
+00:01:41.006 --> 00:01:47.676 align:middle
+Fue creado por nuestra aplicación y, ahora
+mismo, todos los mensajes que Messenger transporta
+
+00:01:47.676 --> 00:01:51.456 align:middle
+a RabbitMQ se envían a este intercambio.
+
+00:01:52.536 --> 00:01:58.236 align:middle
+Todavía no verás el nombre de este intercambio en
+nuestra configuración de Messenger , pero cada transporte
+
+00:01:58.236 --> 00:02:04.686 align:middle
+que utiliza AMQP tiene una opción
+exchange y por defecto es messages.
+
+00:02:05.616 --> 00:02:06.836 align:middle
+¿Ves esta columna "Tipo"?
+
+00:02:07.426 --> 00:02:10.056 align:middle
+Nuestro intercambio es de
+un tipo llamado fanout.
+
+00:02:10.866 --> 00:02:13.236 align:middle
+Haz clic en este intercambio
+para obtener más información...
+
+00:02:13.406 --> 00:02:15.326 align:middle
+y abre los "enlaces".
+
+00:02:16.726 --> 00:02:21.206 align:middle
+Este intercambio tiene una
+"vinculación" con una "cola" que...
+
+00:02:21.206 --> 00:02:22.156 align:middle
+por casualidad...
+
+00:02:22.506 --> 00:02:23.986 align:middle
+también se llama "mensajes".
+
+00:02:24.506 --> 00:02:27.676 align:middle
+Y aquí es donde las cosas pueden
+resultar un poco confusas...
+
+00:02:28.146 --> 00:02:30.246 align:middle
+pero en realidad es una idea sencilla.
+
+00:02:30.936 --> 00:02:35.826 align:middle
+Los dos conceptos principales en RabbitMQ
+son los intercambios y las colas.
+
+00:02:36.406 --> 00:02:39.026 align:middle
+Estamos mucho más familiarizados
+con la idea de una cola.
+
+00:02:40.086 --> 00:02:44.706 align:middle
+Cuando utilizábamos el tipo de transporte Doctrine,
+nuestra tabla de base de datos era básicamente una cola:
+
+00:02:45.216 --> 00:02:47.796 align:middle
+era una gran lista de mensajes en cola...
+
+00:02:47.926 --> 00:02:51.866 align:middle
+y cuando ejecutábamos el trabajador,
+éste leía los mensajes de esa lista.
+
+00:02:53.056 --> 00:03:01.376 align:middle
+En RabbitMQ, las colas tienen el mismo papel: las colas
+contienen mensajes y nosotros leemos mensajes de las colas.
+
+00:03:01.376 --> 00:03:02.606 align:middle
+Entonces...
+
+00:03:02.676 --> 00:03:05.826 align:middle
+¿qué diablos hacen estas
+cosas de intercambio?
+
+00:03:06.656 --> 00:03:10.486 align:middle
+La diferencia clave entre el tipo
+de transporte Doctrine y AMQP es
+
+00:03:10.836 --> 00:03:16.176 align:middle
+que con AMQP no envías un
+mensaje directamente a una cola.
+
+00:03:16.936 --> 00:03:19.246 align:middle
+No puedes decir ¡Hey RabbitMQ!
+
+00:03:19.246 --> 00:03:22.766 align:middle
+Me gustaría enviar este mensaje
+a la cola important_stuff.
+
+00:03:23.736 --> 00:03:28.396 align:middle
+No, en RabbitMQ, envías los
+mensajes a un intercambio.
+
+00:03:28.706 --> 00:03:34.506 align:middle
+Entonces, ese intercambio tendrá alguna configuración
+que dirija ese mensaje a una cola específica...
+
+00:03:34.696 --> 00:03:36.946 align:middle
+o posiblemente a varias colas.
+
+00:03:37.526 --> 00:03:40.276 align:middle
+El "Bindings" representa esa configuración.
+
+00:03:41.476 --> 00:03:44.766 align:middle
+El tipo de intercambio más
+sencillo es este fanout.
+
+00:03:45.586 --> 00:03:49.756 align:middle
+Dice que cada mensaje que se envíe
+a este intercambio debe enviarse
+
+00:03:49.756 --> 00:03:52.686 align:middle
+a todas las colas que se
+hayan vinculado a él...
+
+00:03:53.066 --> 00:03:54.926 align:middle
+que en nuestro caso es sólo una.
+
+00:03:55.726 --> 00:04:01.126 align:middle
+Las reglas de "vinculación" pueden ser mucho más inteligentes,
+enviando diferentes mensajes a diferentes colas, pero nos
+
+00:04:01.186 --> 00:04:03.016 align:middle
+preocuparemos de eso más adelante.
+
+00:04:03.016 --> 00:04:06.336 align:middle
+Por el momento, toda esta
+configuración de lujo significa
+
+00:04:06.336 --> 00:04:11.016 align:middle
+que cada mensaje acabará en última
+instancia en una cola llamada messages.
+
+00:04:11.856 --> 00:04:13.656 align:middle
+Hagamos clic en el enlace
+Colas de la parte superior.
+
+00:04:14.736 --> 00:04:18.056 align:middle
+Sí, tenemos exactamente una cola: messages.
+
+00:04:18.436 --> 00:04:19.326 align:middle
+Y... ¡eh!
+
+00:04:19.606 --> 00:04:24.576 align:middle
+¡Tiene 3 mensajes "Listos" dentro de
+ella, esperando a que los consumamos!
+
+00:04:25.636 --> 00:04:26.156 align:middle
+Por cierto...
+
+00:04:26.266 --> 00:04:30.176 align:middle
+¿quién ha creado la bolsa
+messages y la cola messages?
+
+00:04:30.796 --> 00:04:31.366 align:middle
+¿Son...
+
+00:04:31.516 --> 00:04:33.616 align:middle
+sólo estándar de RabbitMQ?
+
+00:04:34.416 --> 00:04:37.676 align:middle
+Rabbit viene con algunos
+intercambios fuera de la caja,
+
+00:04:37.946 --> 00:04:41.266 align:middle
+pero éstos fueron creados
+por nuestra aplicación.
+
+00:04:42.266 --> 00:04:44.546 align:middle
+Sí, al igual que con el
+tipo de transporte Doctrine,
+
+00:04:44.936 --> 00:04:50.966 align:middle
+el transporte AMQP de Messenger tiene una
+opción auto_setup que por defecto es verdadera.
+
+00:04:51.786 --> 00:04:57.466 align:middle
+Esto significa que detectará si el intercambio
+y la cola que necesita existen, y si no es así,
+
+00:04:57.746 --> 00:04:59.666 align:middle
+los creará automáticamente.
+
+00:05:00.296 --> 00:05:04.566 align:middle
+Sí, Messenger se encarga de crear
+el intercambio, de crear la cola
+
+00:05:04.856 --> 00:05:08.256 align:middle
+y de unirlos con el enlace de intercambio.
+
+00:05:08.776 --> 00:05:11.806 align:middle
+Tanto el nombre del intercambio
+como el de la cola son opciones
+
+00:05:11.806 --> 00:05:13.816 align:middle
+que puedes configurar en tu transporte...
+
+00:05:14.206 --> 00:05:16.576 align:middle
+y ambos tienen por defecto la palabra messages.
+
+00:05:17.496 --> 00:05:19.026 align:middle
+Veremos esa configuración
+un poco más adelante.
+
+00:05:20.136 --> 00:05:26.446 align:middle
+Para resumir todo esto: enviamos un mensaje
+a un intercambio y éste lo reenvía a una
+
+00:05:26.446 --> 00:05:29.746 align:middle
+o varias colas en función
+de algunas reglas internas.
+
+00:05:30.296 --> 00:05:34.926 align:middle
+Quien "envía" -o "produce"-
+el mensaje sólo dice
+
+00:05:35.136 --> 00:05:37.446 align:middle
+Ve al intercambio llamado "mensajes"...
+
+00:05:37.766 --> 00:05:38.816 align:middle
+y en teoría...
+
+00:05:39.036 --> 00:05:43.996 align:middle
+el "emisor" no sabe ni le importa realmente
+en qué cola acabará ese mensaje.
+
+00:05:44.896 --> 00:05:46.536 align:middle
+Una vez que el mensaje está en una cola...
+
+00:05:46.796 --> 00:05:48.276 align:middle
+simplemente se queda ahí..
+
+00:05:48.406 --> 00:05:49.076 align:middle
+¡y espera!
+
+00:05:50.396 --> 00:05:55.406 align:middle
+La segunda parte de la ecuación es tu
+"trabajador", la cosa que consume los mensajes.
+
+00:05:56.006 --> 00:06:01.316 align:middle
+El trabajador es lo contrario del
+emisor: no sabe nada de los intercambios.
+
+00:06:01.796 --> 00:06:03.026 align:middle
+Sólo dice: ¡Oye!
+
+00:06:03.226 --> 00:06:06.246 align:middle
+Dame el siguiente mensaje
+de la cola de "mensajes".
+
+00:06:06.936 --> 00:06:11.516 align:middle
+Enviamos mensajes a los intercambios,
+RabbitMQ los encamina a las colas,
+
+00:06:11.776 --> 00:06:14.346 align:middle
+y consumimos de esas colas.
+
+00:06:15.426 --> 00:06:17.626 align:middle
+El intercambio es una nueva capa extra...
+
+00:06:17.836 --> 00:06:20.186 align:middle
+pero el resultado final sigue
+siendo bastante sencillo.
+
+00:06:20.186 --> 00:06:25.856 align:middle
+¡Ufff! Antes de intentar ejecutar nuestro
+trabajador, vamos a cargar 4 fotos.
+
+00:06:31.386 --> 00:06:33.906 align:middle
+Entonces.... si miras la cola messages...
+
+00:06:36.496 --> 00:06:37.586 align:middle
+y refresca....
+
+00:06:39.026 --> 00:06:39.856 align:middle
+¡ahí está!
+
+00:06:40.096 --> 00:06:42.046 align:middle
+¡Tiene 7 mensajes! Como
+
+00:06:42.956 --> 00:06:48.116 align:middle
+recordatorio, estamos enviando mensajes
+de AddPonkaToImage a async_priority_high
+
+00:06:48.556 --> 00:06:51.676 align:middle
+y de ImagePostDeletedEvent a async. La
+
+00:06:52.636 --> 00:06:58.786 align:middle
+idea es que podamos poner diferentes mensajes en
+diferentes colas y luego consumir los mensajes
+
+00:06:58.786 --> 00:07:03.866 align:middle
+de la cola async_priority_high antes de
+consumir los mensajes de la cola async.
+
+00:07:04.966 --> 00:07:05.896 align:middle
+El problema es que...
+
+00:07:06.126 --> 00:07:06.866 align:middle
+ahora mismo...
+
+00:07:07.256 --> 00:07:10.886 align:middle
+todo acaba en la misma, ¡una sola cola!
+
+00:07:12.426 --> 00:07:17.456 align:middle
+Comprueba esto: busca tu terminal y
+consume sólo desde el transporte async.
+
+00:07:19.596 --> 00:07:28.056 align:middle
+Esto debería hacer que sólo se consuman
+los mensajes de ImagePostDeletedEvent: Y...
+
+00:07:28.056 --> 00:07:31.676 align:middle
+sí, maneja algunos objetos
+de ImagePostDeletedEvent.
+
+00:07:32.026 --> 00:07:33.306 align:middle
+Pero si sigues observando...
+
+00:07:34.096 --> 00:07:39.376 align:middle
+una vez que los termina, sí que empieza a
+procesar los mensajes de AddPonkaToImage.
+
+00:07:40.466 --> 00:07:45.626 align:middle
+Ahora mismo tenemos una configuración de AMQP
+tan sencilla que hemos introducido un error:
+
+00:07:46.396 --> 00:07:50.916 align:middle
+nuestros dos transportes están
+enviando exactamente a la misma cola...
+
+00:07:51.196 --> 00:07:55.796 align:middle
+lo que anula nuestra capacidad de
+consumirlos de forma prioritaria.
+
+00:07:55.796 --> 00:07:59.486 align:middle
+Lo arreglaremos a continuación
+utilizando dos intercambios.
+
+00:08:00.356 --> 00:08:03.576 align:middle
+Ah, pero si vuelves al gestor de RabbitMQ,
+
+00:08:03.796 --> 00:08:06.106 align:middle
+podrás ver todos los mensajes
+que se están consumiendo.
+
+00:08:06.866 --> 00:08:07.526 align:middle
+Qué bien
