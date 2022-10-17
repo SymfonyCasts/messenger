@@ -1,0 +1,315 @@
+WEBVTT
+
+00:00:01.086 --> 00:00:05.926 align:middle
+Incluso si actualizo la página, ahora que
+nuestros mensajes no se gestionan inmediatamente...
+
+00:00:06.216 --> 00:00:09.326 align:middle
+las cuatro fotos más
+recientes no tienen a Ponka.
+
+00:00:09.706 --> 00:00:11.166 align:middle
+¡Eso es trágico!
+
+00:00:11.776 --> 00:00:15.066 align:middle
+En su lugar, esos mensajes fueron
+enviados al transporte doctrine
+
+00:00:15.156 --> 00:00:19.006 align:middle
+y están esperando pacientemente
+dentro de una tabla messenger_messages.
+
+00:00:19.696 --> 00:00:23.516 align:middle
+Entonces... ¿cómo podemos
+volver a leerlos y procesarlos?
+
+00:00:24.306 --> 00:00:29.946 align:middle
+Necesitamos algo que pueda recuperar cada fila
+una a una, deserializar cada mensaje de vuelta
+
+00:00:29.946 --> 00:00:34.976 align:middle
+a PHP, y luego pasarlo al bus de
+mensajes para que sea realmente manejado.
+
+00:00:35.726 --> 00:00:38.466 align:middle
+Esa "cosa" es un comando
+especial de la consola.
+
+00:00:39.316 --> 00:00:44.696 align:middle
+Ejecuta: php bin/console messenger:consume
+No verás ninguna salida...
+
+00:00:44.916 --> 00:00:50.696 align:middle
+todavía... pero, a no ser que hayamos estropeado algo,
+esto está haciendo exactamente lo que necesitamos
+
+00:00:51.196 --> 00:00:57.076 align:middle
+leer cada mensaje, deserializarlo y enviarlo
+de nuevo al bus para su manipulación.
+
+00:00:57.746 --> 00:00:59.226 align:middle
+Así que... vamos a refrescar.
+
+00:01:00.506 --> 00:01:02.566 align:middle
+¡Woh! ¡Ha funcionado!
+
+00:01:02.956 --> 00:01:05.666 align:middle
+¡Los 4 mensajes tienen ahora Ponka en ellos!
+
+00:01:06.126 --> 00:01:06.996 align:middle
+¡Estamos salvados!
+
+00:01:07.726 --> 00:01:14.826 align:middle
+Para hacer esto más interesante, como puedes ver,
+dice que ejecutes este comando con -vv si quieres
+
+00:01:14.826 --> 00:01:17.096 align:middle
+ver lo que está haciendo entre bastidores.
+
+00:01:17.516 --> 00:01:22.976 align:middle
+Pero... interesante, una vez que el comando
+terminó de leer y manejar los 4 mensajes...
+
+00:01:23.106 --> 00:01:26.126 align:middle
+no ha salido: sigue ejecutándose.
+
+00:01:26.126 --> 00:01:29.666 align:middle
+Y si lo reiniciamos con -vv al final: ...
+
+00:01:30.006 --> 00:01:31.316 align:middle
+hace lo mismo.
+
+00:01:32.196 --> 00:01:36.056 align:middle
+Un comando que "maneja" mensajes
+de una cola se llama "trabajador".
+
+00:01:36.486 --> 00:01:41.446 align:middle
+Y el trabajo de un trabajador es observar y
+esperar a que se añadan nuevos mensajes a la cola
+
+00:01:41.726 --> 00:01:44.526 align:middle
+y manejarlos en el momento
+en que se añade uno.
+
+00:01:45.026 --> 00:01:46.426 align:middle
+Espera y ejecuta...
+
+00:01:46.646 --> 00:01:50.276 align:middle
+¡para siempre! Bueno,
+eso no es del todo cierto,
+
+00:01:50.316 --> 00:01:53.166 align:middle
+pero hablaremos de ello más adelante,
+cuando hablemos del despliegue.
+
+00:01:53.946 --> 00:01:59.286 align:middle
+Volvamos a echar un vistazo a nuestra
+"cola": la tabla messenger_messages: ¡Sí!
+
+00:01:59.566 --> 00:02:04.576 align:middle
+Tiene cero filas porque todos esos mensajes
+se han procesado y eliminado de la cola.
+
+00:02:05.716 --> 00:02:07.856 align:middle
+De vuelta al navegador, subamos...
+
+00:02:08.126 --> 00:02:08.786 align:middle
+qué tal...
+
+00:02:08.886 --> 00:02:10.096 align:middle
+5 fotos nuevas.
+
+00:02:14.836 --> 00:02:16.996 align:middle
+Woh... ¡eso fue increíblemente rápido!
+
+00:02:17.536 --> 00:02:20.426 align:middle
+Vale, vale, ¡vuelve al terminal
+que está ejecutando el trabajador!
+
+00:02:21.286 --> 00:02:22.786 align:middle
+¡Podemos ver cómo hace su trabajo!
+
+00:02:23.646 --> 00:02:29.086 align:middle
+Dice: "Mensaje recibido", "Mensaje gestionado
+por AddPonkaToImageHandler" y luego
+
+00:02:29.306 --> 00:02:32.956 align:middle
+"AddPonkaToImage se ha gestionado
+con éxito (reconociendo)".
+
+00:02:33.916 --> 00:02:38.806 align:middle
+La última parte, "reconociendo", significa que
+Messenger ha notificado al transporte Doctrine
+
+00:02:39.046 --> 00:02:42.156 align:middle
+que el mensaje ha sido gestionado
+y puede ser retirado de la cola.
+
+00:02:42.916 --> 00:02:45.406 align:middle
+Luego... sigue con el siguiente mensaje...
+
+00:02:45.506 --> 00:02:46.406 align:middle
+y al siguiente...
+
+00:02:46.566 --> 00:02:47.246 align:middle
+y el siguiente...
+
+00:02:47.406 --> 00:02:48.186 align:middle
+hasta que termine.
+
+00:02:48.226 --> 00:02:49.946 align:middle
+Así que si refrescamos...
+
+00:02:50.726 --> 00:02:52.736 align:middle
+¡Ponka se ha añadido a todos ellos!
+
+00:02:53.286 --> 00:02:56.206 align:middle
+Hagámoslo de nuevo: subamos 5 fotos más.
+
+00:02:57.906 --> 00:03:00.246 align:middle
+Y... refresquemos y veamos...
+
+00:03:03.476 --> 00:03:04.286 align:middle
+¡ahí está Ponka!
+
+00:03:04.846 --> 00:03:06.976 align:middle
+Podemos ver cómo se manejan poco a poco.
+
+00:03:06.976 --> 00:03:09.276 align:middle
+¡Cuánta maravilla Ponka!
+
+00:03:10.216 --> 00:03:15.286 align:middle
+Vale, esto sería más guay si nuestro
+JavaScript refrescara automáticamente la imagen
+
+00:03:15.346 --> 00:03:16.716 align:middle
+cuando se añadiera Pon ka...
+
+00:03:17.146 --> 00:03:19.606 align:middle
+en lugar de tener que
+actualizar yo la página...
+
+00:03:19.936 --> 00:03:23.446 align:middle
+pero ese es un tema totalmente
+diferente, y que está cubierto
+
+00:03:23.446 --> 00:03:25.566 align:middle
+por el componente Mercure de Symfony.
+
+00:03:26.746 --> 00:03:27.996 align:middle
+Y... ¡eso es todo!
+
+00:03:28.456 --> 00:03:34.156 align:middle
+Este comando messenger:consume es algo que tendrás
+que ejecutar en producción todo el tiempo.
+
+00:03:35.006 --> 00:03:38.956 align:middle
+Por ejemplo, podrías decidir
+ejecutar varios procesos de trabajo.
+
+00:03:39.416 --> 00:03:44.286 align:middle
+O, incluso, podrías desplegar tu aplicación
+en un servidor totalmente diferente
+
+00:03:44.686 --> 00:03:49.766 align:middle
+-uno que no esté gestionando peticiones
+web- y ejecutar allí los procesos worker
+
+00:03:50.296 --> 00:03:55.796 align:middle
+Así, la gestión de estos mensajes no
+utilizaría ningún recurso de tu servidor web.
+
+00:03:56.476 --> 00:03:58.186 align:middle
+Hablaremos más adelante sobre el despliegue.
+
+00:03:58.746 --> 00:03:59.526 align:middle
+Porque ahora mismo...
+
+00:03:59.816 --> 00:04:01.416 align:middle
+tenemos un problema...
+
+00:04:01.616 --> 00:04:03.736 align:middle
+un problema un poco raro.
+
+00:04:03.736 --> 00:04:05.706 align:middle
+Actualiza la página.
+
+00:04:06.876 --> 00:04:12.166 align:middle
+Hmm, las fotos originales dicen algo
+así como Ponka visitó hace 13 minutos.
+
+00:04:12.286 --> 00:04:14.046 align:middle
+Ponka visitó hace 11 minutos.
+
+00:04:14.686 --> 00:04:19.656 align:middle
+Pero, como hemos hecho las cosas asíncronas,
+todas estas dicen Ponka está durmiendo la siesta.
+
+00:04:20.016 --> 00:04:20.756 align:middle
+Vuelve pronto.
+
+00:04:21.476 --> 00:04:25.736 align:middle
+Abre la entidad ImagePost y
+encuentra la propiedad $ponkaAddedAt.
+
+00:04:28.546 --> 00:04:33.526 align:middle
+Se trata de un campo datetime, que registra
+cuándo se añadió Ponka a la foto.
+
+00:04:34.146 --> 00:04:37.146 align:middle
+El mensaje en el front-end
+procede de este valor.
+
+00:04:37.146 --> 00:04:39.366 align:middle
+Para los originales...
+
+00:04:39.596 --> 00:04:44.676 align:middle
+cuando todo el proceso era sincrónico,
+este campo se establecía con éxito.
+
+00:04:45.246 --> 00:04:45.696 align:middle
+Pero ahora...
+
+00:04:45.916 --> 00:04:47.766 align:middle
+parece que no es así.
+
+00:04:48.396 --> 00:04:49.766 align:middle
+Comprobemos la base de
+datos para estar seguros.
+
+00:04:50.596 --> 00:04:59.636 align:middle
+En MySQL, ejecuta: SELECT * FROM
+image_post \G Al principio...
+
+00:05:00.186 --> 00:05:02.546 align:middle
+ponka_added_at se estaba fijando.
+
+00:05:03.106 --> 00:05:04.866 align:middle
+Pero ahora están todas en null.
+
+00:05:05.406 --> 00:05:09.976 align:middle
+Así que... nuestras imágenes se están
+procesando correctamente, pero, por alguna razón,
+
+00:05:10.226 --> 00:05:12.876 align:middle
+este campo de la base de datos no lo está.
+
+00:05:12.876 --> 00:05:16.156 align:middle
+Si miramos dentro de AddPonkaToImageHandler...
+
+00:05:16.796 --> 00:05:20.856 align:middle
+sí... justo aquí:
+$imagePost->markPonkaAsAdded().
+
+00:05:21.316 --> 00:05:23.016 align:middle
+Eso establece la propiedad.
+
+00:05:23.706 --> 00:05:24.816 align:middle
+Entonces... ¿por qué no se guarda?
+
+00:05:24.816 --> 00:05:30.366 align:middle
+Vamos a averiguar qué está pasando y a aprender
+un poco más sobre algunas "mejores prácticas"
+
+00:05:30.506 --> 00:05:32.676 align:middle
+a la hora de construir tu clase de mensaje
