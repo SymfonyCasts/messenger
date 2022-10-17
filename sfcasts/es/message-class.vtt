@@ -1,0 +1,481 @@
+WEBVTT
+
+00:00:01.016 --> 00:00:04.166 align:middle
+Messenger es lo que se conoce
+como un "Bus de Mensajes"...
+
+00:00:04.416 --> 00:00:08.056 align:middle
+que es una especie de herramienta genérica
+que puede utilizarse para realizar un par
+
+00:00:08.056 --> 00:00:10.626 align:middle
+de patrones de diseño
+diferentes, pero similares.
+
+00:00:11.346 --> 00:00:11.916 align:middle
+Por ejemplo...
+
+00:00:12.396 --> 00:00:19.066 align:middle
+Messenger puede utilizarse como un "Bus de comandos",
+un "Bus de consultas", un "Bus de eventos" o...
+
+00:00:19.066 --> 00:00:20.286 align:middle
+un "Autobús escolar".
+
+00:00:20.696 --> 00:00:21.256 align:middle
+Oh... espera...
+
+00:00:21.256 --> 00:00:23.006 align:middle
+esto último nunca se implementó...
+
+00:00:23.586 --> 00:00:26.206 align:middle
+vale, se puede utilizar para los tres primeros.
+
+00:00:26.946 --> 00:00:30.536 align:middle
+De todos modos, si estos términos no
+significan absolutamente nada para ti...
+
+00:00:30.666 --> 00:00:34.226 align:middle
+¡genial! Hablaremos de lo que significa
+todo esto a lo largo del camino.
+
+00:00:35.046 --> 00:00:37.956 align:middle
+La mayoría de la gente utilizará
+Messenger como un "bus de comandos"...
+
+00:00:38.156 --> 00:00:40.486 align:middle
+que es una especie de patrón de diseño.
+
+00:00:41.456 --> 00:00:42.096 align:middle
+Esta es la idea.
+
+00:00:42.586 --> 00:00:45.616 align:middle
+Ahora mismo, hacemos todo nuestro
+trabajo en el controlador.
+
+00:00:46.276 --> 00:00:52.226 align:middle
+Bueno, vale, hemos organizado las cosas en servicios, pero
+nuestro controlador llama directamente a esos métodos.
+
+00:00:53.056 --> 00:00:56.326 align:middle
+Está bien organizado, pero sigue
+siendo básicamente procedimental:
+
+00:00:56.776 --> 00:00:58.716 align:middle
+puedes leer el código de arriba a abajo.
+
+00:00:59.366 --> 00:01:05.056 align:middle
+Con un bus de comandos, separas lo que
+quieres que ocurra -llamado "comando"-
+
+00:01:05.486 --> 00:01:07.916 align:middle
+del código que hace ese trabajo.
+
+00:01:08.816 --> 00:01:12.456 align:middle
+Imagina que trabajas como camarero
+o camarera en un restaurante
+
+00:01:12.616 --> 00:01:15.086 align:middle
+y alguien quiere una pizza margarita...
+
+00:01:15.226 --> 00:01:16.746 align:middle
+¡con extra de albahaca fresca!
+
+00:01:17.046 --> 00:01:19.636 align:middle
+Mmm. ¿Imaginas que...
+
+00:01:19.726 --> 00:01:22.206 align:middle
+corres a la cocina y la preparas tú mismo?
+
+00:01:22.716 --> 00:01:23.796 align:middle
+Probablemente no...
+
+00:01:24.416 --> 00:01:26.926 align:middle
+En lugar de eso, escribes el pedido.
+
+00:01:27.556 --> 00:01:32.796 align:middle
+Pero... digamos que, en lugar de eso,
+escribes una "orden": cocinar una pizza,
+
+00:01:33.116 --> 00:01:36.036 align:middle
+estilo margarita con albahaca fresca extra.
+
+00:01:37.186 --> 00:01:39.966 align:middle
+A continuación, "envías"
+esa orden a la cocina.
+
+00:01:40.156 --> 00:01:44.216 align:middle
+Y finalmente, un chef hace toda la
+magia para que la pizza esté lista.
+
+00:01:44.716 --> 00:01:50.086 align:middle
+Mientras tanto, puedes recibir más pedidos
+y enviar más "órdenes" a la cocina.
+
+00:01:50.546 --> 00:01:56.616 align:middle
+Esto es un bus de comandos: creas una orden
+simple e informativa "cocinar una pizza", se
+
+00:01:56.716 --> 00:01:58.886 align:middle
+la das a algún "sistema" central...
+
+00:01:59.156 --> 00:02:01.546 align:middle
+que recibe esa elegante palabra " bus",
+
+00:02:02.116 --> 00:02:06.106 align:middle
+y se asegura de que algo vea
+esa orden y la "maneje "...
+
+00:02:06.106 --> 00:02:09.246 align:middle
+en este caso, un "chef" cocina la pizza.
+
+00:02:09.246 --> 00:02:13.766 align:middle
+Y ese "bus" central es probablemente lo suficientemente
+inteligente como para que diferentes personas
+
+00:02:13.766 --> 00:02:17.426 align:middle
+"manejen" diferentes órdenes:
+el chef cocina la pizza,
+
+00:02:17.536 --> 00:02:20.086 align:middle
+pero el bar tender prepara
+los pedidos de bebidas.
+
+00:02:20.976 --> 00:02:22.766 align:middle
+Vamos a recrear esa misma idea...
+
+00:02:23.126 --> 00:02:28.826 align:middle
+¡en código! La "orden" que queremos
+emitir es: añadir Ponka a esta imagen.
+
+00:02:29.586 --> 00:02:32.716 align:middle
+En Messenger, cada orden
+es una simple clase PHP.
+
+00:02:32.716 --> 00:02:36.916 align:middle
+En el directorio src/, crea
+un nuevo directorio Message/.
+
+00:02:38.276 --> 00:02:41.786 align:middle
+Podemos poner nuestras clases de comando,
+o "mensaje", en cualquier lugar...
+
+00:02:41.986 --> 00:02:44.196 align:middle
+pero esta es una buena manera
+de organizar las cosas.
+
+00:02:45.116 --> 00:02:48.176 align:middle
+Crea una nueva clase PHP
+llamada AddPonkaToImage...
+
+00:02:48.426 --> 00:02:52.336 align:middle
+porque eso describe la intención
+de lo que queremos que ocurra:
+
+00:02:52.746 --> 00:02:55.586 align:middle
+queremos que alguien añada ponka a la imagen.
+
+00:02:56.706 --> 00:02:58.026 align:middle
+Dentro... por ahora...
+
+00:02:58.396 --> 00:02:59.366 align:middle
+no hagas nada.
+
+00:03:00.106 --> 00:03:04.286 align:middle
+Una clase de mensaje es tu código:
+puede tener el aspecto que quieras.
+
+00:03:04.546 --> 00:03:05.426 align:middle
+Más adelante hablaremos de ello.
+
+00:03:06.176 --> 00:03:07.186 align:middle
+Comando, ¡hecho!
+
+00:03:07.986 --> 00:03:14.256 align:middle
+El paso 2 es crear la clase "manejadora": el
+código que realmente añadirá Ponka a una imagen.
+
+00:03:14.976 --> 00:03:17.186 align:middle
+Una vez más, esta clase puede
+vivir en cualquier lugar,
+
+00:03:17.456 --> 00:03:21.116 align:middle
+pero vamos a crear un nuevo directorio
+MessageHandler/ para mantener las cosas organizadas.
+
+00:03:21.946 --> 00:03:24.786 align:middle
+La clase "handler" también
+puede llamarse como sea...
+
+00:03:24.986 --> 00:03:27.416 align:middle
+pero a menos que te guste confundirte...
+
+00:03:27.836 --> 00:03:30.566 align:middle
+llámala AddPonkaToImageHandler.
+
+00:03:32.136 --> 00:03:36.226 align:middle
+A diferencia del mensaje, la clase
+manejadora tiene algunas reglas.
+
+00:03:37.056 --> 00:03:41.596 align:middle
+En primer lugar, una clase manejadora debe
+implementar MessageHandlerInterface...
+
+00:03:41.966 --> 00:03:43.996 align:middle
+que en realidad está vacío.
+
+00:03:44.386 --> 00:03:46.116 align:middle
+Es una interfaz "marcadora".
+
+00:03:46.646 --> 00:03:48.926 align:middle
+Hablaremos de por qué se
+necesita esto dentro de un rato.
+
+00:03:49.356 --> 00:03:54.226 align:middle
+Y, en segundo lugar, la clase debe tener
+una función pública llamada __invoke()
+
+00:03:54.406 --> 00:03:59.546 align:middle
+con un único argumento que sea de tipo
+indicativo con la clase de mensaje.
+
+00:04:00.106 --> 00:04:05.426 align:middle
+Así, AddPonkaToImage, y luego cualquier
+nombre de argumento: $addPonkaToImage.
+
+00:04:06.476 --> 00:04:12.116 align:middle
+Dentro, hmm, para ver cómo funciona todo
+esto, vamos a dump($addPonkaToImage).
+
+00:04:13.666 --> 00:04:14.996 align:middle
+Bien, retrocedamos.
+
+00:04:15.646 --> 00:04:19.016 align:middle
+En un nivel alto, así es
+como va a funcionar esto.
+
+00:04:19.926 --> 00:04:25.596 align:middle
+En nuestro código, crearemos un objeto
+AddPonkaToImage y le diremos a Messenger
+
+00:04:25.866 --> 00:04:28.266 align:middle
+-el bus de mensajes- que lo "maneje". Messenger
+
+00:04:29.026 --> 00:04:35.666 align:middle
+verá nuestro objeto AddPonkaToImage, irá
+a buscar el servicio AddPonkaToImageHandler,
+
+00:04:36.086 --> 00:04:41.446 align:middle
+llamará a su método __invoke() y
+le pasará el objeto AddPonkaToImage.
+
+00:04:42.076 --> 00:04:43.686 align:middle
+Eso es... ¡todo lo que hay que hacer!
+
+00:04:44.626 --> 00:04:45.586 align:middle
+Pero espera...
+
+00:04:45.816 --> 00:04:50.316 align:middle
+¿cómo sabe Messenger que el
+objeto AddPonkaToImage debe ser
+
+00:04:50.316 --> 00:04:53.106 align:middle
+"manejado" por AddPonkaToImageHandler?
+
+00:04:53.586 --> 00:04:56.796 align:middle
+Por ejemplo, si tuviéramos varias
+clases de comandos y manejadores,
+
+00:04:57.076 --> 00:05:00.326 align:middle
+¿cómo sabría qué
+manejador maneja cada mensaje?
+
+00:05:01.206 --> 00:05:07.756 align:middle
+Busca tu terminal y ejecuta: php bin/console
+debug:messenger Este es un comando impresionante:
+
+00:05:07.976 --> 00:05:12.026 align:middle
+nos muestra un mapa de qué manejador
+será llamado para cada mensaje.
+
+00:05:12.746 --> 00:05:14.906 align:middle
+Ahora mismo sólo tenemos 1, pero...
+
+00:05:14.956 --> 00:05:18.006 align:middle
+sí, de alguna manera ya sabe
+
+00:05:18.006 --> 00:05:22.776 align:middle
+que AddPonkaToImage debe ser
+manejado por AddPonkaToImageHandler.
+
+00:05:23.446 --> 00:05:26.476 align:middle
+¿Cómo? Lo sabe gracias a dos cosas.
+
+00:05:27.036 --> 00:05:31.936 align:middle
+En primer lugar, ese MessageHandlerInterface vacío
+es una "bandera" que indica a Symfony que se trata de
+
+00:05:31.936 --> 00:05:34.146 align:middle
+un "manejador" de Messenger.
+
+00:05:34.616 --> 00:05:41.436 align:middle
+Y en segundo lugar, Messenger busca un método
+llamado __invoke() y lee el tipo-indicación
+
+00:05:41.436 --> 00:05:45.966 align:middle
+de su argumento para saber qué
+clase de mensaje debe manejar.
+
+00:05:46.376 --> 00:05:48.586 align:middle
+Así que, AddPonkaToImage.
+
+00:05:49.156 --> 00:05:53.036 align:middle
+Y sí, puedes configurar
+todo esto de otra manera,
+
+00:05:53.036 --> 00:05:55.856 align:middle
+e incluso omitir la adición de la
+interfaz utilizando una etiqueta.
+
+00:05:56.806 --> 00:05:58.366 align:middle
+Hablaremos de esto más adelante...
+
+00:05:58.656 --> 00:06:01.296 align:middle
+pero normalmente no es algo
+de lo que debas preocuparte.
+
+00:06:01.746 --> 00:06:07.386 align:middle
+Ah, y si no estás familiarizado con
+el método __invoke(), ignorando a
+
+00:06:07.386 --> 00:06:13.036 align:middle
+Messenger por un minuto, es un método mágico que puedes
+poner en cualquier clase de PHP para hacerla "ejecutable ":
+
+00:06:13.696 --> 00:06:16.486 align:middle
+puedes tomar un objeto y
+llamarlo como una función...
+
+00:06:16.736 --> 00:06:18.186 align:middle
+si tiene este método:
+
+00:06:18.816 --> 00:06:24.836 align:middle
+Este detalle no es en absoluto importante para entender
+a Messenger , pero explica por qué se eligió este,
+
+00:06:25.126 --> 00:06:27.736 align:middle
+por lo demás, "extraño" nombre de método.
+
+00:06:28.606 --> 00:06:33.576 align:middle
+¡Uf! Comprobación de estado: tenemos una clase
+de mensaje, tenemos una clase de manejador,
+
+00:06:33.966 --> 00:06:38.956 align:middle
+y gracias a alguna astucia de Symfony,
+Messenger sabe que están vinculados entre sí.
+
+00:06:40.076 --> 00:06:41.926 align:middle
+Lo último que tenemos que hacer es...
+
+00:06:42.256 --> 00:06:45.946 align:middle
+¡enviar realmente el
+comando, o "mensaje", al bus!
+
+00:06:46.686 --> 00:06:48.306 align:middle
+Dirígete a ImagePostController.
+
+00:06:49.086 --> 00:06:52.636 align:middle
+Esta es la ruta que sube nuestra
+imagen y le añade Ponka.
+
+00:06:53.536 --> 00:06:58.516 align:middle
+Busca el bus de mensajes añadiendo un nuevo
+argumento con el tipo MessageBusInterface.
+
+00:07:00.876 --> 00:07:06.956 align:middle
+Entonces... justo encima de todo el código de la
+imagen Ponka -dejaremos todo eso ahí por el momento-
+
+00:07:07.516 --> 00:07:10.996 align:middle
+di $message = new AddPonkaToImage().
+
+00:07:11.946 --> 00:07:15.336 align:middle
+Y luego $messageBus->dispatch($message).
+
+00:07:16.716 --> 00:07:17.236 align:middle
+¡Eso es todo!
+
+00:07:17.546 --> 00:07:20.286 align:middle
+dispatch() es el único
+método de ese objeto...
+
+00:07:20.536 --> 00:07:23.296 align:middle
+no hay nada más complicado que esto.
+
+00:07:23.776 --> 00:07:24.856 align:middle
+Así que... ¡probemos!
+
+00:07:25.326 --> 00:07:29.936 align:middle
+Si todo funciona, este objeto
+AddPonkaToImage debería pasarse
+
+00:07:29.936 --> 00:07:33.156 align:middle
+a __invoke() y luego lo volcaremos.
+
+00:07:34.036 --> 00:07:36.636 align:middle
+Como todo esto ocurrirá en una petición AJAX,
+
+00:07:36.886 --> 00:07:39.246 align:middle
+utilizaremos un truco del perfilador
+para ver si ha funcionado.
+
+00:07:40.116 --> 00:07:41.706 align:middle
+Vuelve a actualizar la página...
+
+00:07:41.846 --> 00:07:42.606 align:middle
+sólo para estar seguros.
+
+00:07:44.236 --> 00:07:50.486 align:middle
+Sube una nueva foto y...
+
+00:07:51.016 --> 00:07:56.386 align:middle
+cuando termine, abajo en la barra de herramientas de depuración de la
+web, pasa el ratón por encima del icono de la flecha para encontrar...
+
+00:07:56.996 --> 00:07:59.736 align:middle
+¡bien! Aquí está esa petición AJAX.
+
+00:07:59.736 --> 00:08:03.726 align:middle
+Mantendré pulsada la tecla Comando y haré clic
+en el enlace para abrirlo en una nueva pestaña.
+
+00:08:04.816 --> 00:08:07.746 align:middle
+Este es el perfilador de esa petición AJAX.
+
+00:08:08.656 --> 00:08:10.186 align:middle
+Haz clic en el enlace
+"Depurar" de la izquierda.
+
+00:08:10.706 --> 00:08:12.286 align:middle
+¡Ja! ¡Ahí está!
+
+00:08:12.826 --> 00:08:17.786 align:middle
+¡Esto nos muestra que nuestro código dump()
+se ejecutó durante la petic ión AJAX !
+
+00:08:18.366 --> 00:08:18.966 align:middle
+¡Ha funcionado!
+
+00:08:20.166 --> 00:08:24.426 align:middle
+Pasamos el mensaje al bus de
+mensajes y éste llama al manejador.
+
+00:08:24.426 --> 00:08:25.546 align:middle
+Por supuesto...
+
+00:08:25.736 --> 00:08:28.056 align:middle
+nuestro manejador no hace nada todavía.
+
+00:08:29.026 --> 00:08:34.486 align:middle
+A continuación, vamos a trasladar toda la lógica
+de Ponkaficación de nuestro controlador al manejador
