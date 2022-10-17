@@ -1,0 +1,396 @@
+WEBVTT
+
+00:00:00.046 --> 00:00:06.966 align:middle
+Hasta ahora, hemos separado las instrucciones
+de lo que queremos hacer -queremos añadir Ponka
+
+00:00:06.966 --> 00:00:10.726 align:middle
+a este ImagePost - de la lógica
+que realmente hace ese trabajo.
+
+00:00:11.286 --> 00:00:16.786 align:middle
+Y... es un buen patrón de codificación: es fácil
+de probar y si necesitamos añadir Ponka a una imagen
+
+00:00:16.786 --> 00:00:20.236 align:middle
+desde cualquier otra parte de nuestro
+sistema, será súper agradable.
+
+00:00:20.786 --> 00:00:23.866 align:middle
+Pero este patrón desbloquea
+algunas posibilidades importantes.
+
+00:00:23.936 --> 00:00:30.026 align:middle
+Piénsalo: ahora que hemos aislado las
+instrucciones sobre lo que queremos hacer,
+
+00:00:30.026 --> 00:00:34.476 align:middle
+en lugar de manejar el objeto comando
+inmediatamente, ¿no podríamos,
+
+00:00:34.476 --> 00:00:37.056 align:middle
+en teoría, "guardar" ese
+objeto en algún sitio...
+
+00:00:37.346 --> 00:00:39.716 align:middle
+y leerlo y procesarlo después?
+
+00:00:40.356 --> 00:00:43.206 align:middle
+Así es... básicamente como
+funciona un sistema de colas. La
+
+00:00:43.846 --> 00:00:48.676 align:middle
+ventaja es que, dependiendo de tu configuración,
+podrías poner menos carga en tu servidor web
+
+00:00:48.906 --> 00:00:51.376 align:middle
+y dar a los usuarios una
+experiencia más rápida. Por
+
+00:00:51.986 --> 00:00:54.996 align:middle
+ejemplo, ahora mismo, cuando un usuario
+hace clic para subir un archivo,
+
+00:00:54.996 --> 00:00:59.576 align:middle
+tarda unos segundos antes de
+que finalmente aparezca aquí.
+
+00:00:59.576 --> 00:01:02.856 align:middle
+No es el mayor problema, pero no es lo ideal.
+
+00:01:02.856 --> 00:01:05.686 align:middle
+Si podemos arreglarlo
+fácilmente, ¿por qué no?
+
+00:01:06.586 --> 00:01:12.766 align:middle
+En Messenger, la clave para "guardar el trabajo
+para más tarde" es un sistema llamado transportes.
+
+00:01:14.676 --> 00:01:17.286 align:middle
+Abre config/packages/messenger.yaml.
+
+00:01:18.206 --> 00:01:19.596 align:middle
+¿Ves esa tecla transports?
+
+00:01:20.206 --> 00:01:23.086 align:middle
+En realidad, los detalles
+se configuran en .env.
+
+00:01:24.236 --> 00:01:27.986 align:middle
+Esta es la idea: vamos a
+decirle a Messenger: ¡Oye!
+
+00:01:28.316 --> 00:01:33.596 align:middle
+Cuando cree un objeto AddPonkaToImage,
+en lugar de manejarlo inmediatamente,
+
+00:01:34.086 --> 00:01:36.936 align:middle
+quiero que lo envíes a otro lugar.
+
+00:01:37.636 --> 00:01:40.836 align:middle
+Ese "otro lugar" es un transporte.
+
+00:01:41.076 --> 00:01:43.496 align:middle
+Y un transporte suele ser una "cola".
+
+00:01:43.496 --> 00:01:48.266 align:middle
+Si eres nuevo en esto de las colas,
+la idea es refrescantemente sencilla.
+
+00:01:48.846 --> 00:01:53.526 align:middle
+Una cola es un sistema externo que
+"retiene" información en una gran lista.
+
+00:01:54.346 --> 00:01:58.536 align:middle
+En nuestro caso, retendrá los
+objetos de mensaje serializados.
+
+00:01:59.276 --> 00:02:02.066 align:middle
+Cuando le enviamos otro
+mensaje, lo añade a la lista.
+
+00:02:02.926 --> 00:02:08.216 align:middle
+Más tarde, puede leer esos mensajes
+de la cola uno a uno, manejarlos y,
+
+00:02:08.616 --> 00:02:11.526 align:middle
+cuando haya terminado, la cola
+lo eliminará de la lista.
+
+00:02:12.216 --> 00:02:16.216 align:middle
+Claro... los sistemas de cola robustos tienen
+un montón de otras campanas y silbatos...
+
+00:02:16.576 --> 00:02:19.206 align:middle
+pero ése es realmente el
+concepto principal. Hay un
+
+00:02:19.686 --> 00:02:25.576 align:middle
+montón de sistemas de colas
+disponibles, como RabbitMQ, Amazon SQS,
+
+00:02:25.906 --> 00:02:28.506 align:middle
+Kafka y colas en el supermercado.
+
+00:02:29.946 --> 00:02:36.416 align:middle
+Fuera de la caja, Messenger admite tres:
+amqp -que básicamente significa RabbitMQ,
+
+00:02:36.416 --> 00:02:43.316 align:middle
+pero técnicamente significa cualquier sistema que
+implemente la especificación "AMQP"- doctrine y redis.
+
+00:02:44.296 --> 00:02:46.256 align:middle
+AMQP es el más potente...
+
+00:02:46.676 --> 00:02:49.186 align:middle
+pero a menos que ya seas un
+profesional de las colas y quieras
+
+00:02:49.186 --> 00:02:52.186 align:middle
+hacer alguna locura, todos ellos
+funcionan exactamente igual.
+
+00:02:53.066 --> 00:02:57.616 align:middle
+Ah, y si necesitas hablar con algún
+transporte no soportado, Messenger se integra
+
+00:02:57.616 --> 00:03:01.486 align:middle
+con otra biblioteca llamada Enqueue,
+que soporta un montón más.
+
+00:03:02.816 --> 00:03:07.536 align:middle
+Como ya estoy utilizando Doctrine en este
+proyecto, vamos a utilizar el transporte doctrine.
+
+00:03:08.626 --> 00:03:11.006 align:middle
+Descomenta la variable de entorno para ello.
+
+00:03:12.156 --> 00:03:14.696 align:middle
+¿Ves esta parte de ://default?
+
+00:03:15.446 --> 00:03:21.126 align:middle
+Eso le dice al transporte Doctrine que queremos
+utilizar la conexión default Doctrine.
+
+00:03:21.966 --> 00:03:25.966 align:middle
+Sí, reutilizará la conexión que
+ya has configurado en tu aplicación
+
+00:03:26.106 --> 00:03:28.916 align:middle
+para almacenar el mensaje
+dentro de una nueva tabla.
+
+00:03:29.236 --> 00:03:30.086 align:middle
+Pronto hablaremos de ello.
+
+00:03:31.046 --> 00:03:35.996 align:middle
+Ahora, de vuelta en messenger.yaml,
+descomenta este transporte async,
+
+00:03:36.286 --> 00:03:41.956 align:middle
+que utiliza la variable de entorno
+MESSENGER_TRANSPORT_DSN que acabamos de crear.
+
+00:03:42.776 --> 00:03:46.446 align:middle
+El nombre - async - no es importante
+- podría ser cualquier cosa.
+
+00:03:46.916 --> 00:03:50.216 align:middle
+Pero, en un segundo, empezaremos
+a hacer referencia a ese nombre.
+
+00:03:51.346 --> 00:03:52.076 align:middle
+En este momento...
+
+00:03:52.256 --> 00:03:56.876 align:middle
+¡vaya! Le hemos dicho a Messenger
+que tenemos un transporte async.
+
+00:03:57.386 --> 00:04:00.676 align:middle
+Y si quisiéramos volver y subir
+un archivo ahora, no habría...
+
+00:04:00.796 --> 00:04:06.116 align:middle
+no habría ninguna diferencia: se
+seguiría procesando inmediatamente.
+
+00:04:06.876 --> 00:04:13.186 align:middle
+¿Por qué? Porque tenemos que decirle a Messenger
+que este mensaje debe ser enviado a ese transporte,
+
+00:04:13.426 --> 00:04:15.286 align:middle
+en lugar de ser tratado ahora mismo.
+
+00:04:16.546 --> 00:04:19.436 align:middle
+Volviendo a messenger.yaml,
+¿ves esta clave routing?
+
+00:04:20.636 --> 00:04:25.346 align:middle
+Cuando enviamos un mensaje, Messenger
+mira todas las clases de esta lista...
+
+00:04:25.636 --> 00:04:28.176 align:middle
+que ahora mismo es cero si
+no cuentas el comentario...
+
+00:04:28.386 --> 00:04:32.096 align:middle
+y busca nuestra clase - AddPonkaToImage.
+
+00:04:32.096 --> 00:04:36.506 align:middle
+Si no encuentra la clase, gestiona
+el mensaje inmediatamente.
+
+00:04:37.536 --> 00:04:42.366 align:middle
+Digámosle a Messenger que, en su
+lugar, lo envíe al transporte async.
+
+00:04:42.366 --> 00:04:48.056 align:middle
+Establece App\Message\AddPonkaToImage en async.
+
+00:04:49.466 --> 00:04:50.666 align:middle
+En cuanto hagamos eso...
+
+00:04:50.886 --> 00:04:53.176 align:middle
+la diferencia es enorme.
+
+00:04:53.886 --> 00:04:57.366 align:middle
+Observa lo rápido que se carga la
+imagen a la derecha después de cargarla.
+
+00:05:02.306 --> 00:05:05.226 align:middle
+¡Bum! Ha sido más rápido que antes y...
+
+00:05:05.596 --> 00:05:07.366 align:middle
+¡Ponka no está ahí!
+
+00:05:07.676 --> 00:05:13.476 align:middle
+¡Júbilo! En realidad, vamos a probar una
+más - esa primera imagen era un poco lenta
+
+00:05:13.476 --> 00:05:15.546 align:middle
+porque Symfony estaba reconstruyendo su caché.
+
+00:05:16.116 --> 00:05:18.246 align:middle
+Esta debería ser casi instantánea.
+
+00:05:19.536 --> 00:05:23.456 align:middle
+¡Lo es! En lugar de llamar
+inmediatamente a nuestro manejador,
+
+00:05:23.726 --> 00:05:27.406 align:middle
+Messenger está enviando nuestro
+mensaje al transporte Doctrine.
+
+00:05:28.116 --> 00:05:29.546 align:middle
+Y... um...
+
+00:05:29.546 --> 00:05:31.506 align:middle
+¿qué significa eso en realidad?
+
+00:05:31.686 --> 00:05:33.396 align:middle
+Busca tu terminal...
+
+00:05:33.396 --> 00:05:36.456 align:middle
+o cualquier herramienta que te guste
+utilizar para jugar con las bases de datos.
+
+00:05:37.136 --> 00:05:42.046 align:middle
+Yo utilizaré el cliente mysql para conectarme
+a la base de datos messenger_tutorial.
+
+00:05:43.576 --> 00:05:47.736 align:middle
+Dentro, vamos: SHOW TABLES; ¡Woh!
+
+00:05:47.736 --> 00:05:51.416 align:middle
+Esperábamos migration_versions y image_post...
+
+00:05:51.846 --> 00:05:55.736 align:middle
+pero de repente tenemos una tercera
+tabla llamada messenger_messages.
+
+00:05:55.736 --> 00:06:03.246 align:middle
+Veamos qué hay ahí: SELECT *
+FROM messenger_messages; ¡Bien!
+
+00:06:03.566 --> 00:06:06.696 align:middle
+¡Tiene dos filas para nuestros dos mensajes!
+
+00:06:07.436 --> 00:06:12.476 align:middle
+Utilicemos la magia \G para darle
+un formato más bonito: ¡Genial!
+
+00:06:12.876 --> 00:06:19.616 align:middle
+El body contiene nuestro objeto: ha sido serializado
+utilizando la función serialize() de PHP...
+
+00:06:19.616 --> 00:06:20.846 align:middle
+aunque eso se puede configurar.
+
+00:06:21.716 --> 00:06:24.876 align:middle
+El objeto está envuelto dentro
+de algo llamado Envelope...
+
+00:06:25.546 --> 00:06:26.166 align:middle
+pero dentro...
+
+00:06:26.456 --> 00:06:31.546 align:middle
+podemos ver nuestro objeto AddPonkaToImage
+y el ImagePost dentro de él...
+
+00:06:31.946 --> 00:06:35.896 align:middle
+con el nombre del archivo, la
+fecha de createdAt, etc. Espera...
+
+00:06:35.986 --> 00:06:38.316 align:middle
+¿pero de dónde viene esta tabla?
+
+00:06:39.126 --> 00:06:42.916 align:middle
+Por defecto, si no está ahí,
+Messenger la crea por ti.
+
+00:06:43.676 --> 00:06:48.266 align:middle
+Si no quieres eso, hay una opción
+de configuración llamada auto_setup
+
+00:06:48.376 --> 00:06:50.816 align:middle
+para desactivar esto - más adelante
+te mostraré cómo. Si desactivaste la
+
+00:06:50.816 --> 00:06:57.716 align:middle
+configuración automática, podrías utilizar
+el práctico comando setup-transports
+
+00:06:57.716 --> 00:06:59.926 align:middle
+en el despliegue para crear esa tabla por ti.
+
+00:07:01.406 --> 00:07:02.886 align:middle
+Esto no hace nada ahora...
+
+00:07:03.166 --> 00:07:04.606 align:middle
+porque la tabla ya está ahí.
+
+00:07:05.956 --> 00:07:08.406 align:middle
+¡Este fue un gran paso!
+
+00:07:09.326 --> 00:07:10.726 align:middle
+Cada vez que subimos imágenes...
+
+00:07:10.836 --> 00:07:15.516 align:middle
+no se gestionan inmediatamente:
+cuando subimos dos más...
+
+00:07:16.036 --> 00:07:20.316 align:middle
+se envían a Doctrine y éste
+hace un seguimiento de ellas.
+
+00:07:20.316 --> 00:07:21.846 align:middle
+¡Gracias Doctrine!
+
+00:07:22.696 --> 00:07:27.666 align:middle
+A continuación, es el momento de leer esos
+mensajes uno a uno y empezar a manejarlos.
+
+00:07:28.416 --> 00:07:31.626 align:middle
+Lo hacemos con un comando de
+consola llamado "trabajador"
