@@ -1,0 +1,292 @@
+WEBVTT
+
+00:00:01.156 --> 00:00:05.796 align:middle
+Me encanta la posibilidad de aplazar el trabajo
+para más tarde enviando mensajes a un transporte.
+
+00:00:06.366 --> 00:00:11.286 align:middle
+Pero hay al menos un inconveniente
+práctico: hace que sea un poco más difícil
+
+00:00:11.286 --> 00:00:13.586 align:middle
+desarrollar y codificar tu aplicación.
+
+00:00:14.666 --> 00:00:18.176 align:middle
+Además de configurar tu servidor web,
+tu base de datos y todo lo demás,
+
+00:00:18.446 --> 00:00:23.296 align:middle
+ahora tienes que acordarte de ejecutar: php
+bin/console messenger:consume De lo contrario...
+
+00:00:23.466 --> 00:00:25.156 align:middle
+las cosas no funcionarán del todo.
+
+00:00:25.156 --> 00:00:31.076 align:middle
+Si tienes una configuración robusta para el
+desarrollo local -quizás algo que utilice Docker-
+
+00:00:31.326 --> 00:00:35.566 align:middle
+podrías incorporar esto a esa configuración
+para que se ejecute automáticamente.
+
+00:00:36.226 --> 00:00:38.966 align:middle
+Salvo que... seguirías teniendo que acordarte
+
+00:00:38.966 --> 00:00:44.366 align:middle
+de reiniciar el trabajador cada vez que hagas
+un cambio en algún código que utilice.
+
+00:00:45.076 --> 00:00:46.426 align:middle
+No es lo peor.
+
+00:00:46.796 --> 00:00:53.676 align:middle
+Pero, si esto te vuelve loco, hay una solución
+muy buena: decirle a Messenger que maneje todos
+
+00:00:53.676 --> 00:00:58.216 align:middle
+tus mensajes de forma sincrónica
+cuando estés en el entorno dev.
+
+00:00:59.206 --> 00:01:01.466 align:middle
+Echa un vistazo a
+config/packages/messenger.yaml.
+
+00:01:02.396 --> 00:01:08.946 align:middle
+Una de las partes comentadas de este archivo es
+una especie de transporte "sugerido" llamado sync.
+
+00:01:09.666 --> 00:01:16.546 align:middle
+La parte realmente importante no es
+el nombre sync sino el DSN: sync://.
+
+00:01:17.736 --> 00:01:21.686 align:middle
+Ya hemos aprendido que
+Messenger admite varios tipos
+
+00:01:21.686 --> 00:01:26.006 align:middle
+de transporte, como Doctrine , redis y AMQP.
+
+00:01:26.006 --> 00:01:30.546 align:middle
+Y la forma de elegir cuál
+quieres es el comienzo
+
+00:01:30.546 --> 00:01:34.226 align:middle
+de la cadena de conexión, como doctrine://.
+
+00:01:35.026 --> 00:01:36.726 align:middle
+El transporte de sync es realmente ingenioso:
+
+00:01:36.726 --> 00:01:40.786 align:middle
+en lugar de enviar realmente cada
+mensaje a una cola externa...
+
+00:01:41.236 --> 00:01:43.056 align:middle
+simplemente los maneja inmediatamente.
+
+00:01:43.496 --> 00:01:45.406 align:middle
+Se manejan de forma sincrónica.
+
+00:01:46.256 --> 00:01:50.876 align:middle
+Podemos aprovechar esto y utilizar un truco de
+configuración para cambiar nuestros transportes async
+
+00:01:50.876 --> 00:01:55.836 align:middle
+y async_priority_high para utilizar
+el transporte sync:// sólo
+
+00:01:55.836 --> 00:01:57.826 align:middle
+cuando estemos en el entorno dev.
+
+00:01:59.166 --> 00:02:02.246 align:middle
+Entra en el directorio config/packages/dev.
+
+00:02:03.106 --> 00:02:08.866 align:middle
+Los archivos que se encuentran aquí sólo se
+cargan en el entorno dev y anulan todos los valores
+
+00:02:08.866 --> 00:02:11.216 align:middle
+del directorio principal config/packages.
+
+00:02:12.566 --> 00:02:14.916 align:middle
+Crea un nuevo archivo llamado messenger.yaml...
+
+00:02:15.196 --> 00:02:17.926 align:middle
+aunque el nombre de este
+archivo no es importante.
+
+00:02:19.236 --> 00:02:23.676 align:middle
+Dentro, pondremos la misma configuración
+que tenemos en nuestro archivo principal:
+
+00:02:23.726 --> 00:02:26.656 align:middle
+framework messenger, . transports
+
+00:02:27.746 --> 00:02:32.796 align:middle
+Luego anula y ponle . async sync://
+
+00:02:33.626 --> 00:02:39.806 align:middle
+Haz lo mismo con : ponle .
+async_priority_high sync://
+
+00:02:40.666 --> 00:02:42.146 align:middle
+Eso es todo
+
+00:02:42.146 --> 00:02:46.886 align:middle
+En el entorno de desarrollo, estos valores
+anularán los valores de del archivo principal. dsn
+
+00:02:47.456 --> 00:02:50.816 align:middle
+Y, podemos ver esto: en una pestaña
+abierta del terminal, ejecuta:
+
+00:02:50.816 --> 00:03:01.106 align:middle
+php bin/console debug:config framework messenger
+Este comando te muestra la configuración real y
+
+00:03:01.256 --> 00:03:03.936 align:middle
+definitiva en y framework messenger.
+
+00:03:04.626 --> 00:03:05.446 align:middle
+Y... ¡sí!
+
+00:03:06.296 --> 00:03:12.586 align:middle
+Como actualmente estamos en el entorno , ambos
+transportes tienen un establecido en dev dsn sync://.
+
+00:03:13.606 --> 00:03:18.816 align:middle
+Quiero mencionar que la opción es algo
+específico de Doctrine. queue_name
+
+00:03:19.476 --> 00:03:23.316 align:middle
+El transporte no la utiliza y,
+por tanto, la ignora. sync Es
+
+00:03:24.016 --> 00:03:28.676 align:middle
+posible que en una futura versión
+de Symfony, esto arroje un error
+
+00:03:28.976 --> 00:03:31.926 align:middle
+porque estamos utilizando una opción
+no definida para este transporte.
+
+00:03:32.896 --> 00:03:37.296 align:middle
+Si eso ocurre, sólo tendríamos que cambiar
+el formato YAML para establecer la clave dsn
+
+00:03:37.626 --> 00:03:40.096 align:middle
+-como hacemos en el archivo
+principal - messenger.yaml
+
+00:03:40.566 --> 00:03:44.426 align:middle
+y luego anular la clave y establecerla
+en una matriz vacía. options
+
+00:03:45.406 --> 00:03:47.606 align:middle
+Lo menciono por si acaso.
+
+00:03:49.076 --> 00:03:50.516 align:middle
+Bien, ¡probemos esto!
+
+00:03:51.146 --> 00:03:52.836 align:middle
+Actualiza la página para estar seguro.
+
+00:03:55.296 --> 00:04:00.176 align:middle
+Ah, y antes de subir algo, vuelve al terminal
+donde se está ejecutando nuestro trabajador,
+
+00:04:00.376 --> 00:04:03.096 align:middle
+pulsa Control+C para detenerlo y reinícialo.
+
+00:04:04.556 --> 00:04:06.836 align:middle
+¡Woh! ¡Se ha estropeado!
+
+00:04:07.186 --> 00:04:09.866 align:middle
+No puedes recibir mensajes del
+transporte de sincronización.
+
+00:04:10.756 --> 00:04:12.486 align:middle
+Messenger está diciendo: ¡Oye!
+
+00:04:12.686 --> 00:04:18.306 align:middle
+Um... el SyncTransport no es una
+cola real de la que puedas leer...
+
+00:04:18.306 --> 00:04:20.236 align:middle
+¡así que deja de intentarlo!
+
+00:04:21.156 --> 00:04:21.976 align:middle
+Es cierto...
+
+00:04:21.976 --> 00:04:27.926 align:middle
+y esto es exactamente lo que queríamos:
+queríamos poder llamar a nuestros manejadores
+
+00:04:27.926 --> 00:04:32.446 align:middle
+en el entorno sin tener que preocuparnos
+de ejecutar este comando. dev
+
+00:04:33.496 --> 00:04:39.856 align:middle
+Bien, ahora vamos a probarlo:
+sube un par de fotos y...
+
+00:04:40.376 --> 00:04:43.146 align:middle
+sí... vuelve a ser súper lento.
+
+00:04:43.476 --> 00:04:45.666 align:middle
+Pero Ponka se añade cuando termina.
+
+00:04:46.066 --> 00:04:48.716 align:middle
+Los mensajes se están
+gestionando de forma sincrónica.
+
+00:04:49.686 --> 00:04:54.036 align:middle
+Para asegurarte de que esto sólo ocurre
+en el entorno , abre el archivo dev .env
+
+00:04:54.196 --> 00:04:57.956 align:middle
+y cambia por temporalmente. APP_ENV prod
+
+00:04:58.986 --> 00:05:07.376 align:middle
+Asegúrate de borrar la caché para que esto
+funcione: php bin/console cache:clear Ahora,
+
+00:05:07.686 --> 00:05:11.676 align:middle
+deberíamos poder ejecutar
+como antes: messenger:consume
+
+00:05:11.676 --> 00:05:18.456 align:middle
+php bin/console messenger:consume
+-vv async_priority_high async Y...
+
+00:05:18.876 --> 00:05:23.826 align:middle
+¡podemos! Sincroniza los
+mensajes en dev, async en prod.
+
+00:05:23.826 --> 00:05:29.886 align:middle
+Ahora que hemos conseguido esto,
+vuelve a cambiar por y, APP_ENV dev
+
+00:05:30.236 --> 00:05:33.246 align:middle
+para que las cosas sean más
+interesantes para el tutorial,
+
+00:05:33.606 --> 00:05:36.506 align:middle
+comenta la nueva configuración
+que acabamos de añadir: sync
+
+00:05:37.186 --> 00:05:41.126 align:middle
+Quiero seguir utilizando nuestros
+transportes reales mientras codificamos.
+
+00:05:41.996 --> 00:05:46.906 align:middle
+Detén y reinicia el trabajador: Ahora
+que estamos de vuelta en el entorno , dev
+
+00:05:46.906 --> 00:05:51.036 align:middle
+para y reinicia el trabajador: A continuación:
+vamos a hablar de un problema similar:
+
+00:05:51.036 --> 00:05:53.906 align:middle
+¿cómo manejar los transportes
+al escribir pruebas automatizadas?
