@@ -1,0 +1,176 @@
+WEBVTT
+
+00:00:01.026 --> 00:00:05.906 align:middle
+Si alguna vez has creado un oyente de eventos
+o un suscriptor de eventos en Symfony,
+
+00:00:06.326 --> 00:00:10.466 align:middle
+estás creando un "oyente"
+para un evento que se envía a
+
+00:00:10.546 --> 00:00:13.516 align:middle
+través de un servicio llamado
+"despachador de eventos".
+
+00:00:14.366 --> 00:00:20.016 align:middle
+El propósito del despachador de eventos es permitir
+que un trozo de código "notifique" a la aplicación
+
+00:00:20.016 --> 00:00:25.646 align:middle
+que ha ocurrido algo y que cualquier otro
+"escuche" ese evento y ejecute algún código.
+
+00:00:26.156 --> 00:00:27.596 align:middle
+Lo cual... eh...
+
+00:00:28.146 --> 00:00:33.676 align:middle
+es exactamente el mismo propósito
+de enviar un evento a Messenger.
+
+00:00:34.236 --> 00:00:34.866 align:middle
+¿Qué demonios?
+
+00:00:35.476 --> 00:00:41.226 align:middle
+Si quiero enviar un evento en mi código, ¿debo
+utilizar el EventDispatcher o el Messenger?
+
+00:00:41.676 --> 00:00:44.966 align:middle
+¿Los archivos de imágenes animadas
+se pronuncian "jif" o "gif"?
+
+00:00:45.246 --> 00:00:48.776 align:middle
+¿El papel higiénico debe colgar
+"por encima" del rollo o "por debajo"?
+
+00:00:49.076 --> 00:00:54.516 align:middle
+¡Ahh! En primer lugar, hay una diferencia
+práctica entre enviar un evento
+
+00:00:54.586 --> 00:00:59.336 align:middle
+al EventDispatcher o al Messenger: Messenger
+permite llamar a tus manejadores de
+
+00:00:59.336 --> 00:01:03.616 align:middle
+forma asíncrona, mientras que los
+oyentes de los eventos del EventDispatcher
+
+00:01:03.616 --> 00:01:07.016 align:middle
+son siempre síncronos.
+
+00:01:07.366 --> 00:01:10.116 align:middle
+Y esto nos lleva a una
+buena regla general. Siempre
+
+00:01:10.796 --> 00:01:15.866 align:middle
+que envíes un evento, si quieres
+que los oyentes de ese evento puedan
+
+00:01:15.866 --> 00:01:19.546 align:middle
+comunicarse contigo, para que puedas hacer algo
+
+00:01:19.546 --> 00:01:22.186 align:middle
+en función de su respuesta,
+utiliza el EventDispatcher.
+
+00:01:22.716 --> 00:01:28.586 align:middle
+Pero si simplemente quieres decir "ha pasado
+esto" y no necesitas ninguna respuesta
+
+00:01:28.586 --> 00:01:31.646 align:middle
+de los posibles oyentes o
+manejadores, utiliza Messenger. Por
+
+00:01:32.456 --> 00:01:38.256 align:middle
+ejemplo, en AddPonkaToImageHandler,
+supongamos que queremos enviar un evento aquí
+
+00:01:38.446 --> 00:01:41.806 align:middle
+para que otras partes del
+sistema nos digan exactamente
+
+00:01:41.866 --> 00:01:44.916 align:middle
+qué imagen Ponka debe añadirse a esta foto.
+
+00:01:45.976 --> 00:01:50.846 align:middle
+En ese caso, necesitamos que esos
+oyentes puedan comunicarse con nosotros.
+
+00:01:51.646 --> 00:01:58.186 align:middle
+Para ello, crearíamos una clase de Evento que contenga
+el objeto ImagePost y que tenga un definidor al
+
+00:01:58.186 --> 00:02:03.296 align:middle
+que los oyentes puedan llamar,
+tal vez setPonkaImageToUse().
+
+00:02:04.366 --> 00:02:06.146 align:middle
+Entonces utilizaríamos el EventDispatcher
+
+00:02:06.396 --> 00:02:10.876 align:middle
+y enviaríamos el mensaje antes de
+añadir realmente Ponka a la imagen.
+
+00:02:11.796 --> 00:02:14.976 align:middle
+Una vez llamados todos los oyentes,
+podríamos ver si alguno de ellos llama a
+
+00:02:14.976 --> 00:02:17.516 align:middle
+ese método setPonkaImageToUse().
+
+00:02:18.116 --> 00:02:20.386 align:middle
+Pero, ¿y si simplemente
+quisiéramos decir ¡Oye!
+
+00:02:20.726 --> 00:02:22.896 align:middle
+¡Acabamos de añadir a Ponka a una imagen!
+
+00:02:23.106 --> 00:02:26.646 align:middle
+... y no necesitáramos ninguna
+información de los posibles manejadores?
+
+00:02:27.326 --> 00:02:30.386 align:middle
+En ese caso, crearíamos
+una clase de evento similar,
+
+00:02:30.846 --> 00:02:36.016 align:middle
+omitiríamos el método setPonkaImageToUse()
+y lo despacharíamos con Messenger.
+
+00:02:36.786 --> 00:02:41.846 align:middle
+Messenger es perfecto si no necesitas ninguna
+información de vuelta de tus manejadores porque...
+
+00:02:42.056 --> 00:02:45.846 align:middle
+¡esos manejadores pueden acabar
+siendo llamados de forma asíncrona!
+
+00:02:46.596 --> 00:02:50.356 align:middle
+Si todavía no lo tienes
+claro, utiliza el que quieras.
+
+00:02:51.086 --> 00:02:55.386 align:middle
+¿Por qué? Porque si al final quieres que tu
+código se ejecute de forma asíncrona, acabarás
+
+00:02:55.746 --> 00:02:57.426 align:middle
+eligiendo Messenger.
+
+00:02:57.886 --> 00:03:01.546 align:middle
+Y si quieres que tus oyentes
+puedan comunicarse con el código
+
+00:03:01.546 --> 00:03:04.876 align:middle
+que envía los mensajes,
+utilizarás EventDispatcher.
+
+00:03:05.616 --> 00:03:07.406 align:middle
+De lo contrario, cualquiera
+de los dos funcionará.
+
+00:03:08.686 --> 00:03:12.516 align:middle
+A continuación, vamos a utilizar algunos trucos
+de configuración del servicio para ajustar
+
+00:03:12.516 --> 00:03:17.476 align:middle
+cómo hemos organizado nuestros comandos, manejadores
+de comandos, eventos y manejadores de eventos
