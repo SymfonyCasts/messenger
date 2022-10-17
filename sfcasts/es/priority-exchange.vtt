@@ -1,0 +1,337 @@
+WEBVTT
+
+00:00:01.056 --> 00:00:05.486 align:middle
+La idea de nuestros transportes
+async y async_priority_high era
+
+00:00:05.486 --> 00:00:10.536 align:middle
+que pudiéramos enviar algunos mensajes
+a async_priority_high y otros a async,
+
+00:00:10.876 --> 00:00:15.286 align:middle
+con el objetivo de que esos mensajes
+acabaran en "cubos" diferentes...
+
+00:00:15.586 --> 00:00:18.256 align:middle
+o, más técnicamente, en diferentes "colas".
+
+00:00:18.996 --> 00:00:22.856 align:middle
+Entonces podemos ordenar a nuestro
+trabajador que lea primero todos los mensajes
+
+00:00:22.856 --> 00:00:27.696 align:middle
+de la cola a la que esté vinculado
+async_priority_high antes de leer los mensajes
+
+00:00:27.696 --> 00:00:30.706 align:middle
+de la cola a la que esté
+vinculado el transporte async.
+
+00:00:31.546 --> 00:00:36.826 align:middle
+Esto ya funcionaba antes con Doctrine,
+gracias a esta opción queue_name: high.
+
+00:00:37.616 --> 00:00:39.376 align:middle
+El valor por defecto de esta opción es...
+
+00:00:39.376 --> 00:00:47.856 align:middle
+default. Como recordatorio, voy a entrar rápidamente
+en mi base de datos: mysql -u root messenger_tutorial
+
+00:00:48.256 --> 00:00:56.306 align:middle
+Y veré el aspecto de la tabla:
+DESCRIBE messenger_messages; Sí,
+
+00:00:56.396 --> 00:00:59.936 align:middle
+la columna queue_name era la clave
+para que esto funcionara. Los
+
+00:01:00.456 --> 00:01:05.376 align:middle
+mensajes que se enviaban a async_priority_high
+tenían un queue_name con el valor high,
+
+00:01:06.076 --> 00:01:10.076 align:middle
+y los que se enviaban al transporte
+async tenían el valor default.
+
+00:01:11.046 --> 00:01:16.506 align:middle
+Así, aunque sólo teníamos una tabla de
+base de datos, funcionaba como dos colas:
+
+00:01:17.196 --> 00:01:20.536 align:middle
+cuando consumíamos el transporte
+async_priority_high, se
+
+00:01:20.906 --> 00:01:25.416 align:middle
+consultaban todos los mensajes
+WHERE queue_name="high".
+
+00:01:26.806 --> 00:01:32.216 align:middle
+El problema es que esta opción queue_name
+es específica del transporte Doctrine,
+
+00:01:32.476 --> 00:01:36.716 align:middle
+y no tiene ningún efecto
+cuando se utiliza AMQP.
+
+00:01:37.416 --> 00:01:39.146 align:middle
+Pero... a alto nivel...
+
+00:01:39.276 --> 00:01:43.536 align:middle
+nuestro objetivo es el
+mismo: necesitamos dos colas.
+
+00:01:44.416 --> 00:01:48.746 align:middle
+Necesitamos el transporte async_priority_high
+para enviar mensajes a una cola
+
+00:01:48.746 --> 00:01:52.696 align:middle
+y el transporte async para
+enviar mensajes a otra cola.
+
+00:01:53.336 --> 00:01:54.916 align:middle
+Pero con AMQP...
+
+00:01:54.916 --> 00:01:59.026 align:middle
+no envías un mensaje
+directamente a una cola...
+
+00:01:59.026 --> 00:02:01.346 align:middle
+lo envías a un intercambio...
+
+00:02:01.526 --> 00:02:07.316 align:middle
+y luego es responsabilidad del
+intercambio mirar sus reglas internas y
+
+00:02:07.316 --> 00:02:12.136 align:middle
+averiguar a qué cola, o colas,
+debe ir realmente ese mensaje.
+
+00:02:13.016 --> 00:02:18.866 align:middle
+Esto significa que para que un mensaje llegue a una cola,
+tenemos que ajustar las cosas a nivel de intercambio.
+
+00:02:18.866 --> 00:02:21.156 align:middle
+Y hay dos formas diferentes de hacerlo.
+
+00:02:21.156 --> 00:02:28.296 align:middle
+En primer lugar, podríamos seguir teniendo un único
+intercambio y luego añadir algunas reglas internas
+
+00:02:28.476 --> 00:02:34.086 align:middle
+-llamadas vinculaciones- para enseñar al
+intercambio que algunos mensajes deben ir a una cola
+
+00:02:34.436 --> 00:02:37.216 align:middle
+y otros mensajes deben ir a otra cola.
+
+00:02:38.346 --> 00:02:40.756 align:middle
+Te mostraré cómo hacerlo
+un poco más adelante.
+
+00:02:41.646 --> 00:02:45.076 align:middle
+La segunda opción no es tan genial,
+pero es un poco más sencilla.
+
+00:02:46.086 --> 00:02:51.296 align:middle
+Por defecto, cuando Messenger crea un
+intercambio, lo hace de tipo fanout.
+
+00:02:52.276 --> 00:02:54.766 align:middle
+Eso significa que cuando se envía
+un mensaje a este intercambio, se
+
+00:02:55.046 --> 00:02:58.466 align:middle
+dirige a todas las colas
+que estén vinculadas a él.
+
+00:02:59.596 --> 00:03:06.226 align:middle
+Así que si añadimos un segundo enlace a una
+segunda cola -quizás messages_high_priority -
+
+00:03:06.626 --> 00:03:12.476 align:middle
+, cada mensaje que se envíe a este
+intercambio se dirigirá a ambas colas.
+
+00:03:12.816 --> 00:03:14.236 align:middle
+¡Se duplicaría!
+
+00:03:14.786 --> 00:03:16.566 align:middle
+Eso... no es lo que queremos.
+
+00:03:17.426 --> 00:03:23.676 align:middle
+En su lugar, vamos a crear dos intercambios
+fanout, y cada intercambio dirigirá todos
+
+00:03:23.676 --> 00:03:25.926 align:middle
+sus mensajes a una cola distinta.
+
+00:03:26.556 --> 00:03:29.036 align:middle
+Tendremos dos intercambios y dos colas.
+
+00:03:29.036 --> 00:03:32.236 align:middle
+Vamos a configurar esto
+dentro de messenger.yaml.
+
+00:03:33.266 --> 00:03:41.306 align:middle
+Debajo de options añade exchange y luego
+name con, qué tal, messages_high_priority.
+
+00:03:43.276 --> 00:03:49.866 align:middle
+Debajo de esto, añade queues con una
+sola clave: messages_high ajustada a null.
+
+00:03:51.676 --> 00:03:54.016 align:middle
+Esta configuración tiene tres efectos.
+
+00:03:54.016 --> 00:04:00.806 align:middle
+En primer lugar, como tenemos activada la función
+auto_setup, la primera vez que hablemos con RabbitMQ,
+
+00:04:01.086 --> 00:04:04.646 align:middle
+Messenger creará el intercambio
+messages_high_priority,
+
+00:04:05.036 --> 00:04:09.446 align:middle
+la cola messages_high y los enlazará.
+
+00:04:10.296 --> 00:04:15.316 align:middle
+El segundo efecto es que cuando enviemos
+mensajes a este transporte, se enviarán
+
+00:04:15.436 --> 00:04:18.236 align:middle
+al intercambio messages_high_priority.
+
+00:04:19.216 --> 00:04:24.066 align:middle
+El tercer y último efecto es que cuando
+consumamos desde este transporte, Messenger
+
+00:04:24.316 --> 00:04:28.506 align:middle
+leerá los mensajes de la cola messages_high.
+
+00:04:28.506 --> 00:04:31.516 align:middle
+Si esto todavía no tiene todo el sentido...
+
+00:04:31.746 --> 00:04:34.566 align:middle
+no te preocupes: vamos a ver esto en acción.
+
+00:04:34.686 --> 00:04:40.176 align:middle
+Primero, asegúrate de que tu trabajador no
+está en marcha: el nuestro está parado.
+
+00:04:40.976 --> 00:04:52.306 align:middle
+Ahora vamos a eliminar tres fotos -una,
+dos y tres- y a subir cuatro fotos.
+
+00:04:56.766 --> 00:04:59.346 align:middle
+¡Genial! ¡Veamos qué ha pasado en RabbitMQ!
+
+00:05:00.376 --> 00:05:02.396 align:middle
+Dentro del gestor, haz clic en "Intercambios".
+
+00:05:04.426 --> 00:05:09.246 align:middle
+¡Qué bien! ¡Tenemos un nuevo
+intercamb io messages_high_priority!
+
+00:05:09.716 --> 00:05:15.576 align:middle
+El intercambio original messages sigue enviando
+todos sus mensajes a una cola messages...
+
+00:05:16.386 --> 00:05:22.476 align:middle
+pero el nuevo intercambio envía todos sus
+mensajes a una cola llamada messages_high.
+
+00:05:23.176 --> 00:05:24.946 align:middle
+Eso es gracias a nuestra
+configuración de queues.
+
+00:05:26.316 --> 00:05:28.246 align:middle
+Y... ¿qué hay dentro de cada cola?
+
+00:05:29.076 --> 00:05:29.866 align:middle
+¡Ve a comprobarlo! Es
+
+00:05:30.836 --> 00:05:36.276 align:middle
+exactamente lo que queremos: los 3 mensajes
+eliminados están esperando en la cola messages
+
+00:05:36.746 --> 00:05:41.076 align:middle
+y las 4 fotos recién subidas
+están en messages_high.
+
+00:05:41.596 --> 00:05:46.046 align:middle
+¡Cada transporte está recibiendo con
+éxito sus mensajes en una cola distinta!
+
+00:05:46.466 --> 00:05:50.296 align:middle
+Y eso significa que podemos
+consumirlos de forma independiente.
+
+00:05:51.346 --> 00:05:56.036 align:middle
+En la línea de comandos, normalmente le diríamos
+a Messenger que consuma de async_priority_high
+
+00:05:56.256 --> 00:05:59.906 align:middle
+y luego de async para obtener
+nuestra entrega priorizada.
+
+00:06:00.406 --> 00:06:05.116 align:middle
+Pero para mostrar claramente lo que ocurre,
+vamos a consumirlos independientemente por ahora.
+
+00:06:06.176 --> 00:06:09.006 align:middle
+Empieza por consumir los
+mensajes del transporte async:
+
+00:06:11.136 --> 00:06:14.636 align:middle
+Comienza a procesar los objetos
+de ImagePostDeletedEvent...
+
+00:06:17.306 --> 00:06:19.516 align:middle
+y se detiene después de esos tres.
+
+00:06:20.506 --> 00:06:21.236 align:middle
+¡Ya ha terminado!
+
+00:06:21.556 --> 00:06:23.496 align:middle
+La cola está vacía.
+
+00:06:24.856 --> 00:06:28.586 align:middle
+El comando no ha leído los
+mensajes de messages_high.
+
+00:06:28.586 --> 00:06:40.876 align:middle
+Para ello, consume el transporte
+async_priority_high: ¡Ya está!
+
+00:06:41.376 --> 00:06:42.466 align:middle
+Lo más sencillo...
+
+00:06:42.626 --> 00:06:43.616 align:middle
+pero no más elegante...
+
+00:06:43.616 --> 00:06:49.876 align:middle
+manera de tener transportes prioritarios con AMQP
+es enviar cada transporte a un intercambio diferente
+
+00:06:50.136 --> 00:06:52.826 align:middle
+y configurarlo para que se
+dirija a una cola diferente.
+
+00:06:53.756 --> 00:06:55.816 align:middle
+Más adelante... veremos
+la forma más elegante.
+
+00:06:55.816 --> 00:07:02.736 align:middle
+Antes de llegar ahí, ¿recuerdas cuando te hice
+comentar el DelayStamp antes de que empezáramos a
+
+00:07:02.736 --> 00:07:03.776 align:middle
+usar RabbitMQ? A continuación
+
+00:07:04.556 --> 00:07:11.416 align:middle
+, te mostraré por qué: volveremos a añadir
+ese DelayStamp y veremos la forma loca en que
+
+00:07:11.536 --> 00:07:14.216 align:middle
+se "retrasan" los mensajes en Rab bitMQ
