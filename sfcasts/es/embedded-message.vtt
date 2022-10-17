@@ -1,0 +1,267 @@
+WEBVTT
+
+00:00:01.146 --> 00:00:03.776 align:middle
+La eliminación de una imagen se
+sigue haciendo de forma sincronizada.
+
+00:00:04.546 --> 00:00:08.646 align:middle
+Puedes verlo: como lo he hecho extra
+lento para conseguir un efecto dramático,
+
+00:00:08.906 --> 00:00:12.036 align:middle
+tarda un par de segundos en
+procesarse antes de desaparecer. Por
+
+00:00:12.686 --> 00:00:14.316 align:middle
+supuesto, podríamos evitarlo
+
+00:00:14.316 --> 00:00:19.626 align:middle
+haciendo que nuestro JavaScript elimine la imagen
+visualmente antes de que termine la llamada AJAX.
+
+00:00:20.506 --> 00:00:24.456 align:middle
+Pero hacer que las cosas pesadas sean asíncronas
+es una buena práctica y podría permitirnos
+
+00:00:24.456 --> 00:00:26.186 align:middle
+poner menos carga en el servidor web. Veamos el
+
+00:00:27.366 --> 00:00:31.986 align:middle
+estado actual de las cosas: hemos
+actualizado todo esto para que lo maneje
+
+00:00:31.986 --> 00:00:38.166 align:middle
+nuestro bus de comandos: tenemos un comando
+DeleteImagePost y DeleteImagePostHandler.
+
+00:00:38.936 --> 00:00:43.816 align:middle
+Pero dentro de config/packages/messenger.yaml, no
+estamos enrutando esta clase a ninguna parte, lo que
+
+00:00:44.116 --> 00:00:46.226 align:middle
+significa que se está
+manejando inmediatamente.
+
+00:00:47.456 --> 00:00:52.966 align:middle
+Ah, y fíjate: seguimos pasando el
+objeto entidad completo al mensaje.
+
+00:00:53.706 --> 00:00:57.836 align:middle
+En los dos últimos capítulos, hemos hablado
+de evitar esto como una buena práctica
+
+00:00:58.176 --> 00:01:02.606 align:middle
+y porque puede hacer que ocurran cosas
+raras si manejas esto de forma asíncrona.
+
+00:01:03.376 --> 00:01:07.116 align:middle
+Pero... si piensas mantener
+DeleteImagePost síncrono...
+
+00:01:07.496 --> 00:01:11.446 align:middle
+depende de ti: pasar el objeto
+entidad completo no perjudicará nada.
+
+00:01:12.036 --> 00:01:13.226 align:middle
+Y... realmente...
+
+00:01:13.576 --> 00:01:16.706 align:middle
+¡necesitamos que este mensaje
+se gestione de forma sincrónica!
+
+00:01:17.256 --> 00:01:22.536 align:middle
+Necesitamos que el ImagePost se borre de
+la base de datos inmediatamente para que,
+
+00:01:22.756 --> 00:01:25.586 align:middle
+si el usuario actualiza, la imagen desaparezca.
+
+00:01:26.456 --> 00:01:32.356 align:middle
+Pero, fíjate bien: el borrado implica dos
+pasos: eliminar una fila en la base de datos
+
+00:01:32.636 --> 00:01:35.616 align:middle
+y eliminar el archivo de imagen subyacente.
+
+00:01:36.296 --> 00:01:39.626 align:middle
+Y... sólo es necesario que se produzca
+el primer paso en este momento.
+
+00:01:40.486 --> 00:01:42.976 align:middle
+Si eliminamos el archivo en el
+sistema de archivos más tarde...
+
+00:01:43.236 --> 00:01:44.386 align:middle
+¡no es un gran problema!
+
+00:01:45.316 --> 00:01:48.946 align:middle
+Para hacer parte del trabajo de forma sincronizada
+y la otra parte de forma asincrónica,
+
+00:01:49.646 --> 00:01:53.416 align:middle
+mi enfoque preferido es
+dividir esto en dos comandos.
+
+00:01:54.406 --> 00:01:58.646 align:middle
+Crea una nueva clase de comando
+llamada DeletePhotoFile.
+
+00:01:58.646 --> 00:02:02.906 align:middle
+Dentro, añade un constructor para que
+podamos pasar la información que necesitemos.
+
+00:02:04.296 --> 00:02:09.046 align:middle
+Esta clase de comando se utilizará para eliminar
+físicamente el archivo del sistema de archivos.
+
+00:02:09.046 --> 00:02:12.306 align:middle
+Y si te fijas en el manejador, para hacerlo,
+
+00:02:12.516 --> 00:02:17.766 align:middle
+sólo necesitamos el servicio PhotoFileManager
+y la cadena nombre de archivo.
+
+00:02:18.696 --> 00:02:25.236 align:middle
+Así que esta vez, la menor cantidad de información que
+podemos poner en la clase de comando es string $filename.
+
+00:02:25.736 --> 00:02:30.046 align:middle
+Pulsaré Alt + intro e iré a "Inicializar
+campos" para crear esa propiedad y establecerla.
+
+00:02:31.076 --> 00:02:35.586 align:middle
+Ahora iré a Código -> Generar -o
+Cmd+N en un Mac- para generar el getter.
+
+00:02:37.476 --> 00:02:44.906 align:middle
+¡Genial! Paso 2: añade el
+manejador DeletePhotoFileHandler.
+
+00:02:46.176 --> 00:02:51.596 align:middle
+Haz que éste siga las dos reglas de los
+manejadores: implementa MessageHandlerInterface
+
+00:02:53.336 --> 00:02:58.876 align:middle
+y crea un método __invoke()
+con un argumento que sea de tipo
+
+00:02:58.876 --> 00:03:04.156 align:middle
+con la clase de mensaje:
+DeletePhotoFile $deletePhotoFile.
+
+00:03:04.156 --> 00:03:07.626 align:middle
+Perfecto Lo único que
+tenemos que hacer aquí es...
+
+00:03:07.826 --> 00:03:12.206 align:middle
+esta única línea:
+$this->photoManager->deleteImage().
+
+00:03:12.816 --> 00:03:14.986 align:middle
+Cópiala y pégala en nuestro manejador.
+
+00:03:15.066 --> 00:03:22.316 align:middle
+Para el argumento, podemos utilizar nuestra clase
+de mensaje: $deletePhotoFile->getFilename().
+
+00:03:22.316 --> 00:03:28.326 align:middle
+Y por último, necesitamos
+el servicio PhotoFileManager:
+
+00:03:29.496 --> 00:03:35.636 align:middle
+añade un constructor con un argumento:
+PhotoFileManager $photoManager.
+
+00:03:37.246 --> 00:03:41.826 align:middle
+Utilizaré mi truco Alt+Enter -> Inicializar
+campos para crear esa propiedad como siempre.
+
+00:03:42.886 --> 00:03:48.066 align:middle
+Ya está Ahora tenemos una clase de comando
+funcional que requiere la cadena nombre de archivo,
+
+00:03:48.506 --> 00:03:51.626 align:middle
+y un manejador que lee
+ese nombre de archivo y...
+
+00:03:51.776 --> 00:03:52.646 align:middle
+¡hace el trabajo!
+
+00:03:53.646 --> 00:03:56.666 align:middle
+Todo lo que tenemos que hacer
+ahora es enviar el nuevo comando.
+
+00:03:57.326 --> 00:04:01.386 align:middle
+Y... técnicamente podríamos
+hacerlo en dos lugares diferentes.
+
+00:04:01.386 --> 00:04:05.746 align:middle
+En primer lugar, podrías pensar
+que, en ImagePostController,
+
+00:04:05.936 --> 00:04:09.436 align:middle
+podríamos enviar dos comandos
+diferentes aquí mismo.
+
+00:04:10.116 --> 00:04:12.306 align:middle
+Pero... Eso no me gusta.
+
+00:04:12.976 --> 00:04:16.306 align:middle
+El controlador ya está
+diciendo DeleteImagePost.
+
+00:04:16.936 --> 00:04:19.006 align:middle
+No debería necesitar
+emitir ningún otro comando.
+
+00:04:19.966 --> 00:04:25.936 align:middle
+Si decidimos dividir esa lógica en trozos
+más pequeños, eso depende del controlador.
+
+00:04:25.936 --> 00:04:32.816 align:middle
+En otras palabras, vamos a despachar este
+nuevo comando desde el manejador de comandos.
+
+00:04:33.446 --> 00:04:34.146 align:middle
+¡Inicio!
+
+00:04:34.346 --> 00:04:38.656 align:middle
+En lugar de llamar directamente a
+$this->photoManager->deleteImage(),
+
+00:04:38.956 --> 00:04:44.276 align:middle
+cambia la sugerencia de tipo de ese argumento por la
+de autoconducción MessageBusInterface $messageBus.
+
+00:04:46.106 --> 00:04:47.616 align:middle
+Actualiza el código en el constructor...
+
+00:04:47.936 --> 00:04:49.406 align:middle
+y el nombre de la propiedad.
+
+00:04:52.686 --> 00:05:00.586 align:middle
+Ahora, fácil: elimina el código antiguo y empieza
+con: $filename = $imagePost->getFilename().
+
+00:05:02.076 --> 00:05:05.696 align:middle
+Luego, eliminémoslo de la
+base de datos y, al final,
+
+00:05:06.156 --> 00:05:12.746 align:middle
+$this->messageBus->dispatch(new
+DeletePhotoFile($filename)).
+
+00:05:14.276 --> 00:05:15.676 align:middle
+Y... esto debería...
+
+00:05:15.676 --> 00:05:19.646 align:middle
+funcionar: todo se sigue
+gestionando de forma sincrónica.
+
+00:05:20.636 --> 00:05:25.536 align:middle
+Probemos a continuación, pensemos un poco en
+lo que ocurre si falla parte de un manejador,
+
+00:05:25.756 --> 00:05:28.606 align:middle
+y hagamos que la mitad del
+proceso de borrado sea asíncrono
