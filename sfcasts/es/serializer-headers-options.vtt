@@ -1,0 +1,158 @@
+WEBVTT
+
+00:00:01.066 --> 00:00:06.046 align:middle
+Además de la carga útil, un mensaje en
+RabbitMQ también puede tener "cabeceras".
+
+00:00:06.616 --> 00:00:08.156 align:middle
+Comprueba esa clave en nuestro mensaje.
+
+00:00:08.646 --> 00:00:16.446 align:middle
+¡Woh! ¡ Contiene una gran estructura JSON con el nombre
+de la clase original y los datos y nombres de clase
+
+00:00:16.586 --> 00:00:19.116 align:middle
+de los sellos adjuntos al mensaje!
+
+00:00:19.636 --> 00:00:21.146 align:middle
+¿Por qué ha hecho esto Messenger?
+
+00:00:21.686 --> 00:00:25.366 align:middle
+Bueno, busca tu terminal y
+consume el transporte async:
+
+00:00:26.136 --> 00:00:33.676 align:middle
+php bin/console messenger:consume
+-vv async Esto sigue funcionando.
+
+00:00:34.516 --> 00:00:40.466 align:middle
+Internamente, el serializador de Symfony utiliza
+la información de para averiguar cómo headers
+
+00:00:40.466 --> 00:00:44.846 align:middle
+tomar esta simple cadena JSON y
+convertirla en el objeto correcto.
+
+00:00:45.586 --> 00:00:52.136 align:middle
+Utilizó la cabecera para saber que el JSON debía
+convertirse en un objeto type ImagePostDeletedEvent
+
+00:00:52.366 --> 00:00:56.376 align:middle
+y luego hizo un bucle sobre los
+sellos y convirtió cada uno de ellos
+
+00:00:56.376 --> 00:00:58.476 align:middle
+en un objeto sello para el sobre. Lo
+
+00:00:59.516 --> 00:01:03.936 align:middle
+bueno de utilizar el serializador
+de Symfony en Messenger es
+
+00:01:03.936 --> 00:01:09.396 align:middle
+que el es una estructura JSON simple
+y pura que puede ser consumida payload
+
+00:01:09.396 --> 00:01:12.106 align:middle
+por cualquier aplicación
+en cualquier lenguaje.
+
+00:01:12.606 --> 00:01:18.586 align:middle
+Contiene algo de información de la clase PHP en las
+cabeceras, pero otra aplicación puede simplemente ignorar eso.
+
+00:01:19.346 --> 00:01:24.446 align:middle
+Pero gracias a esas cabeceras, si la misma
+aplicación envía y consume un mensaje,
+
+00:01:24.786 --> 00:01:27.376 align:middle
+el serializador Symfony
+puede seguir utilizándose.
+
+00:01:28.146 --> 00:01:29.586 align:middle
+Pero espera... si
+
+00:01:29.906 --> 00:01:34.756 align:middle
+eso es cierto - si el serializador de Symfony
+crea mensajes que pueden ser consumidos
+
+00:01:34.756 --> 00:01:38.076 align:middle
+por sistemas externos o por nuestra misma app -
+
+00:01:38.586 --> 00:01:42.506 align:middle
+entonces ¿por qué no es el
+serializador por defecto en Messenger ?
+
+00:01:43.346 --> 00:01:44.856 align:middle
+¡Una excelente pregunta!
+
+00:01:45.486 --> 00:01:51.736 align:middle
+La razón es que el serializador de Symfony
+requiere que tus clases sigan algunas reglas para
+
+00:01:51.836 --> 00:01:55.506 align:middle
+ser serializadas y
+des-serializadas correctamente -
+
+00:01:55.946 --> 00:02:00.446 align:middle
+como que cada propiedad necesita un
+método setter o un argumento constructor
+
+00:02:00.626 --> 00:02:02.966 align:middle
+donde el nombre coincida con
+el nombre de la propiedad.
+
+00:02:03.676 --> 00:02:08.756 align:middle
+Si tu clase no sigue esas reglas, puedes
+acabar con una propiedad que está establecida
+
+00:02:08.756 --> 00:02:13.376 align:middle
+en el objeto original, pero que de repente se
+convierte en nula cuando se lee del transporte.
+
+00:02:13.696 --> 00:02:19.606 align:middle
+No es divertido. En otras palabras, el
+serializador de PHP es más fácil y fiable
+
+00:02:19.746 --> 00:02:21.616 align:middle
+cuando todo lo hace la misma aplicación. De
+
+00:02:22.646 --> 00:02:25.386 align:middle
+todos modos, si estás utilizando
+el serializador de Symfony,
+
+00:02:25.646 --> 00:02:27.926 align:middle
+también hay algunas cosas
+que se pueden configurar.
+
+00:02:28.746 --> 00:02:37.186 align:middle
+Busca tu terminal y ejecuta: php bin/console
+config:dump framework messenger Comprueba
+
+00:02:37.186 --> 00:02:39.446 align:middle
+la clave . symfony_serializer
+
+00:02:40.146 --> 00:02:45.626 align:middle
+Aquí es donde configuras el comportamiento
+del serializador: el formato - , json
+
+00:02:45.716 --> 00:02:51.656 align:middle
+xml o algo más, y el , que es una matriz
+de opciones para el serializador. context
+
+00:02:52.286 --> 00:02:56.746 align:middle
+Por supuesto, también puedes crear un servicio
+de serializador totalmente personalizado.
+
+00:02:56.916 --> 00:03:00.336 align:middle
+Y si tienes el flujo de trabajo
+opuesto al que acabamos de describir
+
+00:03:00.636 --> 00:03:06.706 align:middle
+-uno en el que tu aplicación consume mensajes que fueron
+enviados a Rabbit desde algún otro sistema- un serializador
+
+00:03:07.076 --> 00:03:11.266 align:middle
+personalizado es exactamente lo que necesitas.
+
+00:03:11.976 --> 00:03:13.356 align:middle
+Hablemos de eso a continuación
