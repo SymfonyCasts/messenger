@@ -1,0 +1,368 @@
+WEBVTT
+
+00:00:01.016 --> 00:00:04.746 align:middle
+Ya hemos organizado nuestra nueva clase
+de eventos en un subdirectorio Event.
+
+00:00:05.406 --> 00:00:08.126 align:middle
+¡Genial! Hagamos lo mismo
+con nuestros comandos.
+
+00:00:09.176 --> 00:00:14.486 align:middle
+Crea un nuevo subdirectorio Command/,
+mueve las dos clases de comandos dentro...
+
+00:00:14.976 --> 00:00:20.606 align:middle
+y añade \Command al final del
+espacio de nombres de ambas clases.
+
+00:00:22.576 --> 00:00:23.356 align:middle
+Veamos...
+
+00:00:23.356 --> 00:00:25.676 align:middle
+ahora que hemos cambiado
+esos espacios de nombres...
+
+00:00:25.676 --> 00:00:27.166 align:middle
+tenemos que actualizar algunas cosas.
+
+00:00:28.366 --> 00:00:32.436 align:middle
+Empieza en messenger.yaml: estamos
+haciendo referencia a AddPonkaToImage.
+
+00:00:33.306 --> 00:00:35.066 align:middle
+Añade Command a ese nombre de clase.
+
+00:00:36.576 --> 00:00:42.226 align:middle
+A continuación, en ImagePostController, arriba del
+todo, estamos haciendo referencia a los dos comandos.
+
+00:00:43.046 --> 00:00:44.966 align:middle
+Actualiza el espacio de
+nombres en cada uno de ellos.
+
+00:00:46.526 --> 00:00:53.706 align:middle
+Y por último, en los manejadores, tenemos lo
+mismo: cada manejador tiene una declaración use
+
+00:00:53.706 --> 00:00:55.116 align:middle
+para la clase de comando que maneja.
+
+00:00:55.656 --> 00:00:58.306 align:middle
+Añade el espacio de nombres Command\ en ambos.
+
+00:01:00.536 --> 00:01:03.186 align:middle
+¡Genial! Hagamos lo mismo con los manejadores:
+
+00:01:04.116 --> 00:01:08.486 align:middle
+crea un nuevo subdirectorio llamado
+Command/, muévelos dentro...
+
+00:01:09.276 --> 00:01:12.496 align:middle
+y añade el espacio de
+nombres \Command a cada uno.
+
+00:01:12.976 --> 00:01:14.646 align:middle
+Eso es... todo lo que tenemos que cambiar.
+
+00:01:19.156 --> 00:01:19.906 align:middle
+¡Me gusta!
+
+00:01:20.476 --> 00:01:22.496 align:middle
+Este cambio no tiene nada de técnico...
+
+00:01:22.496 --> 00:01:28.336 align:middle
+sólo es una buena forma de organizar las cosas
+si piensas utilizar algo más que comandos,
+
+00:01:28.676 --> 00:01:30.916 align:middle
+es decir, eventos o mensajes de consulta.
+
+00:01:31.266 --> 00:01:34.086 align:middle
+Y todo funcionará exactamente igual que antes.
+
+00:01:35.426 --> 00:01:40.456 align:middle
+Para comprobarlo, en tu terminal,
+ejecuta debug:messenger: ¡Si!
+
+00:01:40.686 --> 00:01:42.536 align:middle
+Vemos la misma información que antes.
+
+00:01:42.856 --> 00:01:47.796 align:middle
+Pero... ahora que hemos separado nuestros manejadores
+de eventos de nuestros manejadores de comandos...
+
+00:01:48.106 --> 00:01:52.486 align:middle
+podemos hacer algo especial:
+podemos vincular cada manejador
+
+00:01:52.826 --> 00:01:56.326 align:middle
+al bus específico al que está destinado.
+
+00:01:57.106 --> 00:02:01.576 align:middle
+De nuevo, no es superimportante hacer esto,
+pero hará que las cosas estén más claras.
+
+00:02:02.636 --> 00:02:06.026 align:middle
+Te lo mostraré: abre config/services.yaml.
+
+00:02:06.946 --> 00:02:11.966 align:middle
+Esta línea App\ es la responsable
+de auto-registrar cada clase
+
+00:02:11.966 --> 00:02:14.626 align:middle
+en el directorio src/ como
+un servicio en el contenedor.
+
+00:02:15.446 --> 00:02:20.066 align:middle
+La línea siguiente repite eso para
+las clases del directorio Controller/.
+
+00:02:20.716 --> 00:02:24.826 align:middle
+¿Por qué? Esto anulará los servicios
+del controlador registrados anteriormente
+
+00:02:24.826 --> 00:02:28.446 align:middle
+y añadirá una etiqueta especial que los
+controladores necesitan para funcionar.
+
+00:02:29.256 --> 00:02:31.256 align:middle
+Podemos utilizar un truco
+similar con Messenger.
+
+00:02:31.866 --> 00:02:38.826 align:middle
+Digamos App\MessageHandler\Command\,
+y luego utilizar la tecla resource
+
+00:02:39.086 --> 00:02:42.786 align:middle
+para volver a registrar todas las clases del
+directorio ../src/MessageHandler/Command.
+
+00:02:42.866 --> 00:02:46.376 align:middle
+Uy,
+
+00:02:46.946 --> 00:02:51.926 align:middle
+me he equivocado con el nombre del directorio...
+Veré un gran error en unos minutos... y
+
+00:02:52.046 --> 00:02:53.026 align:middle
+lo arreglaré. Si
+
+00:02:53.026 --> 00:02:55.656 align:middle
+sólo hiciéramos esto...
+no cambiaría absolutamente
+
+00:02:55.656 --> 00:02:57.636 align:middle
+nada. Esto
+
+00:02:58.206 --> 00:03:01.786 align:middle
+registraría todo lo que hay en este
+directorio como un servicio... pero
+
+00:03:01.786 --> 00:03:06.636 align:middle
+eso ya lo hace la primera entrada
+de App\ de todos modos. Pero
+
+00:03:07.206 --> 00:03:17.106 align:middle
+ahora podemos añadir una etiqueta a esto con name:
+messenger.message_handler y bus: configurada con... el
+
+00:03:17.106 --> 00:03:19.496 align:middle
+nombre de mi bus de messenger.yaml. Copia
+
+00:03:20.746 --> 00:03:29.136 align:middle
+messenger.bus.default y di
+bus: messenger.bus.default.
+
+00:03:30.366 --> 00:03:32.216 align:middle
+Aquí ocurren varias cosas. Primero,
+
+00:03:32.216 --> 00:03:38.026 align:middle
+cuando Symfony ve una clase en nuestro código
+que implementa MessageHandlerInterface,
+
+00:03:38.376 --> 00:03:43.266 align:middle
+añade automáticamente esta
+etiqueta messenger.message_handler.
+
+00:03:44.006 --> 00:03:48.286 align:middle
+Así es como Messenger sabe qué
+clases son manejadoras de mensajes.
+
+00:03:49.116 --> 00:03:53.546 align:middle
+Ahora estamos añadiendo esa etiqueta manualmente
+para poder decir también exactamente en qué
+
+00:03:53.546 --> 00:03:56.816 align:middle
+bus se debe utilizar este manejador. Sin
+
+00:03:57.696 --> 00:04:00.856 align:middle
+la opción bus, se añade a todos los buses.
+
+00:04:02.026 --> 00:04:05.466 align:middle
+También tenemos que añadir una clave
+más: autoconfigure: false. Gracias
+
+00:04:06.726 --> 00:04:11.896 align:middle
+a la sección _defaults de la parte superior,
+todos los servicios de nuestro directorio src/
+
+00:04:12.176 --> 00:04:15.176 align:middle
+tendrán, por defecto, activada
+la etiqueta autoconfigure ... que
+
+00:04:15.416 --> 00:04:17.686 align:middle
+es la responsable de
+
+00:04:17.686 --> 00:04:23.066 align:middle
+añadir automáticamente la etiqueta
+messenger.message_handler a todos los servicios que
+
+00:04:23.066 --> 00:04:25.656 align:middle
+implementen MessageHandlerInterface.
+
+00:04:26.396 --> 00:04:32.126 align:middle
+La desactivamos para los servicios de este directorio
+para que la etiqueta no se añada dos veces. ¡Ufff!
+
+00:04:32.206 --> 00:04:37.186 align:middle
+Puedes ver el resultado final ejecutando de
+nuevo debug:messenger. ¡ Oh, el resultado final
+
+00:04:38.296 --> 00:04:42.096 align:middle
+es un gran error gracias a
+mi errata! Asegúrate de que
+
+00:04:43.176 --> 00:04:46.156 align:middle
+estás haciendo referencia al
+directorio MessageHandler. Prueba
+
+00:04:47.176 --> 00:04:51.196 align:middle
+de nuevo condebug:messenger: ¡Bien! El
+
+00:04:51.756 --> 00:04:56.236 align:middle
+bus de eventos ya no dice que podamos
+enviar los dos comandos. Lo que
+
+00:04:57.286 --> 00:05:00.516 align:middle
+realmente significa es que los
+manejadores de comandos se añadieron
+
+00:05:00.516 --> 00:05:03.976 align:middle
+al bus de comandos, pero no al bus de eventos.
+
+00:05:06.476 --> 00:05:15.286 align:middle
+Repitamos esto para los eventos: copia esta sección,
+pégala, cambia el espacio de nombres a Event\, el
+
+00:05:16.186 --> 00:05:22.556 align:middle
+directorio a Event y actualiza
+la opción bus a event.bus -el
+
+00:05:23.176 --> 00:05:26.026 align:middle
+nombre de nuestro otro bus dentro
+de messenger.yaml. ¡Genial!
+
+00:05:29.676 --> 00:05:35.166 align:middle
+Prueba de nuevo con debug:messenger:
+¡Perfecto! Nuestros
+
+00:05:35.826 --> 00:05:38.716 align:middle
+dos manejadores de comandos están
+vinculados al bus de comandos y
+
+00:05:38.926 --> 00:05:42.196 align:middle
+nuestro único manejador de eventos está
+vinculado al bus de eventos. Una vez más,
+
+00:05:42.876 --> 00:05:45.966 align:middle
+hacer este último paso no
+era tan importante... pero
+
+00:05:45.966 --> 00:05:48.596 align:middle
+me gustan mucho estos
+subdirectorios ... y ordenar
+
+00:05:48.656 --> 00:05:50.866 align:middle
+las cosas está bien. Ah,
+
+00:05:51.756 --> 00:05:56.336 align:middle
+pero mientras limpiamos las cosas, de vuelta
+en config/packages/messenger.yaml, nuestro
+
+00:05:56.736 --> 00:06:00.326 align:middle
+bus principal se llama
+messenger.bus.default, que
+
+00:06:00.326 --> 00:06:03.656 align:middle
+se convierte en el id de servicio
+del bus en el contenedor.
+
+00:06:04.456 --> 00:06:05.856 align:middle
+Usamos este nombre... sólo
+
+00:06:05.856 --> 00:06:11.006 align:middle
+porque ese es el valor por defecto que usa
+Symfony cuando sólo tienes un bus. Pero
+
+00:06:11.806 --> 00:06:14.236 align:middle
+como este es un bus de comandos, ¡llamémoslo
+
+00:06:14.476 --> 00:06:15.186 align:middle
+así! Cámbiale el nombre
+
+00:06:15.906 --> 00:06:18.036 align:middle
+a command.bus. Y
+
+00:06:19.046 --> 00:06:22.396 align:middle
+arriba, utiliza eso como
+nuestro default_bus. ¿Dónde
+
+00:06:23.576 --> 00:06:25.706 align:middle
+estaba la antigua clave referenciada
+en nuestro código? Gracias a
+
+00:06:26.236 --> 00:06:30.096 align:middle
+que autoconducimos ese servicio a
+través de su tipo-indicación... casi
+
+00:06:30.566 --> 00:06:34.376 align:middle
+en ningún sitio: sólo
+en services.yaml. Cambia
+
+00:06:35.486 --> 00:06:38.206 align:middle
+también la opción del bus
+a command.bus. Comprueba
+
+00:06:39.396 --> 00:06:47.376 align:middle
+todo ejecutando debug:messenger una vez
+más: Qué bien: dos buses, cada uno
+
+00:06:47.806 --> 00:06:51.746 align:middle
+con un gran nombre y que sólo
+conocen los manejadores correctos. Ah,
+
+00:06:55.836 --> 00:07:00.846 align:middle
+y este AuditMiddleware es algo que realmente
+deberíamos utilizar también en event.bus:
+
+00:07:01.746 --> 00:07:03.946 align:middle
+registra el recorrido de los mensajes... lo que
+
+00:07:04.056 --> 00:07:05.986 align:middle
+es igualmente válido aquí. Si
+
+00:07:05.986 --> 00:07:10.076 align:middle
+te gusta esta organización, ¡genial! Si
+
+00:07:10.396 --> 00:07:12.666 align:middle
+te parece demasiado, no
+te compliques. Messenger
+
+00:07:13.076 --> 00:07:15.696 align:middle
+está aquí para hacer lo que tú
+quieras. A continuación, vamos a
+
+00:07:16.966 --> 00:07:21.916 align:middle
+hablar del último tipo de bus
+de mensajes: el bus de consulta
