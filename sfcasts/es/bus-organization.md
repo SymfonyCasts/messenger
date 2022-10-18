@@ -20,7 +20,7 @@ php bin/console debug:messenger
 
 Pero... ahora que hemos separado nuestros manejadores de eventos de nuestros manejadores de comandos... podemos hacer algo especial: podemos vincular cada manejador al bus específico al que está destinado. De nuevo, no es superimportante hacer esto, pero hará que las cosas estén más claras.
 
-Te lo mostraré: abre `config/services.yaml`. Esta línea `App\` se encarga de registrar automáticamente cada clase del directorio `src/` como un servicio en el contenedor.
+Te lo mostraré: abre `config/services.yaml`. Esta línea `App\` es la responsable de registrar automáticamente cada clase del directorio `src/` como un servicio en el contenedor.
 
 La línea siguiente repite eso para las clases del directorio `Controller/`. ¿Por qué? Esto anulará los servicios del controlador registrados anteriormente y añadirá una etiqueta especial que los controladores necesitan para funcionar.
 
