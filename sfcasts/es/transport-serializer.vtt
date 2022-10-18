@@ -124,7 +124,7 @@ Para demostrar que nunca será
 llamado, lanza un nuevo Exception con:
 
 00:02:17.496 --> 00:02:25.236 align:middle
-El transporte y el serializador no están pensados para
+El transporte y el serializador no están pensados para 
 enviar mensajes Eso me dará un suave recordatorio
 
 00:02:25.316 --> 00:02:28.996 align:middle
@@ -194,7 +194,7 @@ Empieza con $data = json_decode($body, true)
 para convertir el JSON en una matriz asociativa.
 
 00:03:44.066 --> 00:03:46.066 align:middle
-Todavía no hago ninguna
+Todavía no voy a hacer ninguna
 comprobación de errores...
 
 00:03:46.416 --> 00:03:50.976 align:middle
