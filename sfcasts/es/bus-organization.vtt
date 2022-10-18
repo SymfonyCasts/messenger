@@ -107,11 +107,11 @@ pero hará que las cosas estén más claras.
 Te lo mostraré: abre config/services.yaml.
 
 00:02:06.946 --> 00:02:11.966 align:middle
-Esta línea App\ es la responsable
-de auto-registrar cada clase
+Esta línea App\ es la responsable de
+registrar automáticamente cada clase
 
 00:02:11.966 --> 00:02:14.626 align:middle
-en el directorio src/ como
+del directorio src/ como
 un servicio en el contenedor.
 
 00:02:15.446 --> 00:02:20.066 align:middle
