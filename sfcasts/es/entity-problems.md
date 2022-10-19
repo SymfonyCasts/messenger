@@ -20,11 +20,11 @@ Pero antes de intentar esto... ¡tenemos que hacer algo muy importante! Busca tu
 php bin/console messenger:consume
 ```
 
-¿Por qué? Como sabes, los trabajadores se quedan ahí y se ejecutan... para siempre. El problema es que, si actualizas algo de tu código, ¡el trabajador no lo verá! Hasta que lo reinicie, ¡sigue teniendo el código antiguo almacenado en la memoria! Así que cada vez que hagas un cambio en el código que utiliza un trabajador, asegúrate de reiniciarlo. Más adelante, hablaremos de cómo hacer esto de forma segura al desplegar.
+¿Por qué? Como sabes, los trabajadores se quedan ahí y se ejecutan... para siempre. El problema es que, si actualizas algo de tu código, ¡el trabajador no lo verá! Hasta que lo reinicies, ¡sigue teniendo el código antiguo almacenado en la memoria! Así que cada vez que hagas un cambio en el código que utiliza un trabajador, asegúrate de reiniciarlo. Más adelante, hablaremos de cómo hacer esto de forma segura al desplegar.
 
 ## La rareza de las entidades serializadas
 
-Veamos qué ocurre ahora que hemos añadido esa nueva llamada a `persist()`. Sube un nuevo archivo, encuentra tu trabajador y... ¡sip! Se ha gestionado con éxito. ¿Se ha solucionado el problema de guardar la entidad? Actualiza la página.
+Veamos qué ocurre ahora que hemos añadido esa nueva llamada a `persist()`. Sube un nuevo archivo, encuentra tu trabajador y... ¡sí! Se ha gestionado con éxito. ¿Se ha solucionado el problema de guardar la entidad? Actualiza la página.
 
 ¡Vaya! ¡Qué acaba de pasar! la imagen aparece dos veces Una con la fecha puesta... y otra sin ella. ¡En la base de datos!
 
