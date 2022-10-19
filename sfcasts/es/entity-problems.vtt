@@ -22,13 +22,13 @@ $imagePost->markAsPonkaAdded()...
 que establece la propiedad $ponkaAddedAt...
 
 00:00:24.356 --> 00:00:27.446 align:middle
-y luego a $this->entityManager->flush()...
+y luego $this->entityManager->flush()...
 
 00:00:27.716 --> 00:00:29.156 align:middle
 ¡no parece que se esté guardando!
 
 00:00:29.706 --> 00:00:33.996 align:middle
-Así que... te preguntarás: ¿Tengo
+Así que... podrías preguntarte: ¿Tengo
 que llamar a persist() en $imagePost?
 
 00:00:34.866 --> 00:00:38.936 align:middle
@@ -56,10 +56,10 @@ que se va a actualizar.
 Pero... qué demonios...
 
 00:00:56.406 --> 00:00:57.316 align:middle
-vamos a ver qué pasa.
+veamos qué ocurre.
 
 00:00:58.006 --> 00:00:59.916 align:middle
-Pero antes de intentarlo...
+Pero antes de intentar esto...
 
 00:01:00.086 --> 00:01:03.106 align:middle
 ¡tenemos que hacer algo muy importante!
@@ -154,7 +154,7 @@ Primero, veamos las cosas desde
 la perspectiva de Doctrine.
 
 00:02:40.586 --> 00:02:45.406 align:middle
-Internamente, Doc trine mantiene una lista de
+Internamente, Doctrine mantiene una lista de
 todos los objetos de entidad con los que está
 
 00:02:45.406 --> 00:02:47.356 align:middle
@@ -165,7 +165,7 @@ Cuando consultas una entidad,
 la añade a esta lista.
 
 00:02:52.256 --> 00:02:56.636 align:middle
-Cuando llama a persist(), si no
+Cuando llamas a persist(), si no
 está ya en la lista, la añade.
 
 00:02:57.376 --> 00:03:02.126 align:middle
@@ -177,8 +177,8 @@ busca los que han cambiado y crea las
 consultas UPDATE o INSERT adecuadas.
 
 00:03:08.296 --> 00:03:13.026 align:middle
-Sabe si un objeto debe ser insertado
-o actualizado porque sabe si
+Sabe si un objeto debe insertarse o 
+actualizarse porque sabe si
 
 00:03:13.026 --> 00:03:17.206 align:middle
 fue responsable de la
@@ -188,7 +188,7 @@ consulta de ese objeto. Por
 cierto, si quieres empollar más este tema,
 
 00:03:21.546 --> 00:03:25.006 align:middle
-esta "lista" se llama mapa de identidad...
+esta "lista" se llama mapa de identidades...
 
 00:03:25.256 --> 00:03:28.986 align:middle
 y no es más que una gran matriz que empieza
@@ -196,17 +196,17 @@ vacía al principio de cada petición
 
 00:03:29.306 --> 00:03:32.126 align:middle
 y se va haciendo más grande a medida
-que consultas o persigues cosas.
+que consultas o guardan cosas.
 
 00:03:33.546 --> 00:03:36.396 align:middle
 Así que ahora pensemos en lo
 que ocurre en nuestro trabajador.
 
 00:03:37.126 --> 00:03:40.486 align:middle
-Cuando deserializa el objeto AddPonkaToImage,
+Cuando se deserializa el objeto AddPonkaToImage,
 
 00:03:40.886 --> 00:03:45.456 align:middle
-también deserializa el objeto
+también se deserializa el objeto
 ImagePost que vive dentro.
 
 00:03:45.456 --> 00:03:51.886 align:middle
@@ -234,15 +234,16 @@ Cuando añadimos persist(),
 creamos un problema diferente.
 
 00:04:20.456 --> 00:04:23.336 align:middle
-Ahora Doctrine sabe que debe guardar esto...
+Ahora Doctrine es consciente de 
+que debe guardarlo...
 
 00:04:23.896 --> 00:04:30.426 align:middle
 pero como no lo consultó originalmente,
-piensa erróneamente que debe insertarse
+piensa erróneamente que debe insertarlo
 
 00:04:30.426 --> 00:04:34.176 align:middle
 en la base de datos como una nueva
-fila, en lugar de actualizarse.
+fila, en lugar de actualizarlo.
 
 00:04:34.176 --> 00:04:37.566 align:middle
 ¡Uf! Quería que vieras esto porque...
