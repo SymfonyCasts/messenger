@@ -72,10 +72,9 @@ Así que... ¡vamos a hacerlo!
 
 00:01:18.416 --> 00:01:24.556 align:middle
 Si quieres convertirte en un maestro del 
-command-bus-queue-processing-worker-middleware
 
 00:01:24.556 --> 00:01:25.286 align:middle
--envelope...
+command-bus-queue-processing-worker-middleware-envelope...
 
 00:01:25.286 --> 00:01:26.866 align:middle
 y otras palabras de moda...
@@ -243,17 +242,17 @@ para Messenger! Así que...
 ¡vamos a instalarlo! Busca
 
 00:04:41.056 --> 00:04:51.586 align:middle
-tu terminal, abre una nueva pestaña y ejec uta:
+tu terminal, abre una nueva pestaña y ejecuta:
 composer require messenger Cuando termine...
 
 00:04:51.936 --> 00:04:53.626 align:middle
-recibimos un "mensaje"... ¡de
+recibimos un "mensaje"...
 
 00:04:53.626 --> 00:04:54.826 align:middle
-Messenger! Bueno, de
+¡de Messenger!
 
 00:04:55.446 --> 00:04:56.866 align:middle
-su receta. Esto
+Bueno, de su receta. Esto
 
 00:04:57.896 --> 00:05:01.156 align:middle
 es genial, pero ya hablaremos
@@ -293,7 +292,7 @@ perfectamente... ¡aburrido!
 
 00:05:30.566 --> 00:05:36.516 align:middle
 Tiene las claves transports y routing -de nuevo,
-cosas relacionadas con el encadenamiento- pero está
+cosas relacionadas con la cola- pero está
 
 00:05:36.786 --> 00:05:39.466 align:middle
 todo vacío y no hace
