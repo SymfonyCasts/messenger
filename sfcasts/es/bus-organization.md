@@ -4,9 +4,9 @@ Ya hemos organizado nuestra nueva clase de eventos en un subdirectorio `Event`. 
 
 Veamos... ahora que hemos cambiado esos espacios de nombres... tenemos que actualizar algunas cosas. Empieza en `messenger.yaml`: estamos haciendo referencia a `AddPonkaToImage`. Añade `Command` a ese nombre de clase. A continuación, en `ImagePostController`, arriba del todo, estamos haciendo referencia a los dos comandos. Actualiza el espacio de nombres en cada uno de ellos.
 
-Y por último, en los manejadores, tenemos lo mismo: cada manejador tiene una declaración `use`para la clase de comando que maneja. Añade el espacio de nombres `Command\` en ambos.
+Y por último, en los manejadores, tenemos lo mismo: cada manejador tiene una declaración `use` para la clase de comando que maneja. Añade el espacio de nombres `Command\` en ambos.
 
-¡Genial! Hagamos lo mismo con los manejadores: crea un nuevo subdirectorio llamado`Command/`, muévelos dentro... y añade el espacio de nombres `\Command` a cada uno. Eso es... todo lo que tenemos que cambiar.
+¡Genial! Hagamos lo mismo con los manejadores: crea un nuevo subdirectorio llamado `Command/`, muévelos dentro... y añade el espacio de nombres `\Command` a cada uno. Eso es... todo lo que tenemos que cambiar.
 
 ¡Me gusta! Este cambio no tiene nada de técnico... sólo es una buena forma de organizar las cosas si piensas utilizar algo más que comandos, es decir, eventos o mensajes de consulta. Y todo funcionará exactamente igual que antes. Para comprobarlo, en tu terminal, ejecuta `debug:messenger`:
 
@@ -24,17 +24,17 @@ Te lo mostraré: abre `config/services.yaml`. Esta línea `App\` es la responsab
 
 La línea siguiente repite eso para las clases del directorio `Controller/`. ¿Por qué? Esto anulará los servicios del controlador registrados anteriormente y añadirá una etiqueta especial que los controladores necesitan para funcionar.
 
-Podemos utilizar un truco similar con Messenger. Digamos `App\MessageHandler\Command\`, y luego utilizar la tecla `resource` para volver a registrar todas las clases del directorio`../src/MessageHandler/Command`. Uy, me he equivocado con el nombre del directorio... Veré un gran error en unos minutos... y lo arreglaré.
+Podemos utilizar un truco similar con Messenger. Digamos `App\MessageHandler\Command\`, y luego utilizar la tecla `resource` para volver a registrar todas las clases del directorio `../src/MessageHandler/Command`. Uy, me he equivocado con el nombre del directorio... Veré un gran error en unos minutos... y lo arreglaré.
 
 [[[ code('ca10d47952') ]]]
 
 Si sólo hiciéramos esto... no cambiaría absolutamente nada. Esto registraría todo lo que hay en este directorio como un servicio... pero eso ya lo hace la primera entrada de `App\` de todos modos.
 
-Pero ahora podemos añadir una etiqueta a esto con `name: messenger.message_handler` y`bus:` configurada con... el nombre de mi bus de `messenger.yaml`. Copia`messenger.bus.default` y di `bus: messenger.bus.default`.
+Pero ahora podemos añadir una etiqueta a esto con `name: messenger.message_handler` y `bus:` configurada con... el nombre de mi bus de `messenger.yaml`. Copia `messenger.bus.default` y di `bus: messenger.bus.default`.
 
 [[[ code('d9a5ecd55d') ]]]
 
-Aquí ocurren varias cosas. Primero, cuando Symfony ve una clase en nuestro código que implementa `MessageHandlerInterface`, añade automáticamente esta etiqueta`messenger.message_handler`. Así es como Messenger sabe qué clases son manejadoras de mensajes.
+Aquí ocurren varias cosas. Primero, cuando Symfony ve una clase en nuestro código que implementa `MessageHandlerInterface`, añade automáticamente esta etiqueta `messenger.message_handler`. Así es como Messenger sabe qué clases son manejadoras de mensajes.
 
 Ahora estamos añadiendo esa etiqueta manualmente para poder decir también exactamente en qué bus se debe utilizar este manejador. Sin la opción `bus`, se añade a todos los buses.
 
@@ -90,7 +90,7 @@ php bin/console debug:messenger
 
 Qué bien: dos buses, cada uno con un gran nombre y que sólo conocen los manejadores correctos.
 
-Ah, y este `AuditMiddleware` es algo que realmente deberíamos utilizar también en`event.bus`: registra el recorrido de los mensajes... lo que es igualmente válido aquí.
+Ah, y este `AuditMiddleware` es algo que realmente deberíamos utilizar también en `event.bus`: registra el recorrido de los mensajes... lo que es igualmente válido aquí.
 
 [[[ code('74800172ea') ]]]
 
