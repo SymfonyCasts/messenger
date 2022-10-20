@@ -2,7 +2,7 @@
 
 Ya hemos organizado nuestra nueva clase de eventos en un subdirectorio `Event`. ¡Genial! Hagamos lo mismo con nuestros comandos. Crea un nuevo subdirectorio `Command/`, mueve las dos clases de comandos dentro... y añade `\Command` al final del espacio de nombres de ambas clases.
 
-Veamos... ahora que hemos cambiado esos espacios de nombres... tenemos que actualizar algunas cosas. Empieza en `messenger.yaml`: estamos haciendo referencia a `AddPonkaToImage`. Añade`Command` a ese nombre de clase. A continuación, en `ImagePostController`, arriba del todo, estamos haciendo referencia a ambos comandos. Actualiza el espacio de nombres en cada uno de ellos.
+Veamos... ahora que hemos cambiado esos espacios de nombres... tenemos que actualizar algunas cosas. Empieza en `messenger.yaml`: estamos haciendo referencia a `AddPonkaToImage`. Añade `Command` a ese nombre de clase. A continuación, en `ImagePostController`, arriba del todo, estamos haciendo referencia a los dos comandos. Actualiza el espacio de nombres en cada uno de ellos.
 
 Y por último, en los manejadores, tenemos lo mismo: cada manejador tiene una declaración `use`para la clase de comando que maneja. Añade el espacio de nombres `Command\` en ambos.
 
