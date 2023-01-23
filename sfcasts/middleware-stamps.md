@@ -84,7 +84,7 @@ request. Click "Debug" on the left and... there it is! Our unique id! In a
 few minutes, we'll make sure that this code is *also* executed in the worker.
 
 And because middleware are executed for *every* message, we should also be able to
-see this when *deleting* a message. Click that, then open up the profiler for the
+see this when *deleting* a ImagePost entity and a related image File. Click that, then open up the profiler for the
 DELETE request and click "Debug". Ha! This time there are *two* distinct unique
 ids because deleting dispatches *two* different messages.
 
