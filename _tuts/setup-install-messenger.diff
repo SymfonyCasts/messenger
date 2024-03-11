@@ -26,7 +26,7 @@ index 69861df..3c8ab3c 100644
          "symfony/property-info": "4.3.*",
          "symfony/serializer": "4.3.*",
 diff --git a/composer.lock b/composer.lock
-index 88bf66d..de4e3d7 100644
+index a851ffd..69fe582 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,7 +4,7 @@
