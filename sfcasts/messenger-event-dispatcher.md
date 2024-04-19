@@ -39,7 +39,7 @@ But what if we simply wanted to say:
 
 > Hey! We just added Ponka to an image!
 
-... add didn't need any information back from possible handlers? In that case we
+... and didn't need any information back from possible handlers? In that case we
 would create a similar event class, leave *off* the `setPonkaImageToUse()` method
 and dispatch it with Messenger. Messenger is perfect if you don't need any info
 back from your handlers because... those handlers might end up being called
