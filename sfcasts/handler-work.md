@@ -18,7 +18,7 @@ By the way, you might be thinking:
 And... yes! It's *that* simple! It *should* feel completely underwhelming at first!
 
 But having that "layer", the "bus", in the middle gives us two nice things. First,
-out code is more decoupled: the code that creates the "command" - our controller
+our code is more decoupled: the code that creates the "command" - our controller
 in this case - doesn't know or care about our handler. It dispatches the message
 and moves on. And second, this *simple* change is going to allow us to
 execute handlers asynchronously. More on that soon.
